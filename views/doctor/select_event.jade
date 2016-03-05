@@ -1,0 +1,42 @@
+extend ../layout
+
+block exclusiveStyle
+
+block content
+	form(action="/select_event" method="post")
+		div.row
+			div.col-sm-6
+				table.table
+					caption 病人列表
+					thead
+						tr
+							th 选择
+							th _id
+							th 病人名称
+							th 事件
+					tbody
+						each patient, index in patientList
+							tr
+								td
+									input(type="radio" name="patient_id" value="#{patient._id}")
+								td= patient._id
+								td= patient.role_prop.real_name
+								td= patient.event_list
+			
+			div.col-sm-6
+				table.table
+					caption 可以选择的事件
+					thead
+						tr
+							th 选择
+							th _id
+							th 事件
+					tbody 
+						each event, index in eventList
+							tr
+								td
+									input(type="radio" name="event_id" value="#{event._id}")
+								td= event._id
+								td= event.event_list
+		button(type="submit" class="btn btn-default") 提交
+block exclusiveScript

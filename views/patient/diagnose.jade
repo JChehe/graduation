@@ -1,0 +1,125 @@
+extend ../layout
+
+block exclusiveStyle
+	//- link(rel="stylesheet" href="css/mess")
+
+block content
+	h3.page-header 您所在的路径：信息系统 / 我的监护医生
+
+	form.form-inline(id="search-form")
+		div.form-group
+			label(for="name") 姓名&nbsp;
+			input( type="text" class="form-control" id="name" name="name")
+		div.form-group
+			label(for="sex") 性别&nbsp;
+			select( name="sex" id="sex" class="form-control")
+				option(value="-1") 性别
+				option(value="0") 男
+				option(value="1") 女
+		div.form-group(id="min-age")
+			label(for="min-age") 年龄&nbsp;
+			input(type="text" class="form-control" id="min-age" name="min-age")
+		|  - 
+		div.form-group
+			label(for="max-age" class="sr-only") 年龄
+			input(type="text" class="form-control" id="max-age" name="max-age")
+		button(type="submit" class="btn btn-default")
+			span(class="glyphicon glyphicon-search" aria-hidden="true") 搜索
+
+
+	table.table.table-striped(id="diagnose_table")
+		thead 
+			tr 
+				td 姓名
+				td 性别
+				td 年龄
+				td 诊断时间
+				td 医生
+				td 内容
+				td 操作
+		tbody
+			//- each value, index in userList
+			//- 	-var roleProp = value.role_prop
+			//- 	tr(data-uid="#{value._id}")
+			//- 		td= value.account
+			//- 		td= roleProp.real_name
+			//- 		td(data-sex="#{roleProp.sex}")= roleProp.sex == 0? "男": "女"
+			//- 		td= roleProp.age
+			//- 		td= roleProp.title
+			//- 		td= roleProp.location
+			//- 		td= roleProp.phone
+			//- 		td= roleProp.tel_phone
+			tr(data-patient="刘嘻嘻" data-doctor="依韵娴" data-diagnose-content="心跳过快，请注意休息")
+				td 刘希希
+				td 女
+				td 39
+				td 2008-4-20 9:11:35
+				td 医生某
+				td 很好
+				td
+					button.btn.btn-default.btn-sm.view_diagnose(data-toggle="modal" data-target="#diagnose_dialog") 查看诊断信息
+			tr
+				td 刘希希
+				td 女
+				td 39
+				td 2008-4-20 9:11:35
+				td 医生某
+				td 很好
+				td
+					button.btn.btn-default.btn-sm.view_diagnose(data-toggle="modal" data-target="#diagnose_dialog") 查看诊断信息
+	nav
+		ul.pagination
+			li(class="disabled")
+				a(href="#" aria-label="Previous")
+					span(aria-hidden="true") &laquo;
+			li(class="active")
+				a(href="#") 1
+			li
+				a(href="#") 2
+			li
+				a(href="#") 3
+			li
+				a(href="#") 4
+			li
+				a(href="#" aria-label="Next")
+					span(aria-hidden="true") &raquo;
+
+	
+	div(class="modal fade" id="diagnose_dialog")
+		div(class="modal-dialog modal-lg")
+			div.modal-content
+				div.modal-header
+					button(type="button" class="close" data-dismiss="modal" aria-label="Close")
+						span(aria-hidden="true") &times;
+					h4.modal-title 查看诊断信息
+				div.modal-body
+					div.row
+						div.col-sm-6
+							p.patient_name 
+						div.col-sm-6
+							p.diagnose_doctor
+					div.row
+						div.col-sm-12
+							h4 诊断内容：
+							p.diagnose_content(style="text-indent:2em")
+
+				div.modal-footer
+					button(type="button" class="btn btn-default") 关闭
+				
+
+block exclusiveScript
+	script.
+		var diagnoseDialog = $("#diagnose_dialog"),
+			diagnosePatient = diagnoseDialog.find(".patient_name"),
+			diagnoseDoctor = diagnoseDialog.find(".diagnose_doctor"),
+			diagnoseContent = diagnoseDialog.find(".diagnose_content");
+		$("#diagnose_table").on("click", ".view_diagnose", function(event){
+			var curTr = $(this).closest("tr");
+			var patient = curTr.data("patient");
+			var doctor = curTr.data("doctor");
+			var diagnoseContentText = curTr.data("diagnoseContent");
+			diagnosePatient.text("病人名字："+patient);
+			diagnoseDoctor.text("诊断医生："+doctor);
+			diagnoseContent.text(diagnoseContentText);
+
+		})

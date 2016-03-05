@@ -1,0 +1,19 @@
+[{
+    "event":[
+    {
+        "name": "心跳过快",
+        "is_view": false,
+        "level": 2,
+    },
+    {
+        "name":"温度达到39℃",
+        "is_view": false,
+        "level": 3
+    },
+    {
+        "name":"感冒",
+        "is_view": false,
+        "level": 4
+    }
+    ]
+}]

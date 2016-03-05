@@ -1,0 +1,38 @@
+doctype html
+html
+	head
+		meta(charset="utf-8")
+		meta(http-equiv="X-UA-Compatible" content="IE=edge")
+		meta(name="viewsport", content="width=device-width, initial-scale=1.0")
+		title 实时监护系统
+		link(rel="stylesheet" href="/css/libs/bootstrap/bootstrap.min.css")
+		link(rel="stylesheet" href="/css/common.css")
+
+		block exclusiveStyle
+		<!--[if IE 9]>
+		script(src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js")
+		script(src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js")
+		<![endif]-->
+	body
+		include includes/header
+		
+		div.container-fluid
+			div.row
+				if isLogin
+					include includes/sidebar
+					div(class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main")
+						block content
+				else 
+					div(class="col-sm-12 main")
+						block content
+
+		
+
+					//- include includes/footer
+
+		script(src="/js/libs/jquery-2.1.4.min.js")
+		script(src="/js/libs/bootstrap/bootstrap.min.js")
+		block exclusiveScript
+			script.
+				var role = req.session.role 
+				alert(role)

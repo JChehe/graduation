@@ -1,0 +1,275 @@
+extend ../layout
+
+block exclusiveStyle
+	link(rel="stylesheet" href="css/message_box.css")
+	link(rel="stylesheet" href="js/libs/cupertino/jquery-ui.min.css")
+	link(rel="stylesheet" href="css/libs/fullcalender/fullcalendar.css")
+	link(rel="stylesheet" href="css/libs/fullcalender/fullcalendar.print.css" media='print')
+
+
+block content
+	h3.page-header 你所在的路径：信息系统 / 我的监护病人
+	
+	form.form-inline(id="search-form")
+		div.form-group
+			label(for="name") 姓名&nbsp;
+			input( type="text" class="form-control" id="name" name="name")
+		div.form-group
+			label(for="sex") 性别&nbsp;
+			select( name="sex" id="sex" class="form-control")
+				option(value="-1") 性别
+				option(value="0") 男
+				option(value="1") 女
+		div.form-group(id="min-age")
+			label(for="min-age") 年龄&nbsp;
+			input(type="text" class="form-control" id="min-age" name="min-age")
+		|  - 
+		div.form-group
+			label(for="max-age" class="sr-only") 年龄
+			input(type="text" class="form-control" id="max-age" name="max-age")
+		button(type="submit" class="btn btn-default")
+			span(class="glyphicon glyphicon-search" aria-hidden="true") 搜索
+	
+	//- button(type="button" class="btn btn-default" data-toggle="modal" data-target="#add-user") 添加新系统用户
+	table.table.table-striped
+		thead 
+			tr 
+				td 账户名
+				td 姓名
+				td 性别
+				td 年龄
+				td 地址
+				td 电话
+				td 手机
+				td 操作
+		tbody
+			each value, index in userList
+				-var roleProp = value.role_prop
+				tr(data-uid="#{value._id}")
+					td= value.account
+					td= roleProp.real_name
+					td(data-sex="#{roleProp.sex}")= roleProp.sex == 0? "男": "女"
+					td= roleProp.age
+					td= roleProp.address
+					td= roleProp.tel_phone
+					td= roleProp.phone
+					td
+						div.btn-group.btn-group-sm(role="group")
+							button.btn.btn-default(type="button" class="edit_btn view_calendar") 用户日历
+							button.btn.btn-default(type="button" class="edit_btn view_info") 查看资料
+					
+	nav
+		ul.pagination
+			li(class="disabled")
+				a(href="#" aria-label="Previous")
+					span(aria-hidden="true") &laquo;
+			li(class="active")
+				a(href="#") 1
+			li
+				a(href="#") 2
+			li
+				a(href="#") 3
+			li
+				a(href="#") 4
+			li
+				a(href="#" aria-label="Next")
+					span(aria-hidden="true") &raquo;
+
+
+
+	div(class="modal fade" id="patient_info_dialog" tabindex="-1" role="dialog")
+		div(class="modal-dialog modal-lg")
+			div(class="modal-content")
+				div(class="modal-header")
+					<h4 class="modal-title">谁谁谁的信息</h4>
+				div(class="modal-body")
+					table.table.table-bordered
+						tr
+							td 账户名
+							td.account 
+							td 用户角色
+							td.role
+						tr
+							td 姓名
+							td.name
+							td 性别
+							td.sex
+							td 年龄
+							td.age
+						tr
+							td 身高
+							td.height
+							td 体重
+							td.weight
+						tr
+							td 过往病史
+							td.medical_case
+						tr
+							td 身份证号
+							td.id_card
+							td 住院号
+							td.patient_number
+						tr
+							td 联系电话
+							td.phone
+							td 手机号码
+							td.tel_phone
+						tr
+							td 联系地址
+							td.address
+
+					table.table.family_table
+						caption 病人家属
+						thead
+							tr
+								th 姓名
+								th 电话
+								th 与病人关系
+								th 是否接收短信通知
+								th 备注
+						tbody
+							tr
+								td 刘i
+								td 111
+								td 555
+								td 555
+								td 555
+				div(class="modal-footer")
+					button(class="btn btn-default" data-dismiss="modal") 关闭
+	
+	//- div(class="modal fade" id="patient_calender_dialog" tabindex="-1" role="dialog")
+	//- 	div(class="modal-dialog modal-lg")
+	//- 		div(class="modal-content")
+	//- 			div(class="modal-header")
+	//- 				h4(class="modal-title") 谁谁谁的时间日历
+	//- 			div(class="modal-body")
+					
+					
+	//- 			div(class="modal-footer")
+	//- 				button(class="btn btn-default" data-dismiss="modal") 关闭
+	
+	div#calendar
+	section.message_box
+		div.header 病人紧急事件报警监控
+		div.content
+			table.table
+				thead
+					tr
+						th 事件
+						th 姓名
+						th 次数
+						th 时间
+						th 数据
+				tbody
+					tr
+						td 按紧急按钮
+						td 硫酸钾四
+						td 1
+						td 5222
+						td 部分上传
+					tr
+						td 按紧急按钮
+						td 硫酸钾四
+						td 1
+						td 5222
+						td 部分上传
+					tr
+						td 按紧急按钮
+						td 硫酸钾四
+						td 1
+						td 5222
+						td 部分上传
+					tr
+						td 按紧急按钮
+						td 硫酸钾四
+						td 1
+						td 5222
+						td 部分上传
+					tr
+						td 按紧急按钮
+						td 硫酸钾四
+						td 1
+						td 5222
+						td 部分上传
+		div.footer
+			| 当前共4条未查看的事件 
+			span(class="glyphicon glyphicon-envelope" aria-hidden="true" style="color:#f0ad4e")
+			a(href="/refresh_event_list") 刷新	
+			a(href="/event_list") 查看全部事件
+						
+
+block exclusiveScript
+	script(src="js/libs/moment.min.js")
+	script(src="js/libs/jquery-ui.custom.min.js")
+	script(src="js/libs/fullcalendar.min.js")
+	script(src="js/libs/zh-cn.js")
+	script.
+		var patientInfoDialog = $("#patient_info_dialog");
+		$("table tbody").on("click", ".view_info", function(event){
+			var curTr = $(this).closest("tr");
+			$.ajax({
+				url: "/get_patient_info/" +  curTr.data("uid")
+			}).done(function(data){
+				console.log(data);
+				var patientData = data.data;
+				var patientRoleProp = patientData.role_prop;
+				patientInfoDialog.find(".modal-title").text(patientRoleProp.real_name+"的信息").end()
+					.find(".account").text(patientData.account).end()
+					.find(".role").text(patientData.role).end()
+					.find(".name").text(patientRoleProp.real_name).end()
+					.find(".sex").text(patientRoleProp.sex =="0"? "男": "女").end()
+					.find(".age").text(patientRoleProp.age).end()
+					.find(".height").text(patientRoleProp.height).end()
+					.find(".weight").text(patientRoleProp.weight).end()
+					.find(".medical_case").text(patientRoleProp.medical_case).end()
+					.find(".id_card").text(patientRoleProp.id_card).end()
+					.find(".patient_number").text(5).end()
+					.find(".phone").text(patientRoleProp.phone).end()
+					.find(".tel_phone").text(patientRoleProp.tel_phone).end()
+					.find(".address").text(patientRoleProp.address);
+				
+				var family = patientData.family
+				patientInfoDialog.find(".family_table tbody").empty()
+				for(var i = 0, len = family.length; i < len; i++){
+					var curFamily = family[i];
+					$('<tr>' +
+				        '<td>'+curFamily.name+'</td>' +
+				        '<td>'+curFamily.phone+'</td>' +
+				        '<td>'+curFamily.relationship+'</td>' +
+				        '<td>'+(curFamily.is_receive_message == "0"? "是":"否")+'</td>' +
+				        '<td>'+curFamily.remark+'</td>' +
+				    '</tr>').appendTo(patientInfoDialog.find(".family_table tbody"))
+				}
+				$("#patient_info_dialog").modal("show")
+			}).fail(function(){
+				console.log("获取病人信息失败")
+			})
+		}).on("click", ".view_calendar",function(event){
+			$("#patient_calender_dialog").modal("show")
+		});
+
+
+		$(".message_box").on("click", ".header", function(event){
+			$(".message_box").toggleClass("down")
+		})
+
+
+
+		$('#calendar').fullCalendar({
+		    header: {
+				left: 'prev,next today',
+				center: 'title',
+				right: 'month,agendaWeek,agendaDay'
+			},
+			defaultDate: '2015-02-12',
+			buttonIcons: false, // show the prev/next text
+			weekNumbers: true,
+			editable: true,
+			eventLimit: true, // allow "more" link when too many events
+			events: [
+				{
+					title: '按紧急按钮',
+					start: '2015-02-01T16:30:00'
+				}
+			]
+		});

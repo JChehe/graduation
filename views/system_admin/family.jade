@@ -1,0 +1,332 @@
+extend ../layout
+
+block exclusiveStyle
+	//- link(rel="stylesheet" href="css/index.css")
+	
+
+
+block content
+	h3.page-header 你所在的路径：信息系统 / 病人用户列表
+	
+	form.form-inline(id="search-form")
+		div.form-group
+			label(for="name") 姓名&nbsp;
+			input( type="text" class="form-control" id="name" name="name")
+		div.form-group
+			label(for="sex") 性别&nbsp;
+			select( name="sex" id="sex" class="form-control")
+				option(value="-1") 性别
+				option(value="0") 男
+				option(value="1") 女
+		div.form-group(id="min-age")
+			label(for="min-age") 年龄&nbsp;
+			input(type="text" class="form-control" id="min-age" name="min-age")
+		|  - 
+		div.form-group
+			label(for="max-age" class="sr-only") 年龄
+			input(type="text" class="form-control" id="max-age" name="max-age")
+		button(type="submit" class="btn btn-default")
+			span(class="glyphicon glyphicon-search" aria-hidden="true") 搜索
+	
+	button(type="button" class="btn btn-default" data-toggle="modal" data-target="#add-user") 添加新系统用户
+	table.table.table-striped
+		thead 
+			tr 
+				td 名字
+				td 电话
+				td 与病人关系
+				td 是否接收短信通知
+				td 备注
+				td 操作
+		tbody
+			each value, index in userList
+				-var roleProp = value.role_prop
+				tr(data-uid="#{value._id}" data-role="#{value.role}" data-idcard="#{roleProp.id_card}" data-height="#{roleProp.height}" data-weight="#{roleProp.weight}" data-birthday="#{roleProp.birthday}" data-medicalcase="#{roleProp.medical_case}")
+					td= value.account
+					td= roleProp.real_name
+					td(data-sex="#{roleProp.sex}")= roleProp.sex == 0? "男": "女"
+					td= roleProp.age
+					td= roleProp.address
+					td= roleProp.tel_phone
+					td= roleProp.phone
+					td
+						div.btn-group.btn-group-sm(role="group")
+							button.btn.btn-default(type="button" class="edit_btn") 查看/编辑
+							button.btn.btn-default(type="button" class="add_family_btn") 查看家属
+							button.btn.btn-default(type="button") 删除
+	nav
+		ul.pagination
+			li(class="disabled")
+				a(href="#" aria-label="Previous")
+					span(aria-hidden="true") &laquo;
+			li(class="active")
+				a(href="#") 1
+			li
+				a(href="#") 2
+			li
+				a(href="#") 3
+			li
+				a(href="#") 4
+			li
+				a(href="#" aria-label="Next")
+					span(aria-hidden="true") &raquo;
+
+
+
+
+
+
+
+
+
+
+	//- 添加用户dialog
+	div(class="modal fade" id="add-user")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal" aria-label="Close")
+						span &times;
+					h4 添加病人用户
+				div(class="modal-body")
+					form.form-horizontal(action="add_patient_user" method="post")
+						input(type="hidden" name="role" value="3")
+						div.form-group
+							label(class="col-sm-3 control-label text-left") 账户名：
+							div.col-sm-9
+								input(type="text" class="form-control" placeholder="请输入您的用户名" name="account")
+						div.form-group
+							label(for="" class="col-sm-3 control-label text-left") 姓名：
+							div.col-sm-9
+								input( type="text" class="form-control" placeholder="请输入您的真实姓名" name="real_name")
+						div.form-group
+							label(class="col-sm-3 control-label text-left") 性别：
+							div.col-sm-9
+								label(class="radio-inline")
+									input(type="radio" name="sex" value="0") 
+									| 男
+								label(class="radio-inline")
+									input(type="radio" name="sex" value="1") 
+									| 女
+						div.form-group
+							label(class="col-sm-3 control-label text-left") 生日：
+							div.col-sm-9
+								input(type="date" name="birthday" class="form-control") 
+						div.form-group
+							label(for="" class="col-sm-3 control-label text-left") 密码：
+							div.col-sm-9
+								input(type="password" class="form-control" name="password")
+									
+						div.form-group
+							label(for="" class="col-sm-3 control-label text-left") 确认密码：
+							div.col-sm-9
+								input(type="password" class="form-control")
+						div.form-group
+							label(class="col-sm-3 control-label text-left") 身份证号：
+							div.col-sm-9
+								input(type="text" class="form-control" name="id_card")
+						div.form-group
+							label(class="col-sm-3 control-label text-left") 身高：
+							div.col-sm-9
+								input(type="text" class="form-control" name="height")
+						div.form-group
+							label(class="col-sm-3 control-label text-left") 体重：
+							div.col-sm-9
+								input(type="text" class="form-control" name="weight")
+						div.form-group
+							label(class="col-sm-3 control-label text-left") 手机号码：
+							div.col-sm-9
+								input(type="text" class="form-control" name="tel_phone")
+						div.form-group
+							label(class="col-sm-3 control-label text-left") 电话号码：
+							div.col-sm-9
+								input(type="text" class="form-control" name="phone")
+						div.form-group
+							label(class="col-sm-3 control-label text-left") 住址：
+							div.col-sm-9
+								input(type="text" class="form-control" name="address")
+						div.form-group
+							label(class="col-sm-3 control-label text-left") 病例：
+							div.col-sm-9
+								textarea(class="form-control" name="medical_case")
+
+				div(class="modal-footer")
+					button(type="button" class="btn btn-default" data-dismiss="modal") 关闭
+					button(type="submit" class="btn btn-primary") 确定
+	//- 编辑用户
+	div(class="modal fade" id="edit-user")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal" aria-label="Close")
+						span &times;
+					h4 添加病人用户
+				div(class="modal-body")
+					form.form-horizontal(action="edit_patient_user" method="post")
+						input(type="hidden" name="role" value="3")
+						input(type="hidden" name="edit_user_id" value="")
+						div.form-group
+							label(class="col-sm-3 control-label text-left") 账户名：
+							div.col-sm-9
+								input(type="text" class="form-control" placeholder="请输入您的用户名" name="account" disabled)
+						div.form-group
+							label(for="" class="col-sm-3 control-label text-left") 姓名：
+							div.col-sm-9
+								input( type="text" class="form-control" placeholder="请输入您的真实姓名" name="real_name")
+						div.form-group
+							label(class="col-sm-3 control-label text-left") 性别：
+							div.col-sm-9
+								label(class="radio-inline")
+									input(type="radio" name="sex" value="0") 
+									| 男
+								label(class="radio-inline")
+									input(type="radio" name="sex" value="1") 
+									| 女
+						div.form-group
+							label(class="col-sm-3 control-label text-left") 生日：
+							div.col-sm-9
+								input(type="date" name="birthday" class="form-control") 
+						div.form-group
+							label(class="col-sm-3 control-label text-left") 身份证号：
+							div.col-sm-9
+								input(type="text" class="form-control" name="id_card")
+						div.form-group
+							label(class="col-sm-3 control-label text-left") 身高：
+							div.col-sm-9
+								input(type="text" class="form-control" name="height")
+						div.form-group
+							label(class="col-sm-3 control-label text-left") 体重：
+							div.col-sm-9
+								input(type="text" class="form-control" name="weight")
+						div.form-group
+							label(class="col-sm-3 control-label text-left") 手机号码：
+							div.col-sm-9
+								input(type="text" class="form-control" name="tel_phone")
+						div.form-group
+							label(class="col-sm-3 control-label text-left") 电话号码：
+							div.col-sm-9
+								input(type="text" class="form-control" name="phone")
+						div.form-group
+							label(class="col-sm-3 control-label text-left") 住址：
+							div.col-sm-9
+								input(type="text" class="form-control" name="address")
+						div.form-group
+							label(class="col-sm-3 control-label text-left") 病例：
+							div.col-sm-9
+								textarea(class="form-control" name="medical_case")
+
+				div(class="modal-footer")
+					button(type="button" class="btn btn-default" data-dismiss="modal") 关闭
+					button(type="submit" class="btn btn-primary") 确定
+
+	
+
+block exclusiveScript
+	script.
+		// 添加病人用户
+		var addUserDialog = $("#add-user")
+		var addUserForm = addUserDialog.find("form")
+		var userTable = $("table")
+		addUserDialog.find(":submit").click(function(event){
+			$.ajax({
+				url: addUserForm.attr("action"),
+				type: addUserForm.attr("method"),
+				data: addUserForm.serialize()
+			}).done(function(data){
+
+				if(data.status){
+					var user = data.user;
+					$('<tr data-uid='+ user.uid +' data-role='+ user.role +'>' +
+						'<td>'+user.account+'</td>' +
+						'<td>'+user.real_name+'</td>' +
+						'<td data-sex='+ user.sex +'>'+(user.sex == "0" ? "男": "女")+'</td>' +
+						'<td>'+ (user.age == undefined? "未填写": user.age) +'</td>' +
+						'<td>'+ user.address +'</td>' +
+						'<td>'+ user.phone +'</td>' +
+						'<td>'+ user.tel_phone +'</td>' +
+					'</tr>').prependTo(userTable.find("tbody"));
+					
+					addUserDialog.modal('hide')
+					addUserForm.trigger("reset")
+				}else{
+					//- alert(data.info)
+				}
+				
+			}).fail(function(jqXHR, textStatus, errorThrown ){
+				console.log("textStatus:" + textStatus)
+				console.log("errorThrown:" + errorThrown)
+			})
+		})
+	
+
+		// 点击表格行时，设置表单的默认信息
+		var editUserDialog = $('#edit-user');
+		var curTr = null;
+		userTable.find("tbody").on("click", ".edit_btn", function(event){
+			curTr = $(this).closest("tr")
+			var curAllTd = curTr.find("td")
+			editUserDialog.find("[name='account']").val(curAllTd.eq(0).text()).end()
+				.find("[name='real_name']").val(curAllTd.eq(1).text()).end()
+				.find("[name='sex']").each(function(){
+					if($(this).val() == curAllTd.eq(2).data("sex")){
+						$(this).attr("checked", true)
+						return false;
+					}
+				}).end()
+				.find("[name='role']").each(function(){
+					if($(this).val() == curTr.data("role")){
+						$(this).attr("checked", true)
+						return false;
+					}
+				}).end()
+				.find("[name='id_card']").val(curTr.data("idcard")).end()
+				.find("[name='height']").val(curTr.data("height")).end()
+				.find("[name='weight']").val(curTr.data("weight")).end()
+				.find("[name='medical_case']").val(curTr.data("medicalcase")).end()
+				.find("[name='address']").val(curAllTd.eq(4).text()).end()
+				.find("[name='tel_phone']").val(curAllTd.eq(6).text()).end()
+				.find("[name='phone']").val(curAllTd.eq(5).text()).end()
+				.find("[name=edit_user_id]").val(curTr.data("uid"))
+
+			editUserDialog.modal('show')
+		})
+
+		// 编辑系统用户表单处理
+		var editUserDialog = $("#edit-user");
+		var editUserForm = editUserDialog.find("form")
+		editUserDialog.find(":submit").click(function(event){
+			$.ajax({
+				url: editUserForm.attr("action"),
+				type: editUserForm.attr("method"),
+				data: editUserForm.serialize()
+			}).done(function(data){
+				alert(data.info);
+
+				if(data.status){
+					var user = data.user;
+					curTr.find("td").eq(1).text(user.real_name).end()
+						.eq(2).text(user.sex == 0? "男":"女").end()
+						.eq(3).text(user.age).end()
+						.eq(4).text(user.address).end()
+						.eq(5).text(user.phone).end()
+						.eq(6).text(user.tel_phone);
+					
+					curTr.data({
+							idcard: user.id_card,
+							height: user.height,
+							weight: user.weight,
+							birthday: user.birthday,
+							medicalcase: user.medical_case
+						})
+					
+					editUserDialog.modal('hide')
+					editUserForm.trigger("reset")
+				}else{
+					//- alert(data.info)
+				}
+				
+			}).fail(function(jqXHR, textStatus, errorThrown ){
+				console.log("textStatus:" + textStatus)
+				console.log("errorThrown:" + errorThrown)
+			})
+		})

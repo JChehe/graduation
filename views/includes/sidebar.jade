@@ -1,0 +1,44 @@
+div(class="col-sm-3 col-md-2 sidebar")
+	h3 用户管理
+	ul(class="nav nav-sidebar")
+		-var userRole = user.role
+		
+		if userRole == 0
+			li
+				a(href="/system_user_list") 系统用户管理
+			li
+				a(href="/doctor_list") 医生用户管理
+			li
+				a(href="/patient_list") 病人用户管理
+
+		if userRole == 1
+			li
+				a(href="/doctor_list") 医生用户管理
+			li
+				a(href="/patient_list") 病人用户管理
+
+		if userRole == 2
+			li
+				a(href="/my_care_patient") 我的监护病人
+			li
+				a(href="/event_list") 事件列表
+			li
+				a(href="/ecg") 诊断信息
+			li
+				a(href="/") 24小时心电图
+			li
+				a(href="/select_event") 选择病人与事件文档
+			li
+				a(href="/add_event") 为病人添加事件
+
+		if userRole == 3
+			li 
+				a(href="/my_related_doctor") 我的监护医生
+			li
+				a(href="/diagnose") 我的诊断记录
+			li
+				a(href="/") 我的日历视图
+			li
+				a(href="/patient/event_list") 事件列表
+			li
+				a(href="/ecg") 24小时心电图

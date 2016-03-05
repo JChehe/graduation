@@ -1,0 +1,154 @@
+extend ../layout
+
+block exclusiveStyle
+	//- link(rel="stylesheet" href="css/index.css")
+
+block content
+	h3.page-header 你所在的路径：病人信息系统 / 首页
+	div#default-page
+		h2.sub-header
+		p.bg-success 欢迎#{user.role_prop.real_name || user.account}，你上次登录系统的时间是：2015-10-2 11：06：59，祝你健康！
+
+	div#personal-info
+		div#base-info-container
+			table.table.table-bordered
+				caption 用户基本资料
+					button(class="btn btn-default pull-right" data-toggle="modal" data-target="#modify-password") 修改密码
+				tbody
+					- userRole = user.role == 0? "超级管理员" : (user.role == 1 ? "管理员" : (user.role == 2 ? "医生" :"病人"))
+					tr
+						td(scope="row") 账户名：
+							span= user.account
+						td(colspan="2") 用户角色：
+							span= userRole
+					tr
+						td(scope="row") 姓名：
+							span= user.role_prop.real_name
+						td 性别：
+							span= user.role_prop.sex == 0 ? "男" :　"女"
+						td 年龄：
+							span 21
+					tr
+						td(scope="row") 身高：
+							span 0
+						td(colspan="2") 体重：
+							span 0
+					tr
+						td(scope="row" colspan="3") 过往病史：
+							span 无
+					tr
+						td(scope="row") 身份证号：
+							span 441900199402101078
+						td(colspan="2") 住院号：
+							span 0
+					tr 
+						td(scope="row") 联系电话：
+							span 076955555
+						td(colspan="2") 手机号码：
+							span 13555555555
+					tr
+						td(scope="row" colspan="3") 住址：
+							span 深圳罗湖
+	
+	div#relatives-info-container
+		table.table.table-bordered
+			caption 病人的家属资料
+			thead
+				tr
+					td 姓名
+					td 电话
+					td 与病人关系
+					td 是否接收短信通知
+					td 备注
+			tbody
+				tr
+					td 梁东
+					td 1358228878778
+					td 夫君
+					td 是
+					td
+				tr
+					td 梁东
+					td 1358228878778
+					td 夫君
+					td 是
+					td
+	
+		
+	div(class="modal fade" id="modify-password")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal" aria-label="Close")
+						span &times;
+					h4 修改密码
+				div(class="modal-body")
+					form.form-horizontal(method="post" action="/modify_password" id="modify_password_form")
+						div.form-group
+							label(for="old-password" class="col-sm-2 control-label text-left") 旧密码
+							div.col-sm-10
+								input( type="text" class="form-control" id="old-password" placeholder="请输入旧密码" name="old-password")
+						div.form-group
+							label( for="new-password" class="col-sm-2 control-label text-left") 新密码
+							div.col-sm-10
+								input( type="password" class="form-control" id="new-password" placeholder="请输入新密码" name="new-password")
+						div.form-group
+							label( for="confirm-password" class="col-sm-2 control-label text-left") 确认密码
+							div.col-sm-10
+								input( type="password" class="form-control" id="confirm-password" placeholder="再次输入新密码" name="")
+				div(class="modal-footer")
+					button(type="button" class="btn btn-default" data-dismiss="modal") 关闭
+					button(type="submit" class="btn btn-primary" form="modify_password_form") 确定
+
+block exclusiveScript
+	script.
+		var modifyPasswordDialog = $("#modify-password")
+		var modifyPasswordForm = modifyPasswordDialog.find("form")
+		
+		var oldPassword = modifyPasswordForm.find("#old-password")
+		var newPassword = modifyPasswordForm.find("#new-password")
+		var conPassword = modifyPasswordForm.find("#confirm-password")
+
+		modifyPasswordForm.submit(function(event){
+			event.preventDefault();
+			var validate = false;
+
+			var oldPassVal = oldPassword.val()
+			var newPassVal = newPassword.val()
+			var conPassVal = conPassword.val()
+			console.log(oldPassVal.length)
+			console.log(newPassVal.length)
+			console.log(conPassVal.length)
+			if(oldPassVal.length === 0 || newPassVal.length === 0 || conPassVal.length === 0){
+				alert("有空没填写哦~")
+			}else if(newPassVal !== conPassVal){
+				alert("新密码与确认密码不一致~")
+			}else if(oldPassVal === newPassVal){
+				alert("旧密码与新密码相同~")
+			}else if(newPassVal.length <= 6){
+				alert("新密码长度须大于6位")
+			}else{
+				validate = true;
+			}
+
+			if(validate){
+				$.ajax({
+					url : $(this).attr("action"),
+					type : $(this).attr("method"),
+					data : $(this).serialize()
+				}).done(function(data){
+					alert(data.info);
+					if( data.status ){
+						modifyPasswordDialog.modal('hide')
+						modifyPasswordForm.trigger("reset")
+					}
+					
+				}).fail(function(jqXHR, textStatus, errorThrown ){
+					console.log("textStatus:" + textStatus)
+					console.log("errorThrown:" + errorThrown)
+				})
+			}else{
+				return false;
+			}
+		})
+	

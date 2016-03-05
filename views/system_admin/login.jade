@@ -1,0 +1,42 @@
+extend ../layout
+
+block exclusiveStyle
+	//- link(rel='stylesheet', href="/css/login.css")
+	style.
+		main.wrap{
+			text-align: center;
+			margin-bottom: 30px;
+		}
+		form{
+			padding: 5px;
+		}
+		label{
+			text-align:left
+		}
+		button[type="submit"]{
+			width: 215px;
+			margin-top: 15px;
+		}
+-var isLogin = {isLogin};
+block content
+	main.wrap
+		form(action="/login/login_handler" method="post" autocomplete="off")
+			div.form_group
+				label
+					span 帐号
+					input(class="form-control" name="username" type="text" autofocus value="doctor01")
+
+			div.form_group
+				label
+					span 密码
+					input(class="form-control" name="password" type="password" value="123456")
+			button.btn.btn-success(type="submit") 登录
+
+
+block exclusiveScript
+	script.
+		if("#{error}".length){
+			alert("#{error}")
+		}
+		console.log("#{user}")
+		

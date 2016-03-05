@@ -1,0 +1,27 @@
+nav
+	ul.pagination
+		if isFirst
+			li(class="disabled")
+				a(href="javascript:;" aria-label="Previous")
+					span(aria-hidden="true") &laquo;
+		else 
+			li
+				a(href="?p=1" aria-label="Previous")
+					span(aria-hidden="true") &laquo;
+		- for (var i = 1; i <= pageRange; i++)
+			if i === curPage
+				li(class="active")
+					a(href="javascript:;")= i
+			else
+				li
+					a(href="?p=#{i}")= i
+		if isLast
+			li(class="disabled")
+				a(href="javascript:;" aria-label="Next")
+					span(aria-hidden="true") &raquo;
+		else
+			li
+				a(href="?p=#{pageRange}" aria-label="Next")
+					span(aria-hidden="true") &raquo;
+
+	

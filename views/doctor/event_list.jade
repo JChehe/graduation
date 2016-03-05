@@ -1,0 +1,120 @@
+extend ../layout
+
+block exclusiveStyle
+
+
+
+block content
+	h3.page-header 你所在的路径：信息系统 / 事件列表
+	
+	form.form-inline(id="search-form")
+		div.form-group
+			label(for="name") 姓名&nbsp;
+			input( type="text" class="form-control" id="name" name="name")
+		div.form-group
+			label(for="sex") 性别&nbsp;
+			select( name="sex" id="sex" class="form-control")
+				option(value="-1") 性别
+				option(value="0") 男
+				option(value="1") 女
+		div.form-group(id="min-age")
+			label(for="min-age") 年龄&nbsp;
+			input(type="text" class="form-control" id="min-age" name="min-age")
+		|  - 
+		div.form-group
+			label(for="max-age" class="sr-only") 年龄
+			input(type="text" class="form-control" id="max-age" name="max-age")
+		button(type="submit" class="btn btn-default")
+			span(class="glyphicon glyphicon-search" aria-hidden="true") 搜索
+	table.table.table-striped#eventListTable
+		thead 
+			tr 
+				td 事件
+				td 出现时间
+				td 病人名字
+				td 性别
+				td 年龄
+				td 状态
+				td 心电数据
+				td 操作
+		tbody
+			each event, index in eventList
+				-var curPatient = event.user;
+				-var curRoleProp = curPatient.role_prop;
+				-var happenTime = moment(event.happen_time).format("YYYY年MM月DD日 HH:MM:SS");
+				-var sex=curRoleProp.sex == 0? "男": "女";
+				-var isView = event.is_view?"已查看":"未查看"
+				tr(data-uid="#{curPatient._id}" data-event-level="#{event.level}" data-event="#{event.name}" data-happentime="#{happenTime}" data-isview="#{isView}" data-patientName="#{curRoleProp.real_name}" data-sex="#{sex}" data-age="#{curRoleProp.age}")
+					td= event.name
+					td= happenTime
+					td= curRoleProp.real_name
+					td(data-sex="#{curRoleProp.sex}")= sex
+					td= curRoleProp.age
+					td(data-isview="#{event.is_view}")= isView
+					td
+						a(href="javascript:;") 查看具体信息
+					td
+						button(type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#view-diagnose") 查看详情
+
+	include ../includes/pagination
+	
+	//- 修改用户
+	div(class="modal fade" id="view-diagnose")
+		div(class="modal-dialog modal-lg")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal" aria-label="Close")
+						span &times;
+					h4 查看相关诊断信息
+				div(class="modal-body")
+					table.table.table-striped
+						thead
+							tr
+								th 事件描述
+								th 出现时间
+								th 事件状态
+								th 病人名称
+								th 性别
+								th 年龄
+								th 代码
+								th 具体操作
+						tbody
+							tr
+								td
+								td
+								td
+								td
+								td
+								td
+								td C
+								td
+									div.btn-group.btn-group-sm(role="group")
+										button(type="button" class="btn btn-default") 查看诊断信息
+										button(type="button" class="btn btn-default") 打印诊断信息
+						div.diagnose_container
+							
+
+				div(class="modal-footer")
+					button(type="button" class="btn btn-default" data-dismiss="modal") 关闭
+					button(type="submit" class="btn btn-primary") 确定
+
+
+block exclusiveScript
+	script.
+		var viewDiagnoseDialog = $("#view-diagnose");
+		$("#eventListTable").on("click", "[data-target=#view-diagnose]", function(event){
+			var curTr = $(this).closest("tr");
+
+			var eventName = curTr.data("event");
+			var happenTime = curTr.data("happentime");
+			var isView = curTr.data("isview");
+			var patientName = curTr.data("patientname");
+			var sex = curTr.data("sex");
+			var age = curTr.data("age");
+			
+			var eventData = [eventName, happenTime, isView, patientName, sex, age];
+
+			viewDiagnoseDialog.find("tbody tr td").each(function(index){
+				$(this).text(eventData[index])
+			})
+		});

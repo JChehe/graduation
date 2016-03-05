@@ -1,0 +1,28 @@
+extend ../layout
+
+block exclusiveStyle
+
+block content
+	form(action="/add_event_handle" method="post" class="form-horizontal")
+		div.form-group
+			label(class="col-sm-2 control-label") 选择病人
+			div.col-sm-10.col-md-4
+				select(name="patient_id" class="form-control")
+					each patient, index in patientList
+						option(value="#{patient._id}")=patient.role_prop.real_name
+		div.form-group
+			label(class="col-sm-2 control-label") 事件名称
+			div.col-sm-10.col-md-4
+				input(type="text" name="event_name" class="form-control")
+		div.form-group
+			label(class="col-sm-2 control-label") 事件发生时间
+			div.col-sm-10.col-md-4
+				input(type="date" name="happen_time" class="form-control")
+		div.form-group
+			label(class="col-sm-2 control-label") 事件信息
+			div.col-sm-10.col-md-4
+				input(type="text" name="event_info" class="form-control")
+		
+			
+		button(type="submit" class="btn btn-default" class="col-sm-offset-2") 为病人增加事件
+block exclusiveScript

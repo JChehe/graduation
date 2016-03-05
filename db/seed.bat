@@ -1,0 +1,1 @@
+mongoimport --db graduationProject --collection events --file ./event_list.json --jsonArray
