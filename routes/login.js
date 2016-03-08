@@ -18,6 +18,7 @@ exports.authenticate = function(req, res, next) {
         password: req.body.password
     }, function(err, user) {
         if (err) return next(err);
+        console.log("hehhee")
         if (!user) return res.render("system_admin/login", {
             error: "帐号或密码错误!"
         });

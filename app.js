@@ -18,7 +18,7 @@ var dbUrl = process.env.MONGOHQ_URL || "mongodb://@localhost:27017/graduationPro
 var db = mongoose.connect(dbUrl, { safe: true })
 
 var app = express();
-app.use(bodyParser());
+// app.use(bodyParser());
 
 app.set("appName", "graduation_Project")
 app.set("views", path.join(__dirname, "views"))
