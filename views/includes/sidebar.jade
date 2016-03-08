@@ -1,8 +1,7 @@
 div(class="col-sm-3 col-md-2 sidebar")
 	h3 用户管理
 	ul(class="nav nav-sidebar")
-		-var userRole = user.role
-		
+		-var userRole = 2
 		if userRole == 0
 			li
 				a(href="/system_user_list") 系统用户管理
@@ -23,9 +22,9 @@ div(class="col-sm-3 col-md-2 sidebar")
 			li
 				a(href="/event_list") 事件列表
 			li
-				a(href="/ecg") 诊断信息
+				a(href="/diagnose_list") 诊断信息
 			li
-				a(href="/") 24小时心电图
+				a(href="/ecg") 24小时心电图
 			li
 				a(href="/select_event") 选择病人与事件文档
 			li

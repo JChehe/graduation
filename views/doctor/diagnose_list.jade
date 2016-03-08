@@ -4,8 +4,7 @@ block exclusiveStyle
 	//- link(rel="stylesheet" href="css/mess")
 
 block content
-	h3.page-header 您所在的路径：信息系统 / 我的监护医生
-
+	h3.page-header 您所在的路径：信息系统 / 诊断信息
 	form.form-inline(id="search-form")
 		div.form-group
 			label(for="name") 姓名&nbsp;
@@ -25,8 +24,6 @@ block content
 			input(type="text" class="form-control" id="max-age" name="max-age")
 		button(type="submit" class="btn btn-default")
 			span(class="glyphicon glyphicon-search" aria-hidden="true") 搜索
-
-
 	table.table.table-striped(id="diagnose_table")
 		thead 
 			tr 
@@ -38,35 +35,33 @@ block content
 				td 内容
 				td 操作
 		tbody
-			//- each value, index in userList
-			//- 	-var roleProp = value.role_prop
-			//- 	tr(data-uid="#{value._id}")
-			//- 		td= value.account
-			//- 		td= roleProp.real_name
-			//- 		td(data-sex="#{roleProp.sex}")= roleProp.sex == 0? "男": "女"
-			//- 		td= roleProp.age
-			//- 		td= roleProp.title
-			//- 		td= roleProp.location
-			//- 		td= roleProp.phone
-			//- 		td= roleProp.tel_phone
-			tr(data-patient="刘嘻嘻" data-doctor="依韵娴" data-diagnose-content="心跳过快，请注意休息")
-				td 刘希希
-				td 女
-				td 39
-				td 2008-4-20 9:11:35
-				td 医生某
-				td 很好
-				td
-					button.btn.btn-default.btn-sm.view_diagnose(data-toggle="modal" data-target="#diagnose_dialog") 查看诊断信息
-			tr
-				td 刘希希
-				td 女
-				td 39
-				td 2008-4-20 9:11:35
-				td 医生某
-				td 很好
-				td
-					button.btn.btn-default.btn-sm.view_diagnose(data-toggle="modal" data-target="#diagnose_dialog") 查看诊断信息
+			each diagnose, index in diagnoseList
+				tr
+					td= diagnose.patient.role_prop.real_name
+					td= diagnose.patient.role_prop.sex
+					td= diagnose.patient.role_prop.age
+					td= diagnose.update_time || diagnose.create_time
+					td= diagnose.doctor_name
+					td= diagonse.content
+
+			//- tr(data-patient="刘嘻嘻" data-doctor="依韵娴" data-diagnose-content="心跳过快，请注意休息")
+			//- 	td 刘希希
+			//- 	td 女
+			//- 	td 39
+			//- 	td 2008-4-20 9:11:35
+			//- 	td 医生某
+			//- 	td 很好
+			//- 	td
+			//- 		button.btn.btn-default.btn-sm.view_diagnose(data-toggle="modal" data-target="#diagnose_dialog") 查看诊断信息
+			//- tr
+			//- 	td 刘希希
+			//- 	td 女
+			//- 	td 39
+			//- 	td 2008-4-20 9:11:35
+			//- 	td 医生某
+			//- 	td 很好
+			//- 	td
+			//- 		button.btn.btn-default.btn-sm.view_diagnose(data-toggle="modal" data-target="#diagnose_dialog") 查看诊断信息
 	nav
 		ul.pagination
 			li(class="disabled")

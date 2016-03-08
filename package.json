@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "moment": "^2.11.1",
+    "open": "0.0.5",
     "supervisor": "^0.9.1"
   }
 }

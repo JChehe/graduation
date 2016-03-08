@@ -1,4 +1,4 @@
-extend ../layout
+extends ../layout
 
 block exclusiveStyle
 
@@ -44,7 +44,7 @@ block content
 				-var happenTime = moment(event.happen_time).format("YYYY年MM月DD日 HH:MM:SS");
 				-var sex=curRoleProp.sex == 0? "男": "女";
 				-var isView = event.is_view?"已查看":"未查看"
-				tr(data-uid="#{curPatient._id}" data-event-level="#{event.level}" data-event="#{event.name}" data-happentime="#{happenTime}" data-isview="#{isView}" data-patientName="#{curRoleProp.real_name}" data-sex="#{sex}" data-age="#{curRoleProp.age}")
+				tr(data-uid="#{curPatient._id}" data-eventid="#{event._id}" data-event-level="#{event.level}" data-event="#{event.name}" data-happentime="#{happenTime}" data-isview="#{isView}" data-patientName="#{curRoleProp.real_name}" data-sex="#{sex}" data-age="#{curRoleProp.age}")
 					td= event.name
 					td= happenTime
 					td= curRoleProp.real_name
@@ -89,10 +89,48 @@ block content
 								td C
 								td
 									div.btn-group.btn-group-sm(role="group")
-										button(type="button" class="btn btn-default") 查看诊断信息
-										button(type="button" class="btn btn-default") 打印诊断信息
+										button(type="button" class="btn btn-default diagnose-btn") 诊断
+										//- button(type="button" class="btn btn-default") 打印诊断信息
 						div.diagnose_container
-							
+					div.diagnose-container
+						h5 最近5条诊断信息
+							//- button.btn.btn-default.pull-right 诊断
+						
+						table.table.table-striped
+							thead
+								tr
+									th 诊断时间
+									th 医生
+									th 内容
+									th 操作
+							tbody
+								tr(data-diagnoseid="111")
+									td 2015-2-5
+									td doctor01
+									td.dia-content 
+										p 镇八角打开拉萨觉得s
+									td 
+										button(type="button" class="btn btn-warning btn-xs modify-btn") 编辑
+								tr
+									td 2015-2-5
+									td doctor01
+									td.dia-content 
+										p 镇八角打开拉萨觉得s
+									td
+										button(type="button" class="btn btn-warning btn-xs modify-btn") 编辑
+								tr
+									td 2015-2-5
+									td doctor01
+									td.dia-content 
+										p 镇八角打开拉萨觉得s
+									td
+						form#diagnose-form(action="/add_diagnose?eid=" method="post" style="display:none;")
+							textarea.form-control(name="diagnose_content" rows="3" placeholder="请输入诊断信息")
+							input(type="hidden" name="patient_id")
+							div.btn-group
+								button.btn.btn-default(type="button") 取消
+								button.btn.btn-success(type="submit") 确认
+
 
 				div(class="modal-footer")
 					button(type="button" class="btn btn-default" data-dismiss="modal") 关闭
@@ -101,9 +139,12 @@ block content
 
 block exclusiveScript
 	script.
+		// 查看详情的点击按钮
+		var curEventId;
 		var viewDiagnoseDialog = $("#view-diagnose");
 		$("#eventListTable").on("click", "[data-target=#view-diagnose]", function(event){
 			var curTr = $(this).closest("tr");
+			curEventId = curTr.data("eventid");
 
 			var eventName = curTr.data("event");
 			var happenTime = curTr.data("happentime");
@@ -116,5 +157,75 @@ block exclusiveScript
 
 			viewDiagnoseDialog.find("tbody tr td").each(function(index){
 				$(this).text(eventData[index])
-			})
+			});
+
+			viewDiagnoseDialog.find("[name=patient_id]").val(curTr.data("uid"));
 		});
+
+		// 查看诊断信息的按钮
+		
+		var diagnoseBtn = $(".diagnose-btn"),
+			diagnoseContainer = $(".diagnose-container"),
+			diagnoseOl = diagnoseContainer.find("ol");
+		var diagnoseForm = $("#diagnose-form");
+		diagnoseBtn.on("click", function(event){
+			
+			diagnoseForm.fadeToggle()
+
+			// 加载最近5条信息
+			//- $.get("/get_related_diagnose?eid=" + curEventId, function(data){
+			//- 	console.log(data);
+			//- 	var diaStr = "";
+
+			//- 	for(var i = 0, len = data.length; i < len; i++){
+
+			//- 	}
+			//- })
+		});
+		
+		diagnoseForm.submit(function(event){
+			event.preventDefault();
+			var diagnoseContent = $("[name=diagnose_content]").val().trim();
+			
+			/*
+			  * event_id 通过查询字符串获取
+			  * doctor_id 通过 req.session.user._id 获得
+			  * doctor_name 通过 req.session.user._id 获得
+			  * create_time: 
+			  * undate_time: 
+			*/
+			var postUrl = $(this).attr("action") + curEventId;
+			$.post(postUrl, $(this).serialize(), function(data){
+				console.log(data);
+			})
+		})
+
+
+
+		// 查看相关诊断信息的 编辑按钮
+		var viewDiagnose = $("#view-diagnose");
+		var initVal;
+		viewDiagnose.on("click", ".modify-btn", function(event){
+			var curTr = $(this).closest("tr");
+			
+			var diaContent = curTr.find(".dia-content")
+			
+			
+			if($(this).text() == "编辑"){
+				initVal = diaContent.find("p").text().trim();
+				diaContent.find("p").replaceWith("<textarea class='form-control'>"+ initVal +"</textarea>");
+				$(this).text("保存");
+
+			}else {
+				var textVal = diaContent.find("textarea").val().trim();
+				diaContent.find("textarea").replaceWith("<p>" + textVal + "</p>");
+				if(textVal !== initVal){ // 已做修改
+					$.post("/modify_diagnose?did=" + curTr.data("diagnoseid"), {content: textVal}, function(data){
+						
+					})
+				}
+				$(this).text("编辑");
+			}
+
+			
+		})
