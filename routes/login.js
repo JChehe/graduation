@@ -18,10 +18,10 @@ exports.authenticate = function(req, res, next) {
         password: req.body.password
     }, function(err, user) {
         if (err) return next(err);
-        console.log("hehhee")
         if (!user) return res.render("system_admin/login", {
             error: "帐号或密码错误!"
         });
+        console.log("登录成功");
         req.session.user = user
         req.session.role = user.role
         // console.log(req.session.user)

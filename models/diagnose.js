@@ -13,6 +13,14 @@ var diagnoseSchema = new Schema({ // 原型
 	update_time: {type: Date, default: Date.now}  // 诊断的更新日期
 });
 
+diagnoseSchema.pre("update", function(next){
+	now = new Date();
+	console.log("update")
+	this.update({},{ $set: { update_time: now } });
+	
+	next();
+})
+
 module.exports = mongoose.model("Diagnose", diagnoseSchema);
 
 

@@ -36,49 +36,17 @@ block content
 				td 操作
 		tbody
 			each diagnose, index in diagnoseList
-				tr
+				tr(data-patient="#{diagnose.patient.role_prop.real_name}" data-doctor="#{diagnose.doctor_name}" data-content="#{diagnose.content}")
 					td= diagnose.patient.role_prop.real_name
-					td= diagnose.patient.role_prop.sex
+					td= diagnose.patient.role_prop.sex == 0? "男": "女"
 					td= diagnose.patient.role_prop.age
-					td= diagnose.update_time || diagnose.create_time
+					td= moment(diagnose.update_time || diagnose.update_time).format("YYYY年MM月DD日 HH:MM:SS")
 					td= diagnose.doctor_name
-					td= diagonse.content
-
-			//- tr(data-patient="刘嘻嘻" data-doctor="依韵娴" data-diagnose-content="心跳过快，请注意休息")
-			//- 	td 刘希希
-			//- 	td 女
-			//- 	td 39
-			//- 	td 2008-4-20 9:11:35
-			//- 	td 医生某
-			//- 	td 很好
-			//- 	td
-			//- 		button.btn.btn-default.btn-sm.view_diagnose(data-toggle="modal" data-target="#diagnose_dialog") 查看诊断信息
-			//- tr
-			//- 	td 刘希希
-			//- 	td 女
-			//- 	td 39
-			//- 	td 2008-4-20 9:11:35
-			//- 	td 医生某
-			//- 	td 很好
-			//- 	td
-			//- 		button.btn.btn-default.btn-sm.view_diagnose(data-toggle="modal" data-target="#diagnose_dialog") 查看诊断信息
-	nav
-		ul.pagination
-			li(class="disabled")
-				a(href="#" aria-label="Previous")
-					span(aria-hidden="true") &laquo;
-			li(class="active")
-				a(href="#") 1
-			li
-				a(href="#") 2
-			li
-				a(href="#") 3
-			li
-				a(href="#") 4
-			li
-				a(href="#" aria-label="Next")
-					span(aria-hidden="true") &raquo;
-
+					td= diagnose.content
+					td 
+						button.btn.btn-default.btn-sm.view_diagnose(data-toggle="modal" data-target="#diagnose_dialog") 查看诊断信息
+			
+	include ../includes/pagination
 	
 	div(class="modal fade" id="diagnose_dialog")
 		div(class="modal-dialog modal-lg")
@@ -99,7 +67,7 @@ block content
 							p.diagnose_content(style="text-indent:2em")
 
 				div.modal-footer
-					button(type="button" class="btn btn-default") 关闭
+					button(type="button" class="btn btn-default" data-dismiss="modal") 关闭
 				
 
 block exclusiveScript
@@ -112,7 +80,7 @@ block exclusiveScript
 			var curTr = $(this).closest("tr");
 			var patient = curTr.data("patient");
 			var doctor = curTr.data("doctor");
-			var diagnoseContentText = curTr.data("diagnoseContent");
+			var diagnoseContentText = curTr.data("content");
 			diagnosePatient.text("病人名字："+patient);
 			diagnoseDoctor.text("诊断医生："+doctor);
 			diagnoseContent.text(diagnoseContentText);

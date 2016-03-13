@@ -62,6 +62,13 @@ userSchema.static({
         }, null, {
             limit: 20
         }, callback)
+    },
+    getCount: function(query, callback){
+
+        this.count(query, function(err, count){
+            if(err) return next(err);
+            callback(count);
+        })
     }
 })
 

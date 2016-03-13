@@ -23,7 +23,7 @@ exports.select_event = function(req, res, next) {
 }
 
 exports.select_event_handle = function(req, res, next) {
-    console.log(req.body)
+    // console.log(req.body)
     var reqBody = req.body;
     req.models.User.findOne({
         _id: reqBody.patient_id
@@ -59,7 +59,7 @@ exports.add_event = function(req, res, next) {
 
 exports.add_event_handle = function(req, res, next) {
     var reqBody = req.body;
-    console.log(reqBody)
+    // console.log(reqBody)
     req.models.User.findOne({
         _id: reqBody.patient_id
     }, function(err, patient) {

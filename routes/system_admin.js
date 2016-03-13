@@ -1,5 +1,5 @@
 var uuid = require('node-uuid');
-
+var LIMIT = 1;
 // 默认信息
 exports.index = function(req, res, next) {
     res.render("system_admin/system_index", {
@@ -15,7 +15,7 @@ exports.perinfo = function(req, res, next) {
 }
 
 // 修改密码
-exports.modifyPassword = function(req, res, next) {
+exports.modify_password = function(req, res, next) {
     console.log(req.session.user)
     console.log(req.session.user._id)
     console.log(req.body["old-password"])
@@ -48,16 +48,16 @@ exports.modifyPassword = function(req, res, next) {
 
 
 // 按条件搜索用户列表
-exports.conditionSearch = function(req, res, next) {
-    console.log(typeof req.body["min-age"])
+exports.condition_search = function(req, res, next) {
+    console.log(typeof req.body["min-age"]); // String
     var realName = req.body["real_name"] || {
         "$exists": true
     }
     var minAge = req.body["min-age"] != "" ? parseInt(req.body["min-age"], 10) : -1;
-    var maxAge = req.body["max-age"] != "" ? parseInt(req.body["max-age"], 10) : 151;
-    console.log("minAge+++++++++++++" + minAge)
-    console.log("maxAge+++++++++++++" + maxAge)
+    var maxAge = req.body["max-age"] != "" ? parseInt(req.body["max-age"], 10) : 100000000;
+
     var sex = req.body["sex"] == "-1" ? ["0", "1"] : [req.body["sex"]]
+    console.log(typeof req.body["role"])
     req.models.User.find({
         "role": req.body["role"],
         "role_prop.real_name": realName,
@@ -65,12 +65,12 @@ exports.conditionSearch = function(req, res, next) {
             "$in": sex
         },
         "role_prop.age": {
-            "$gt": minAge,
-            "$lt": maxAge
+            "$gte": minAge,
+            "$lte": maxAge
         }
     }, function(err, userList) {
         if (err) return next(err);
-
+        console.log(userList)
         // 在前端判断人数，然后进行相应控制
         res.send({
             status: true,
@@ -82,17 +82,25 @@ exports.conditionSearch = function(req, res, next) {
 
 
 // 系统管理员/管理员 的 系统用户列表
-exports.systemUserList = function(req, res, next) {
-    req.models.User.list(1, function(err, userList) {
-        if (err) return next(err);
-        // console.log(userList)
-        res.render("system_admin/system_user_list", {
-            user: req.session.user,
-            userList: userList,
-            curSideBar: 0
+exports.system_user_list = function(req, res, next) {
+    var page = req.query.p || 1;
+    var options = { skip: (page - 1) * LIMIT, limit: LIMIT }
+    var query = { role: 1 }
+    req.models.User.getCount(query, function(count) {
+        req.models.User.find(query, null, options, function(err, userList) {
+            if (err) return next(err);
+            res.render("system_admin/system_user_list", {
+                user: req.session.user,
+                userList: userList,
+                curSideBar: 0,
+                pageRange: Math.ceil(count / LIMIT),
+                curPage: parseInt(page),
+                isLast: (LIMIT * page >= count ? true : false),
+                isFirst: (page - 1 === 0 ? true : false),
+                conditioRole: 1
+            })
         })
     })
-
 };
 
 
@@ -199,15 +207,24 @@ exports.edit_system_user = function(req, res, next) {
 /* 系统管理员/管理员 下的 医生模块开始 */
 
 // 系统管理员/管理员 的 医生用户列表
-exports.doctorList = function(req, res, next) {
-    req.models.User.list(2, function(err, userList) {
-        res.render("system_admin/doctor_list", {
-            user: req.session.user,
-            userList: userList,
-            curSideBar: 1
+exports.doctor_list = function(req, res, next) {
+    var page = req.query.p || 1;
+    var query = { role: 2 }
+    var options = { skip: (page - 1) * LIMIT, limit: LIMIT };
+    req.models.User.getCount(query, function(count) {
+        req.models.User.find(query, null, options, function(err, userList) {
+            if (err) return next(err);
+            res.render("system_admin/doctor_list", {
+                user: req.session.user,
+                userList: userList,
+                pageRange: Math.ceil(count / LIMIT),
+                curPage: parseInt(page),
+                isLast: (LIMIT * page >= count ? true : false),
+                isFirst: (page - 1 === 0 ? true : false),
+                conditioRole: 2
+            })
         })
     })
-
 };
 
 // 系统管理员/管理员 下的 添加医生用户
@@ -337,43 +354,47 @@ exports.add_care_patient = function(req, res, next) {
         _id: curDoctorId
     }, function(err, user) {
         if (err) return next(err);
-        
+
         user.update({
-            $set:{
+            $set: {
                 care_patient: patientList
             }
-        }, function(err, raw){
+        }, function(err, raw) {
 
             var queryOriginPatient = {
-                _id:{
+                _id: {
                     "$in": originPatientList
-                }};
+                }
+            };
             // $pull 将所有匹配的文档删除
-            req.models.User.update(queryOriginPatient,{
-                $pull:{
+            req.models.User.update(queryOriginPatient, {
+                $pull: {
                     related_doctor: curDoctorId
-                }},{multi: true}, function(err, raw){
-                    if(err) return next(err);
-                    console.log("清除原来病人的related_doctor");
+                }
+            }, { multi: true }, function(err, raw) {
+                if (err) return next(err);
+                console.log("清除原来病人的related_doctor");
+                console.log(raw);
+
+                var queryNowPatient = {
+                    _id: {
+                        "$in": patientList
+                    }
+                };
+
+                // $addToSet 可以避免插入重复值    
+                req.models.User.update(queryNowPatient, {
+                    $addToSet: {
+                        related_doctor: curDoctorId
+                    }
+                }, { multi: true }, function(err, raw) {
+                    if (err) return next(err);
+                    console.log("添加新选择的related_doctor");
                     console.log(raw);
 
-                    var queryNowPatient = {
-                        _id:{
-                            "$in": patientList
-                        }};
-
-                    // $addToSet 可以避免插入重复值    
-                    req.models.User.update(queryNowPatient,{
-                        $addToSet: {
-                            related_doctor: curDoctorId
-                        }},{multi: true}, function(err, raw){
-                            if(err) return next(err);
-                            console.log("添加新选择的related_doctor");
-                            console.log(raw);
-
-                            res.redirect("back");
-                        })
+                    res.redirect("back");
                 })
+            })
         })
     })
 }
@@ -397,14 +418,26 @@ exports.add_care_patient = function(req, res, next) {
 /* 系统管理员/管理员 下的 病人模块开始 */
 
 // 系统管理员/管理员 的 病人用户列表
-exports.patientList = function(req, res, next) {
-    req.models.User.list(3, function(err, userList) {
-        res.render("system_admin/patient_list", {
-            user: req.session.user,
-            userList: userList,
-            curSideBar: 2
+exports.patient_list = function(req, res, next) {
+    var page = req.query.p || 1;
+    var query = { role: 3 }
+    var options = { skip: (page - 1) * LIMIT, limit: LIMIT }
+    req.models.User.getCount(query, function(count) {
+        req.models.User.find(query, null, options, function(err, patientList) {
+            if (err) return next(err);
+            res.render("system_admin/patient_list", {
+                user: req.session.user,
+                userList: patientList,
+                curSideBar: 2,
+                pageRange: Math.ceil(count / LIMIT),
+                curPage: parseInt(page),
+                isLast: (LIMIT * page >= count ? true : false),
+                isFirst: (page - 1 === 0 ? true : false),
+                conditioRole: 3
+            })
         })
     })
+
 }
 
 // 系统管理员/管理员 下的 添加病人模块
@@ -528,7 +561,7 @@ exports.family = function(req, res, next) {
     req.models.User.findOne({
         _id: curPatient
     }, function(err, user) {
-        console.log(user)
+        // console.log(user)
         res.send({
             status: true,
             info: "查询成功",
@@ -541,60 +574,60 @@ exports.family = function(req, res, next) {
 // 系统管理员/管理员 下的 处理（添加或编辑）病人家属模块
 
 exports.handle_family = function(req, res, next) {
-    var curPatientId = req.params.id;
-    var reqBody = req.body;
-    var curFamilyId = reqBody.family_id;
+        var curPatientId = req.params.id;
+        var reqBody = req.body;
+        var curFamilyId = reqBody.family_id;
 
-    var randomId = "";
-    if (curFamilyId == "") { // 为空即新建
-        randomId = uuid.v1()
-        reqBody.family_id = randomId
-    }
-    req.models.User.findOne({
-        _id: curPatientId
-    }, function(err, user) {
-        if (err) return next(err);
-
-        // 为空即新建
-        if (curFamilyId == "") {
-            console.log("新建")
-            user.update({
-                $push: {
-                    family: reqBody
-                }
-            }, function(err, count, raw) {
-                if (err) return next(err);
-                res.send({
-                    status: true,
-                    info: "成功插入~",
-                    family: reqBody
-                })
-            })
-        } else {
-            console.log("修改")
-            var newFamilyArr = user.family;
-            newFamilyArr.forEach(function(value, index) {
-                if (value.family_id == curFamilyId) {
-                    newFamilyArr[index] = reqBody
-                }
-            })
-            user.update({
-                $set: {
-                    family: newFamilyArr
-                }
-            }, function(err, count, raw) {
-                if (err) return next(err);
-                res.send({
-                    status: true,
-                    info: "成功更新~",
-                    family: reqBody
-                })
-            })
+        var randomId = "";
+        if (curFamilyId == "") { // 为空即新建
+            randomId = uuid.v1()
+            reqBody.family_id = randomId
         }
+        req.models.User.findOne({
+            _id: curPatientId
+        }, function(err, user) {
+            if (err) return next(err);
+
+            // 为空即新建
+            if (curFamilyId == "") {
+                console.log("新建")
+                user.update({
+                    $push: {
+                        family: reqBody
+                    }
+                }, function(err, count, raw) {
+                    if (err) return next(err);
+                    res.send({
+                        status: true,
+                        info: "成功插入~",
+                        family: reqBody
+                    })
+                })
+            } else {
+                console.log("修改")
+                var newFamilyArr = user.family;
+                newFamilyArr.forEach(function(value, index) {
+                    if (value.family_id == curFamilyId) {
+                        newFamilyArr[index] = reqBody
+                    }
+                })
+                user.update({
+                    $set: {
+                        family: newFamilyArr
+                    }
+                }, function(err, count, raw) {
+                    if (err) return next(err);
+                    res.send({
+                        status: true,
+                        info: "成功更新~",
+                        family: reqBody
+                    })
+                })
+            }
 
 
 
-    })
+        })
 
-}
-/* 系统管理员/管理员 下的 病人模块结束 */
+    }
+    /* 系统管理员/管理员 下的 病人模块结束 */

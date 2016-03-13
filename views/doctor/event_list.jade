@@ -91,8 +91,7 @@ block content
 									div.btn-group.btn-group-sm(role="group")
 										button(type="button" class="btn btn-default diagnose-btn") 诊断
 										//- button(type="button" class="btn btn-default") 打印诊断信息
-						div.diagnose_container
-					div.diagnose-container
+					div.diagnose-container#diagnose-list
 						h5 最近5条诊断信息
 							//- button.btn.btn-default.pull-right 诊断
 						
@@ -139,6 +138,7 @@ block content
 
 block exclusiveScript
 	script.
+		var curDotorId = "#{user._id}";
 		// 查看详情的点击按钮
 		var curEventId;
 		var viewDiagnoseDialog = $("#view-diagnose");
@@ -160,6 +160,28 @@ block exclusiveScript
 			});
 
 			viewDiagnoseDialog.find("[name=patient_id]").val(curTr.data("uid"));
+
+			$.get("/get_related_diagnose?eid=" + curEventId, function(data){
+				console.log(data);
+				var diaStr = "";
+				var curDotorStr = '<button type="button" class="btn btn-warning btn-xs modify-btn">编辑</button>'; // 本医生特有的
+				for(var i = 0, len = data.length; i < len; i++){
+					var cData = data[i];
+					var isCurData = (curDotorId == cData.doctor_id ? curDotorStr : "");
+					diaStr += '<tr data-diagnoseid="'+ cData._id +'">' +
+				        '<td>'+ cData.create_time +'</td>' +
+				        '<td>'+ cData.doctor_name +'</td>' +
+				        '<td class="dia-content">' +
+				            '<p>'+ cData.content +'</p>' +
+				        '</td>' +
+				        '<td>' + curDotorStr+'</td>' +
+				    '</tr>'
+				}
+
+				$("#diagnose-list").find("tbody").html(diaStr);
+
+
+			})
 		});
 
 		// 查看诊断信息的按钮
@@ -169,18 +191,7 @@ block exclusiveScript
 			diagnoseOl = diagnoseContainer.find("ol");
 		var diagnoseForm = $("#diagnose-form");
 		diagnoseBtn.on("click", function(event){
-			
 			diagnoseForm.fadeToggle()
-
-			// 加载最近5条信息
-			//- $.get("/get_related_diagnose?eid=" + curEventId, function(data){
-			//- 	console.log(data);
-			//- 	var diaStr = "";
-
-			//- 	for(var i = 0, len = data.length; i < len; i++){
-
-			//- 	}
-			//- })
 		});
 		
 		diagnoseForm.submit(function(event){
@@ -196,7 +207,18 @@ block exclusiveScript
 			*/
 			var postUrl = $(this).attr("action") + curEventId;
 			$.post(postUrl, $(this).serialize(), function(data){
-				console.log(data);
+				console.log("添加诊断记录成功");
+				$("[name=diagnose_content]").val("")
+				diagnoseForm.fadeToggle();
+				console.log(data)
+				$('<tr data-diagnoseid="'+ data._id +'">' +
+				        '<td>'+ data.create_time +'</td>' +
+				        '<td>'+ data.doctor_name +'</td>' +
+				        '<td class="dia-content">' +
+				            '<p>'+ data.content +'</p>' +
+				        '</td>' +
+				        '<td><button type="button" class="btn btn-warning btn-xs modify-btn">编辑</button></td>' +
+				    '</tr>').prependTo($("#diagnose-list").find("tbody"))
 			})
 		})
 

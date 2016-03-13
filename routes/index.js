@@ -34,15 +34,15 @@ router.use(function(req, res, next) {
 router.get("/", system_admin.index)
 
 router.get("/perinfo", system_admin.perinfo)
-router.get("/system_user_list", system_admin.systemUserList)
-router.get("/doctor_list", system_admin.doctorList)
-router.get("/patient_list", system_admin.patientList)
+router.get("/system_user_list", system_admin.system_user_list)
+router.get("/doctor_list", system_admin.doctor_list)
+router.get("/patient_list", system_admin.patient_list)
 
 router.post("/add_system_user", system_admin.add_system_user)
 router.post("/edit_system_user", system_admin.edit_system_user)
 
-router.post("/modify_password", system_admin.modifyPassword)
-router.post("/condition_search", system_admin.conditionSearch)
+router.post("/modify_password", system_admin.modify_password)
+router.post("/condition_search", system_admin.condition_search)
 
 router.post("/add_patient_user", system_admin.add_patient_user)
 router.post("/edit_patient_user", system_admin.edit_patient_user)
@@ -73,9 +73,12 @@ router.post("/add_event_handle", event.add_event_handle)
 
 
 router.get("/my_related_doctor", patient.my_related_doctor);
-
+router.get("/my_diagnose", patient.my_diagnose);
+router.get("/my_calendar", patient.my_calendar);
 router.get("/patient/event_list", patient.event_list);
 router.get("/ecg", patient.ecg)
+
+router.get("/get_calendar_events", patient.get_calendar_events);
 
 
 

@@ -6,26 +6,7 @@ block exclusiveStyle
 block content
 	h3.page-header 你所在的路径：信息系统 / 系统用户列表
 	
-	form.form-inline(id="search-form" action="/condition_search" method="post")
-		input(type="hidden" name="role" value="1")
-		div.form-group
-			label(for="real_name") 姓名&nbsp;
-			input( type="text" class="form-control" id="real_name" name="real_name")
-		div.form-group
-			label(for="sex") 性别&nbsp;
-			select( name="sex" id="sex" class="form-control")
-				option(value="-1") 性别
-				option(value="0") 男
-				option(value="1") 女
-		div.form-group(id="min-age")
-			label(for="min-age") 年龄&nbsp;
-			input(type="text" class="form-control" id="min-age" name="min-age")
-		|  - 
-		div.form-group
-			label(for="max-age" class="sr-only") 年龄
-			input(type="text" class="form-control" id="max-age" name="max-age")
-		button(type="submit" class="btn btn-default")
-			span(class="glyphicon glyphicon-search" aria-hidden="true") 搜索
+	include ../includes/userSearchForm
 	
 	button(type="button" class="btn btn-default" data-toggle="modal" data-target="#add-user") 添加新系统用户
 	table.table.table-striped#userlist
@@ -35,6 +16,7 @@ block content
 				td 姓名
 				td 性别
 				td 年龄
+				td 操作
 		tbody
 			each value, index in userList
 				tr(data-uid = "#{value._id}" data-role="#{value.role}")
@@ -42,22 +24,10 @@ block content
 					td= value["role_prop"]["real_name"] != undefined ? value["role_prop"]["real_name"] : "未填写"
 					td(data-sex='#{value["role_prop"]["sex"]}')= value["role_prop"]["sex"] == 0? "男" : "女"
 					td= value["role_prop"]["age"]
-	nav
-		ul.pagination
-			li(class="disabled")
-				a(href="#" aria-label="Previous")
-					span(aria-hidden="true") &laquo;
-			li(class="active")
-				a(href="#") 1
-			li
-				a(href="#") 2
-			li
-				a(href="#") 3
-			li
-				a(href="#") 4
-			li
-				a(href="#" aria-label="Next")
-					span(aria-hidden="true") &raquo;
+					td
+						button.btn.btn-default(type="button") 编辑
+
+	include ../includes/pagination
 
 
 
@@ -177,6 +147,7 @@ block exclusiveScript
 						'<td>'+user.real_name+'</td>' +
 						'<td data-sex='+ user.sex +'>'+(user.sex == "0" ? "男": "女")+'</td>' +
 						'<td>'+ (user.age == undefined? "18": user.age) +'</td>' +
+						'<td><button class="btn btn-default">编辑</td>'+
 					'</tr>').prependTo(userTable.find("tbody"));
 					
 					addUserDialog.modal('hide')
@@ -267,6 +238,7 @@ block exclusiveScript
 						'<td>'+ curUserData.role_prop.real_name +'</td>' +
 						'<td data-sex="0">'+ (curUserData.role_prop.sex == 0? "男" : "女") +'</td>' +
 						'<td>'+ curUserData.role_prop.age +'</td>' +
+						'<td><button class="btn btn-default">编辑</td>'+
 					'</tr>').appendTo(userList)
 				}
 

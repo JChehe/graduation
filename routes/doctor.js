@@ -1,25 +1,38 @@
 // var mongoJoin = require("mongo-join");
+
+var LIMIT = 1;
+
 exports.my_care_patient = function(req, res, next) {
-    var carePatientList = [];
-    req.models.User.findOne({
-        _id: req.session.user._id
-    }, function(err, curDoctor) {
-        if (err) return next(err)
-        curDoctor.care_patient.forEach(function(patientId, index) {
-            req.models.User.findOne({
-                _id: patientId
-            }, function(err, carePatient) {
-                if (err) return next(err);
-                carePatientList.push(carePatient)
-                if (index == curDoctor.care_patient.length - 1) {
-                    res.render("doctor/my_care_patient", {
-                        user: req.session.user,
-                        userList: carePatientList
-                    })
-                }
+    var curDoctor = req.session.user;
+    var page = req.query.p || 1;
+    var options = { skip: (page - 1) * LIMIT, limit: LIMIT };
+
+    req.models.User.count({
+        _id: {
+            $in: curDoctor.care_patient
+        }
+    }, function(err, count) {
+        if (err) return next(err);
+
+        req.models.User.find({
+            _id: {
+                $in: curDoctor.care_patient
+            }
+        }, null, options).exec(function(err, userList) {
+            if (err) return next(err);
+            res.render("doctor/my_care_patient", {
+                user: req.session.user,
+                userList: userList,
+                pageRange: Math.ceil(count / LIMIT),
+                curPage: parseInt(page),
+                isLast: (LIMIT * page >= count ? true : false),
+                isFirst: (page - 1 === 0 ? true : false)
             })
+
         })
     })
+
+
 }
 
 exports.get_patient_info = function(req, res, next) {
@@ -38,75 +51,98 @@ exports.get_patient_info = function(req, res, next) {
 
 // 用population 将 病人嵌入 event
 exports.event_list = function(req, res, next) {
-    req.models.User.findOne({
-        _id: req.session.user._id
-    }, function(err, doc) {
+    var curDoctor = req.session.user;
+    var page = req.query.p || 1;
+    var options = { skip: (page - 1) * LIMIT, limit: LIMIT, sort: { level: -1 } };
+
+    var myCarePatient = curDoctor.care_patient;
+
+    req.models.Event.count({
+        user_id: {
+            "$in": myCarePatient
+        }
+    }, function(err, count) {
         if (err) return next(err);
-
-        var myCarePatient = doc.care_patient;
-
         req.models.Event.find({
             user_id: {
                 "$in": myCarePatient
             }
-        }).sort({ 'level': -1 }).limit(10).populate({
+        }, null, options).populate({
             path: "user"
         }).exec(function(err, eventList) {
             if (err) return next(err);
-            console.log(eventList)
+            console.log(page)
             res.render("doctor/event_list", {
                 user: req.session.user,
-                eventList: eventList
+                eventList: eventList,
+                pageRange: Math.ceil(count / LIMIT),
+                curPage: parseInt(page),
+                isLast: (LIMIT * page >= count ? true : false),
+                isFirst: (page - 1 === 0 ? true : false)
             })
         })
-
-
     })
 }
 
+// 按时间排序
 exports.diagnose_list = function(req, res, next) {
-    var doc = req.session.user;
-    // res.json(req.session.user)
-    console.log(req.session.user.role)
-        /*req.models.Diagnose.find({
-                patient_id: {
-                    "$in": doc.care_patient
-                }
-            }).populate("patient")
-            .exec(function(err, diagnoseList) {
-                if (err) return next(err);
+    var page = req.query.p || 1;
+    var cDoctor = req.session.user;
+    var options = { skip: (page - 1) * LIMIT, limit: LIMIT, sort: { update_time: -1 } };
 
-                res.render("doctor/diagnose_list", {
-                    user: req.session.user,
-                    diagnoseList: diagnoseList
-                })
-            });*/
-    res.render("doctor/diagnose_list", {
-        user: req.session.user
-    });
+    req.models.Diagnose.count({
+        patient_id: {
+            "$in": cDoctor.care_patient
+        }
+    }, function(err, count) {
+        if (err) return next(err);
+
+        req.models.Diagnose.find({
+            patient_id: {
+                "$in": cDoctor.care_patient
+            }
+        }, null, options).populate("patient")
+        .exec(function(err, diagnoseList) {
+            if (err) return next(err);
+            console.log(diagnoseList)
+            res.render("doctor/diagnose_list", {
+                user: req.session.user,
+                diagnoseList: diagnoseList,
+                pageRange: Math.ceil(count / LIMIT),
+                curPage: parseInt(page),
+                isLast: (LIMIT * page >= count ? true : false),
+                isFirst: (page - 1 === 0 ? true : false)
+            })
+        });
+    })
+
+    /*  res.render("doctor/diagnose_list", {
+          user: req.session.user
+      });*/
 
 }
 
-
+// z限制5个，且按时间排序
 exports.get_related_diagnose = function(req, res, next) {
     var eventId = req.query.eid;
     console.log(eventId)
         /*req.models.Diagnose.find({
             event_id: eventId
-        }).sort({"create_time": -1}).limit(5).exec(function(err, diagnoseList){
-            if(err) return next(err);
-            res.json(diagnoseList);
-        })*/
+        }, function(err, diagnoseList) {
+            if (err) return next(err);
+            res.send(diagnoseList);
+        });*/
+
     req.models.Diagnose.find({
         event_id: eventId
-    }, function(err, diagnoseList) {
+    }).sort({ update_time: -1 }).limit(5).exec(function(err, diagnoseList) {
         if (err) return next(err);
-        console.log(diagnoseList)
+        res.send(diagnoseList);
     })
 }
 
 
-exports.add_diagnose = function(req, res, next){
+exports.add_diagnose = function(req, res, next) {
     // console.log(req.body)
     var rb = req.body;
     req.models.Diagnose.create({
@@ -118,16 +154,19 @@ exports.add_diagnose = function(req, res, next){
         content: rb.diagnose_content,
         create_time: Date.now(),
         update_time: Date.now()
-    }, function(err, diagnose){
-        if(err) return next(err);
-        // console.log("haha")
-        // res.send("ha")
-        req.models.Event.update({
-            _id: req.query.eid
-        }, {
+    }, function(err, diagnose) {
+        if (err) return next(err);
+        console.log("新增 diagnose");
+        console.log(diagnose);
+        console.log("添加事件成功");
+        req.models.Event.findByIdAndUpdate(req.query.eid, {
             $push: {
                 diagnoses: diagnose._id
             }
+        }, { upsert: true }, function(err, doc) {
+            if (err) return next(err);
+            console.log("更新相应事件的 diagnoses");
+            res.send(diagnose)
         })
     })
 }
@@ -137,13 +176,10 @@ exports.modify_diagnose = function(req, res, next) {
     var diagnoseId = req.query.did;
     var diagnoseContent = req.body.content;
 
-    // 检查 前端报错：POST http://localhost:3000/modify_diagnose?did=111 500 (Internal Server Error)
-    // 是因为 数据库没有实际文档吗
-
     req.models.Diagnose.update({
         _id: diagnoseId
     }, { content: diagnoseContent }, function(err, raw) {
-        if(err) return next(err);
+        if (err) return next(err);
 
         res.json(true)
     })

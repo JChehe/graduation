@@ -8,7 +8,14 @@ nav
 			li
 				a(href="?p=1" aria-label="Previous")
 					span(aria-hidden="true") &laquo;
-		- for (var i = 1; i <= pageRange; i++)
+		//- R = RANGE
+		//- sLI : startLoopIndex ; eLI = endLoopIndex
+
+		- var pR = pageRange //- 总页数
+		- var cP = curPage   //- 当前页
+		- var sLI = cP - 5 < 1 ? 1 : cP - 4
+		- var eLI = cP + 5 > pR ?(sLI = ((pR - 9) < 1? 1: pR - 9), pR) :  (cP + 5 < 10 ? 10: cP +5);
+		- for (var i = sLI; i <= eLI; i++)
 			if i === curPage
 				li(class="active")
 					a(href="javascript:;")= i
@@ -24,4 +31,4 @@ nav
 				a(href="?p=#{pageRange}" aria-label="Next")
 					span(aria-hidden="true") &raquo;
 
-	
+//-usage : include ../includes/pagination

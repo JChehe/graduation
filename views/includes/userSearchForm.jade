@@ -1,0 +1,22 @@
+form.form-inline(id="search-form" action="/condition_search" method="post")
+	input(type="hidden" name="role" value="#{conditioRole}")
+	div.form-group
+		label(for="real_name") 姓名&nbsp;
+		input( type="text" class="form-control" id="real_name" name="real_name")
+	div.form-group
+		label(for="sex") 性别&nbsp;
+		select( name="sex" id="sex" class="form-control")
+			option(value="-1") 性别
+			option(value="0") 男
+			option(value="1") 女
+	div.form-group(id="min-age")
+		label(for="min-age") 年龄&nbsp;
+		input(type="text" class="form-control" id="min-age" name="min-age")
+	|  - 
+	div.form-group
+		label(for="max-age" class="sr-only") 年龄
+		input(type="text" class="form-control" id="max-age" name="max-age")
+	button(type="submit" class="btn btn-default")
+		span(class="glyphicon glyphicon-search" aria-hidden="true") 搜索
+
+//- include ../includes/userSearchForm

@@ -8,25 +8,7 @@ block exclusiveStyle
 block content
 	h3.page-header 你所在的路径：信息系统 / 医生用户列表
 	
-	form.form-inline(id="search-form")
-		div.form-group
-			label(for="name") 姓名&nbsp;
-			input( type="text" class="form-control" id="name" name="name")
-		div.form-group
-			label(for="sex") 性别&nbsp;
-			select( name="sex" id="sex" class="form-control")
-				option(value="-1") 性别
-				option(value="0") 男
-				option(value="1") 女
-		div.form-group(id="min-age")
-			label(for="min-age") 年龄&nbsp;
-			input(type="text" class="form-control" id="min-age" name="min-age")
-		|  - 
-		div.form-group
-			label(for="max-age" class="sr-only") 年龄
-			input(type="text" class="form-control" id="max-age" name="max-age")
-		button(type="submit" class="btn btn-default")
-			span(class="glyphicon glyphicon-search" aria-hidden="true") 搜索
+	include ../includes/userSearchForm
 	
 	button(type="button" class="btn btn-default" data-toggle="modal" data-target="#add-user") 添加新系统用户
 	table.table.table-striped
@@ -58,38 +40,8 @@ block content
 							button.btn.btn-default(type="button" class="edit_btn") 查看/编辑
 							button.btn.btn-default(type="button" class="patient_btn") 选择患者
 							button.btn.btn-default(type="button") 删除
-			//- tr
-			//- 	td 574805242
-			//- 	td 不是吧
-			//- 	td 男
-			//- 	td 18
-			//- 	td 医师
-			//- 	td 6E-201
-			//- 	td 0769-22285318
-			//- 	td 1358071222
-	nav
-		ul.pagination
-			li(class="disabled")
-				a(href="#" aria-label="Previous")
-					span(aria-hidden="true") &laquo;
-			li(class="active")
-				a(href="#") 1
-			li
-				a(href="#") 2
-			li
-				a(href="#") 3
-			li
-				a(href="#") 4
-			li
-				a(href="#" aria-label="Next")
-					span(aria-hidden="true") &raquo;
-
-
-
-
-
-
-
+							
+	include ../includes/pagination
 
 	div(class="modal fade" id="patient-list")
 		div(class="modal-dialog modal-lg")
@@ -130,7 +82,7 @@ block content
 							span &times;
 						h4 添加医生用户
 					div(class="modal-body")
-							input(type="hidden" name="role" value="2")
+							input(type="hidden" name="role" value="1")
 							div.form-group
 								label(class="col-sm-3 control-label text-left") 账户名：
 								div.col-sm-9
@@ -174,7 +126,7 @@ block content
 								div.col-sm-9
 									input(type="text" class="form-control" name="title")
 					div.modal-footer
-						button(type="button" class="btn btn-default" id="close-family-form-btn").pull-right 关闭
+						button(type="button" class="btn btn-default" id="close-family-form-btn" data-dismiss="modal").pull-right 关闭
 						button(type="submit" style="margin-right:10px").btn.btn-primary.pull-right 确定添加
 	div(class="modal fade" id="edit-user")
 		div(class="modal-dialog")
@@ -221,8 +173,9 @@ block content
 								div.col-sm-9
 									input(type="text" class="form-control" name="title")
 					div.modal-footer
-						button(type="button" class="btn btn-default" id="close-family-form-btn").pull-right 关闭
+						button(type="button" class="btn btn-default" id="close-family-form-btn" data-dismiss="modal").pull-right 关闭
 						button(type="submit" style="margin-right:10px").btn.btn-primary.pull-right 确定添加
+						
 block exclusiveScript
 	script.
 		// 添加医生用户
@@ -351,17 +304,17 @@ block exclusiveScript
 					}
 
 					$('<tr>' +
-				        '<td>' +
-				            '<input type="checkbox" name="care_patient_id" value="'+curPatient._id+'" '+ (isChecked?"checked" : "") +'>' +
-				        '</td>' +
-				        '<td>'+curPatient.account+'</td>' +
-				        '<td>'+curRoleProp.real_name+'</td>' +
-				        '<td>'+(curRoleProp.sex == "0"?"男":"女") +'</td>' +
-				        '<td>'+curRoleProp.age+'</td>' +
-				        '<td>'+curRoleProp.address+'</td>' +
-				        '<td>'+curRoleProp.tel_phone+'</td>' +
-				        '<td>'+curRoleProp.phone+'</td>' +
-				    '</tr>').appendTo(patientTbody)
+						'<td>' +
+							'<input type="checkbox" name="care_patient_id" value="'+curPatient._id+'" '+ (isChecked?"checked" : "") +'>' +
+						'</td>' +
+						'<td>'+curPatient.account+'</td>' +
+						'<td>'+curRoleProp.real_name+'</td>' +
+						'<td>'+(curRoleProp.sex == "0"?"男":"女") +'</td>' +
+						'<td>'+curRoleProp.age+'</td>' +
+						'<td>'+curRoleProp.address+'</td>' +
+						'<td>'+curRoleProp.tel_phone+'</td>' +
+						'<td>'+curRoleProp.phone+'</td>' +
+					'</tr>').appendTo(patientTbody)
 				}
 			})
 
@@ -371,8 +324,41 @@ block exclusiveScript
 			patientDialog.modal('show')
 		})
 
-		var patientListForm = $("#patient-list form")
-		//- patientListForm.submit(function(event){
-		//- 	event.preventDefault();
+		var searchForm = $("#search-form");
+		var userList = $("#userlist").find("tbody");
+		searchForm.submit(function(event){
+			event.preventDefault();
+			$.ajax({
+				url: $(this).attr("action"),
+				type: $(this).attr("method"),
+				data: $(this).serialize()
+			}).done(function(data){
+				console.log(data);
+				userList.empty();
 
-		//- })
+				for(var i = 0, iL = data.userList.length; i < iL; i++){
+					var cData = data.userList[i];
+					$('<tr data-uid="'+ cData._id +'" data-role="2" data-patient-list="'+ cData.care_patient +'">' +
+		        '<td>'+ cData.account +'</td>' +
+		        '<td>'+ cData.role_prop.real_name+'</td>' +
+		        '<td data-sex="'+ cData.role_prop.sex +'">'+ cData.role_prop.sex?"男":"女" +'</td>' +
+		        '<td>'+ cData.role_prop.age +'</td>' +
+		        '<td>'+ cData. +'</td>' +
+		        '<td>6E-206</td>' +
+		        '<td>22222333</td>' +
+		        '<td>33333333333</td>' +
+		        '<td>' +
+		            '<div role="group" class="btn-group btn-group-sm">' +
+		                '<button type="button" class="btn btn-default edit_btn">查看/编辑</button>' +
+		                '<button type="button" class="btn btn-default patient_btn">选择患者</button>' +
+		                '<button type="button" class="btn btn-default">删除</button>' +
+		            '</div>' +
+		        '</td>' +
+		    '</tr>').appendTo(userList)
+				}
+
+			}).fail(function(jqXHR, textStatus, errorThrown ){
+				console.log("textStatus:" + textStatus)
+				console.log("errorThrown:" + errorThrown)
+			})
+		})
