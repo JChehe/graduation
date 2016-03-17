@@ -1,5 +1,5 @@
 var uuid = require('node-uuid');
-var LIMIT = 1;
+var LIMIT = 3;
 // 默认信息
 exports.index = function(req, res, next) {
     res.render("system_admin/system_index", {
@@ -45,25 +45,53 @@ exports.modify_password = function(req, res, next) {
     })
 }
 
+// 删除用户
+exports.del_user = function(req, res, next){
+    var uid = req.query.uid;
+    console.log(uid);
+
+    req.models.User.remove({
+        _id: uid
+    }, function(err){
+        if(err) return next(err);
+        res.send({
+            status: true
+        })
+    })
+}
+
 
 
 // 按条件搜索用户列表
-exports.condition_search = function(req, res, next) {
+exports.user_search = function(req, res, next) {
+    console.log(req.body)
     console.log(typeof req.body["min-age"]); // String
-    var realName = req.body["real_name"] || {
-        "$exists": true
+    var realNameQuery = null;
+    var realName = req.body["real_name"]
+    if(realName){
+        realNameQuery = new RegExp(realName)
+    }else{
+        realNameQuery = {
+            "$exists": true
+        }
     }
     var minAge = req.body["min-age"] != "" ? parseInt(req.body["min-age"], 10) : -1;
     var maxAge = req.body["max-age"] != "" ? parseInt(req.body["max-age"], 10) : 100000000;
 
     var sex = req.body["sex"] == "-1" ? ["0", "1"] : [req.body["sex"]]
     console.log(typeof req.body["role"])
+   
     req.models.User.find({
-        "role": req.body["role"],
-        "role_prop.real_name": realName,
+        // "role": req.body["role"],
+        // "role_prop.real_name": new RegExp(realName),
         "role_prop.sex": {
             "$in": sex
         },
+        "$or": [{
+            "role_prop.real_name": realNameQuery
+        }, {
+            "account": realNameQuery
+        }],
         "role_prop.age": {
             "$gte": minAge,
             "$lte": maxAge
@@ -71,7 +99,7 @@ exports.condition_search = function(req, res, next) {
     }, function(err, userList) {
         if (err) return next(err);
         console.log(userList)
-        // 在前端判断人数，然后进行相应控制
+            // 在前端判断人数，然后进行相应控制
         res.send({
             status: true,
             userList: userList
@@ -79,6 +107,146 @@ exports.condition_search = function(req, res, next) {
     })
 }
 
+// 按条件搜索事件列表
+exports.event_search = function(req, res, next) {
+    var rb = req.body;
+    console.log(rb)
+    var filedKey = rb["filed-key"], //  值
+        filedSelect = rb["filed-select"], // 键
+        startTime = new Date(rb["start-date"] || 0),
+        endTime = rb["end-date"] ? new Date(rb["end-date"]) : Date.now();
+    console.log(startTime)
+    console.log(endTime);
+
+    var query = null;
+    switch (filedSelect) {
+        case "name":
+            query = {
+                "happen_time": {
+                    "$gte": startTime,
+                    "$lte": endTime
+                },
+                "name": new RegExp(filedKey)
+            };
+            break;
+        case "patient_name":
+            query = {
+                "happen_time": {
+                    "$gte": startTime,
+                    "$lte": endTime
+                },
+                "patient_name": new RegExp(filedKey)
+            };
+            break;
+        case "patient_sex":
+            query = {
+                "happen_time": {
+                    "$gte": startTime,
+                    "$lte": endTime
+                },
+                "patient_sex": new RegExp(filedKey)
+            };
+            break;
+        case "patient_age":
+            query = {
+                "happen_time": {
+                    "$gte": startTime,
+                    "$lte": endTime
+                },
+                "patient_age": new RegExp(filedKey)
+            }
+            break;
+        default:
+            query = {
+                "happen_time": {
+                    "$gte": startTime,
+                    "$lte": endTime
+                },
+                "$or": [{
+                    "name": new RegExp(filedKey)
+                }, {
+                    "patient_name": new RegExp(filedKey)
+                }, {
+                    "patient_sex": new RegExp(filedKey)
+                }, {
+                    "patient_age": new RegExp(filedKey)
+                }]
+            };
+    }
+    console.log(query)
+    var options = {
+        sort: {
+            "level": 1
+        }
+    }
+    req.models.Event.find(query, null, options)
+        .populate("user")
+        .exec(function(err, eventList) {
+            if (err) return next(err);
+            res.send({
+                status: true,
+                eventList: eventList
+            })
+        });
+}
+
+// 按条件搜索诊断信息
+exports.diagnose_search = function(req, res, next) {
+    var rb = req.body;
+    console.log(rb);
+    var keyword = rb["keyword"], //  值
+        startTime = new Date(rb["start-date"] || 0),
+        endTime = rb["end-date"] ? new Date(rb["end-date"]) : Date.now();
+
+    var patientId = rb["patient-id"];
+
+    console.log("keyword" + keyword)
+    var options = {
+        sort: { update_time: -1 }
+    }
+
+    var query = null;
+    if (patientId) {
+        query = {
+            "patient_id": patientId,
+            "update_time": {
+                "$gte": startTime,
+                "$lte": endTime
+            },
+            "$or": [{
+                "doctor_name": new RegExp(keyword)
+            }, {
+                "patient_name": new RegExp(keyword)
+            }, {
+                "content": new RegExp(keyword)
+            }]
+        };
+    } else {
+        query = {
+            "update_time": {
+                "$gte": startTime,
+                "$lte": endTime
+            },
+            "$or": [{
+                "doctor_name": new RegExp(keyword)
+            }, {
+                "patient_name": new RegExp(keyword)
+            }, {
+                "content": new RegExp(keyword)
+            }]
+        };
+    }
+    console.log(query)
+    req.models.Diagnose.find(query, null, options)
+        .populate("patient")
+        .exec(function(err, diagnoseList) {
+            if (err) return next(err);
+            res.send({
+                status: true,
+                diagnoseList: diagnoseList
+            })
+        })
+}
 
 
 // 系统管理员/管理员 的 系统用户列表

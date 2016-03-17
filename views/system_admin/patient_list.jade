@@ -8,28 +8,10 @@ block exclusiveStyle
 block content
 	h3.page-header 你所在的路径：信息系统 / 病人用户列表
 	
-	form.form-inline(id="search-form")
-		div.form-group
-			label(for="name") 姓名&nbsp;
-			input( type="text" class="form-control" id="name" name="name")
-		div.form-group
-			label(for="sex") 性别&nbsp;
-			select( name="sex" id="sex" class="form-control")
-				option(value="-1") 性别
-				option(value="0") 男
-				option(value="1") 女
-		div.form-group(id="min-age")
-			label(for="min-age") 年龄&nbsp;
-			input(type="text" class="form-control" id="min-age" name="min-age")
-		|  - 
-		div.form-group
-			label(for="max-age" class="sr-only") 年龄
-			input(type="text" class="form-control" id="max-age" name="max-age")
-		button(type="submit" class="btn btn-default")
-			span(class="glyphicon glyphicon-search" aria-hidden="true") 搜索
+	include ../includes/userSearchForm
 	
 	button(type="button" class="btn btn-default" data-toggle="modal" data-target="#add-user") 添加新系统用户
-	table.table.table-striped
+	table.table.table-striped#userlist
 		thead 
 			tr 
 				td 账户名
@@ -49,13 +31,13 @@ block content
 					td(data-sex="#{roleProp.sex}")= roleProp.sex == 0? "男": "女"
 					td= roleProp.age
 					td= roleProp.address
-					td= roleProp.tel_phone
 					td= roleProp.phone
+					td= roleProp.tel_phone
 					td
 						div.btn-group.btn-group-sm(role="group")
 							button.btn.btn-default(type="button" class="edit_btn") 查看/编辑
 							button.btn.btn-default(type="button" class="family_btn") 查看家属
-							button.btn.btn-default(type="button") 删除
+							button.btn.btn-default(type="button" class="del_user") 删除
 
 	include ../includes/pagination
 
@@ -399,7 +381,7 @@ block exclusiveScript
 				        '<td>' +
 				            '<div role="group" class="btn-group btn-group-sm">' +
 				                '<button type="button" class="btn btn-default edit-family">编辑</button>' +
-				                '<button type="button" class="btn btn-default">删除</button>' +
+				                '<button type="button" class="btn btn-default del_family">删除</button>' +
 				            '</div>' +
 				        '</td>' +
 				    '</tr>').appendTo(familyTbody)
@@ -423,7 +405,7 @@ block exclusiveScript
 			familyForm.show()
 		})
 		familyTbody.on("click", ".edit-family", function(event){
-			curFamilyId = $(this).closest("tr").data("familyId")
+			curFamilyId = $(this).closest("tr").data("familyId");
 			isFamilyCreate.val(curFamilyId);
 			familyForm.show()
 		})
@@ -452,7 +434,7 @@ block exclusiveScript
 					        '<td>' +
 					            '<div role="group" class="btn-group btn-group-sm">' +
 					                '<button type="button" class="btn btn-default">编辑</button>' +
-					                '<button type="button" class="btn btn-default">删除</button>' +
+					                '<button type="button" class="btn btn-default del_user">删除</button>' +
 					            '</div>' +
 					        '</td>' +
 					    '</tr>').appendTo(familyTbody)
@@ -473,4 +455,60 @@ block exclusiveScript
 				console.log("textStatus:" + textStatus)
 				console.log("errorThrown:" + errorThrown)
 			})
+		})
+
+		// 搜索
+
+		var searchForm = $("#search-form");
+		var userList = $("#userlist").find("tbody");
+
+		searchForm.submit(function(event){
+			event.preventDefault();
+			$.ajax({
+				url: $(this).attr("action"),
+				type: $(this).attr("method"),
+				data: $(this).serialize()
+			}).done(function(data){
+				console.log(data);
+				userList.empty();
+				var strTem = "";
+				for(var i = 0, iL = data.userList.length; i < iL; i++){
+					var cData = data.userList[i];
+					strTem += ('<tr data-uid="'+ cData._id +'" data-role="3" data-idcard="'+ cData.role_prop.id_card +'" data-height="'+ cData.role_prop.height +'" data-weight="'+ cData.role_prop.weight +'" data-birthday="'+ cData.role_prop.birthday +'" data-medicalcase="'+ cData.role_prop.medical_case +'">' +
+				    '<td>'+ cData.account +'</td>' +
+				    '<td>'+ cData.role_prop.real_name +'</td>' +
+				    '<td data-sex="'+ cData.role_prop.sex +'">'+ (cData.role_prop.sex == 0? "男": "女") +'</td>' +
+				    '<td>'+ cData.role_prop.age +'</td>' +
+				    '<td>'+ cData.role_prop.address +'</td>' +
+				    '<td>'+ cData.role_prop.tel_phone +'</td>' +
+				    '<td>'+ cData.role_prop.phone +'</td>' +
+				    '<td>' +
+				        '<div role="group" class="btn-group btn-group-sm">' +
+				            '<button type="button" class="btn btn-default edit_btn">查看/编辑</button>' +
+				            '<button type="button" class="btn btn-default family_btn">查看家属</button>' +
+				            '<button type="button" class="btn btn-default del_user">删除</button>' +
+				        '</div>' +
+				    '</td>' +
+				'</tr>');
+					
+				}
+				userList.html(strTem)
+
+			}).fail(function(jqXHR, textStatus, errorThrown ){
+				console.log("textStatus:" + textStatus)
+				console.log("errorThrown:" + errorThrown)
+			})
+		})
+
+
+		userList.on("click", ".del_user", function(event){
+			event.preventDefault();
+			if(window.confirm("确认要删除吗？")){
+				var cTr = $(this).closest("tr");
+				var uId = cTr.data("uid");
+				$.get("/del_user?uid=" + uId, function(data){
+					console.log(data);
+					cTr.remove();
+				})
+			}
 		})

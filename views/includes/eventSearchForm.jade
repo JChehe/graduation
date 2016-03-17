@@ -1,0 +1,23 @@
+form.form-inline(id="search-form" action="/event_search" method="post")
+	div.form-group
+		label(for="filed-key") 关键字&nbsp;
+		input( type="text" class="form-control" id="filed-key" name="filed-key")
+	div.form-group
+		label(for="filed-select")
+		select#filed-select(name="filed-select" class="form-control")
+			option(value="all") 所有
+			option(value="name") 事件名
+			option(value="patient_name") 病人名字
+			option(value="patient_sex") 性别
+			option(value="patient_age") 年龄
+	div.form-group
+		label(for="start-date") 日期范围 &nbsp;
+		input#start-date(type="date" name="start-date" class="form-control")
+	| - &nbsp;&nbsp;
+	div.form-group
+		label(for="end-date")
+		input#end-date(type="date" name="end-date" class="form-control")
+	button(type="submit" class="btn btn-default")
+		span(class="glyphicon glyphicon-search" aria-hidden="true") 搜索
+
+//- include ../includes/eventSearchForm

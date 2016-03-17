@@ -6,25 +6,7 @@ block exclusiveStyle
 block content
 	h3.page-header 您所在的路径：信息系统 / 我的监护医生
 
-	form.form-inline(id="search-form")
-		div.form-group
-			label(for="name") 姓名&nbsp;
-			input( type="text" class="form-control" id="name" name="name")
-		div.form-group
-			label(for="sex") 性别&nbsp;
-			select( name="sex" id="sex" class="form-control")
-				option(value="-1") 性别
-				option(value="0") 男
-				option(value="1") 女
-		div.form-group(id="min-age")
-			label(for="min-age") 年龄&nbsp;
-			input(type="text" class="form-control" id="min-age" name="min-age")
-		|  - 
-		div.form-group
-			label(for="max-age" class="sr-only") 年龄
-			input(type="text" class="form-control" id="max-age" name="max-age")
-		button(type="submit" class="btn btn-default")
-			span(class="glyphicon glyphicon-search" aria-hidden="true") 搜索
+	include ../includes/diagnoseSearchForm 
 
 
 	table.table.table-striped(id="diagnose_table")
@@ -43,7 +25,7 @@ block content
 					td= user.role_prop.real_name
 					td= user.role_prop.sex
 					td= user.role_prop.age
-					td= moment(diagnose.update_time).format("YYYY年MM月DD日")
+					td= moment(diagnose.update_time).format("YYYY年MM月DD日 HH:MM:SS")
 					td= diagnose.doctor_name
 					td= diagnose.content.length>20? diagnose.content.substr(0,20) + "..." : diagnose.content
 					td
@@ -75,6 +57,8 @@ block content
 				
 
 block exclusiveScript
+	script(src="js/libs/moment.min.js")
+	script(src="js/libs/zh-cn.js")
 	script.
 		var diagnoseDialog = $("#diagnose_dialog"),
 			diagnosePatient = diagnoseDialog.find(".patient_name"),
@@ -89,4 +73,45 @@ block exclusiveScript
 			diagnoseDoctor.text("诊断医生："+doctor);
 			diagnoseContent.text(diagnoseContentText);
 
+		})
+	
+
+		// 搜索
+		var searchForm = $("#search-form");
+		var diagnoseList = $("#diagnose_table").find("tbody");
+
+		searchForm.submit(function(event){
+			event.preventDefault();
+			$.ajax({
+				url: $(this).attr("action"),
+				type: $(this).attr("method"),
+				data: $(this).serialize()
+			}).done(function(data){
+				console.log(data);
+				diagnoseList.empty();
+				var strTem = "";
+				for(var i = 0, iL = data.diagnoseList.length; i < iL; i++){
+					var cData = data.diagnoseList[i];
+					var patientRealName = cData.patient.role_prop.real_name;
+					var patientSex = cData.patient.role_prop.sex == 0? "男": "女";
+					var patientAge = cData.patient.role_prop.age;
+					var diagnoseTime = moment(cData.update_time || cData.update_time).format("YYYY年MM月DD日 HH:MM:SS");
+					strTem += ('<tr data-patient="'+ patientRealName +'" data-doctor="'+ cData.doctor_name +'" data-content="'+ cData.content +'">' +
+					    '<td>'+ patientRealName +'</td>' +
+					    '<td>'+ patientSex +'</td>' +
+					    '<td>'+ patientAge +'</td>' +
+					    '<td>'+ diagnoseTime +'</td>' +
+					    '<td>'+ cData.doctor_name +'</td>' +
+					    '<td>'+ cData.content +'</td>' +
+					    '<td>' +
+					        '<button data-toggle="modal" data-target="#diagnose_dialog" class="btn btn-default btn-sm view_diagnose">查看诊断信息</button>' +
+					    '</td>' +
+					'</tr>')
+				}
+				diagnoseList.html(strTem)
+
+			}).fail(function(jqXHR, textStatus, errorThrown ){
+				console.log("textStatus:" + textStatus)
+				console.log("errorThrown:" + errorThrown)
+			})
 		})

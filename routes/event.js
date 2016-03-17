@@ -47,7 +47,7 @@ exports.select_event_handle = function(req, res, next) {
 
 exports.add_event = function(req, res, next) {
     req.models.User.find({
-
+        role: "3"
     }, function(err, patientList) {
         if (err) return next(err);
         res.render("doctor/add_event", {
@@ -58,34 +58,26 @@ exports.add_event = function(req, res, next) {
 }
 
 exports.add_event_handle = function(req, res, next) {
-    var reqBody = req.body;
-    // console.log(reqBody)
+    var rb = req.body;
+
     req.models.User.findOne({
-        _id: reqBody.patient_id
+        _id: rb.patient_id
     }, function(err, patient) {
         if (err) return next(err);
-        console.log(reqBody)
-        if (!patient.event_list) {
-            return next(new Error("没有创建事件列表"));
-        }
+        req.models.Event.create({
+            user_id: rb.patient_id,
+            name: rb.event_name,
+            content: rb.event_info,
+            is_view: false,
+            level: rb.level,
+            user: rb.patient_id,
+            patient_name: patient.role_prop.real_name,
+            patient_age: patient.role_prop.age,
+            patient_sex: patient.role_prop.sex
+        }, function(err, event){
+            if(err) return next(err);
+            res.redirect("/add_event")
 
-        reqBody.is_view = false;
-        req.models.Event.findOne({
-            _id: patient.event_list
-        }, function(err, eventDoc) {
-            eventDoc.update({
-                $push: {
-                    event_list: {
-                        "name": reqBody.event_name,
-                        "happen_time": reqBody.happen_time,
-                        "is_view": false,
-                        "info": reqBody.event_info
-                    }
-                }
-            }, function(err, count, raw) {
-
-                res.redirect("/add_event")
-            })
         })
     })
 }

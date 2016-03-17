@@ -1,0 +1,18 @@
+form.form-inline(id="search-form" action="/diagnose_search" method="post")
+	div.form-group
+		label(for="keyword") 关键字&nbsp;
+		input( type="text" class="form-control" id="keyword" name="keyword")
+	div.form-group
+		label(for="start-date") 日期范围 &nbsp;
+		input#start-date(type="date" name="start-date" class="form-control")
+	| - &nbsp;&nbsp;
+	div.form-group
+		label(for="end-date")
+		input#end-date(type="date" name="end-date" class="form-control")
+	if user.role == 3
+		div.form-group
+			input(type="hidden", name="patient-id" value="#{user._id}")
+	button(type="submit" class="btn btn-default")
+		span(class="glyphicon glyphicon-search" aria-hidden="true") 搜索
+
+//- include ../includes/diagnoseSearchForm

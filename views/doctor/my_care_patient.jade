@@ -5,33 +5,57 @@ block exclusiveStyle
 	link(rel="stylesheet" href="js/libs/cupertino/jquery-ui.min.css")
 	link(rel="stylesheet" href="css/libs/fullcalender/fullcalendar.css")
 	link(rel="stylesheet" href="css/libs/fullcalender/fullcalendar.print.css" media='print')
-
+	style.
+		#calendar-container{
+			display:none;
+			position: fixed;
+			left: 0;right:0;
+			top: 0; bottom:0;
+			background-color: rgba(0,0,0,.8);
+			z-index: 1100;
+		}
+		#calendar-container.active{
+			display:block;
+		}
+		#calendar{
+			margin: 10px auto;
+			padding: 15px;
+			background-color: #fff;
+		}
+		#calendar-container .close{
+			width: 50px;
+			height: 50px;
+			background-color: #fff;
+			border-radius: 50%;
+			opacity: .8;
+			
+		}
+		.close span{
+			display: inline;
+			line-height: 50px;
+		}
+		#calendar-container .close span{
+			-webkit-transition: all .8s;
+			-o-transition: all .8s;
+			transition: all .8s;
+		}
+		#calendar-container .close:hover span{
+			-webkit-transform: scale(1.5);
+			-ms-transform: scale(1.5);
+			-o-transform: scale(1.5);
+			transform: scale(1.5);
+		}
+		#view-diagnose{
+			z-index: 1500;
+		}
 
 block content
 	h3.page-header 你所在的路径：信息系统 / 我的监护病人
 	
-	form.form-inline(id="search-form")
-		div.form-group
-			label(for="name") 姓名&nbsp;
-			input( type="text" class="form-control" id="name" name="name")
-		div.form-group
-			label(for="sex") 性别&nbsp;
-			select( name="sex" id="sex" class="form-control")
-				option(value="-1") 性别
-				option(value="0") 男
-				option(value="1") 女
-		div.form-group(id="min-age")
-			label(for="min-age") 年龄&nbsp;
-			input(type="text" class="form-control" id="min-age" name="min-age")
-		|  - 
-		div.form-group
-			label(for="max-age" class="sr-only") 年龄
-			input(type="text" class="form-control" id="max-age" name="max-age")
-		button(type="submit" class="btn btn-default")
-			span(class="glyphicon glyphicon-search" aria-hidden="true") 搜索
+	include ../includes/userSearchForm
 	
 	//- button(type="button" class="btn btn-default" data-toggle="modal" data-target="#add-user") 添加新系统用户
-	table.table.table-striped
+	table.table.table-striped#userlist
 		thead 
 			tr 
 				td 账户名
@@ -132,7 +156,7 @@ block content
 	//- 			div(class="modal-footer")
 	//- 				button(class="btn btn-default" data-dismiss="modal") 关闭
 	
-	div#calendar
+	
 	section.message_box
 		div.header 病人紧急事件报警监控
 		div.content
@@ -143,45 +167,39 @@ block content
 						th 姓名
 						th 次数
 						th 时间
-						th 数据
 				tbody
-					tr
-						td 按紧急按钮
-						td 硫酸钾四
-						td 1
-						td 5222
-						td 部分上传
-					tr
-						td 按紧急按钮
-						td 硫酸钾四
-						td 1
-						td 5222
-						td 部分上传
-					tr
-						td 按紧急按钮
-						td 硫酸钾四
-						td 1
-						td 5222
-						td 部分上传
-					tr
-						td 按紧急按钮
-						td 硫酸钾四
-						td 1
-						td 5222
-						td 部分上传
-					tr
-						td 按紧急按钮
-						td 硫酸钾四
-						td 1
-						td 5222
-						td 部分上传
+					
 		div.footer
-			| 当前共4条未查看的事件 
+			| 当前共
+			span#eventAmount 0
+			| 条未查看的事件 
 			span(class="glyphicon glyphicon-envelope" aria-hidden="true" style="color:#f0ad4e")
-			a(href="/refresh_event_list") 刷新	
+			a(href="javascript:;" class="reflash_event") 刷新	
 			a(href="/event_list") 查看全部事件
 						
+	div(class="modal fade" id="view-diagnose")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal" aria-label="Close")
+						span &times;
+					h4 查看相关诊断信息
+				div(class="modal-body")
+					table.table.table-striped
+						thead
+							tr
+								th 诊断时间
+								th 医生
+								th 内容
+						tbody.diagnose-tbody
 
+				div(class="modal-footer")
+					button(type="button" class="btn btn-default" data-dismiss="modal") 关闭
+					button(type="submit" class="btn btn-primary") 确定
+	section#calendar-container
+		button.close(type='button', aria-label='Close')
+			span(aria-hidden='true') ×
+		div#calendar
 block exclusiveScript
 	script(src="js/libs/moment.min.js")
 	script(src="js/libs/jquery-ui.custom.min.js")
@@ -217,20 +235,20 @@ block exclusiveScript
 				for(var i = 0, len = family.length; i < len; i++){
 					var curFamily = family[i];
 					$('<tr>' +
-				        '<td>'+curFamily.name+'</td>' +
-				        '<td>'+curFamily.phone+'</td>' +
-				        '<td>'+curFamily.relationship+'</td>' +
-				        '<td>'+(curFamily.is_receive_message == "0"? "是":"否")+'</td>' +
-				        '<td>'+curFamily.remark+'</td>' +
-				    '</tr>').appendTo(patientInfoDialog.find(".family_table tbody"))
+						'<td>'+curFamily.name+'</td>' +
+						'<td>'+curFamily.phone+'</td>' +
+						'<td>'+curFamily.relationship+'</td>' +
+						'<td>'+(curFamily.is_receive_message == "0"? "是":"否")+'</td>' +
+						'<td>'+curFamily.remark+'</td>' +
+					'</tr>').appendTo(patientInfoDialog.find(".family_table tbody"))
 				}
 				$("#patient_info_dialog").modal("show")
 			}).fail(function(){
 				console.log("获取病人信息失败")
 			})
-		}).on("click", ".view_calendar",function(event){
-			$("#patient_calender_dialog").modal("show")
-		});
+		})
+
+
 
 
 		$(".message_box").on("click", ".header", function(event){
@@ -238,14 +256,14 @@ block exclusiveScript
 		})
 
 
-
+		var calendar = $("#calendar");
 		$('#calendar').fullCalendar({
-		    header: {
+			header: {
 				left: 'prev,next today',
 				center: 'title',
 				right: 'month,agendaWeek,agendaDay'
 			},
-			defaultDate: '2015-02-12',
+			defaultDate: Date.now(),
 			buttonIcons: false, // show the prev/next text
 			weekNumbers: true,
 			editable: true,
@@ -255,5 +273,148 @@ block exclusiveScript
 					title: '按紧急按钮',
 					start: '2015-02-01T16:30:00'
 				}
-			]
+			],
+			eventClick: function(calEvent, jsEvent, view){
+						event.preventDefault();
+						$.get(calEvent.url, function(data){
+							console.log(data);
+							var diaStr = "";
+
+							for(var i = 0, len = data.length; i < len; i++){
+								var cData = data[i];
+
+								diaStr += '<tr>' +
+							        '<td>'+ cData.create_time +'</td>' +
+							        '<td>'+ cData.doctor_name +'</td>' +
+							        '<td>'+ cData.content +'</td>' +
+							    '</tr>';
+							}
+							$(".diagnose-tbody").html(diaStr);
+							$("#view-diagnose").modal('toggle')
+						})
+					}
 		});
+		
+		var calendarContainer = $("#calendar-container");
+		$("#userlist tbody").on("click", ".view_calendar",function(event){
+
+			calendarContainer.addClass("active");
+			$('#calendar').fullCalendar('render');
+			var pid = $(this).closest("tr").data("uid");
+			$.get("/get_calendar_events?pid=" + pid, function(data){
+				var events = [];
+				console.log(data.eventList)
+				$.each(data.eventList, function(index){
+					if(!isNaN(+index)){
+						
+						events[index] = {
+							title: this.name,
+							start: moment(this.happen_time).format("YYYY-MM-DD"),
+							end: moment((this.end_time) || this.happen_time).format("YYYY-MM-DD"),
+							className: "level" + this.level,
+							url: "get_related_diagnose?eid=" + this._id
+						}
+						//- console.log(events[index]["end"])
+					}
+				})
+				console.log(events);
+				calendar.fullCalendar("removeEvents")
+				calendar.fullCalendar( 'addEventSource', events )
+			})
+		});
+		
+		calendarContainer.find(".close").click(function(){
+			calendarContainer.removeClass("active")
+		})
+
+		// userSearchForm
+
+		var searchForm = $("#search-form");
+		var userList = $("#userlist").find("tbody");
+
+		searchForm.submit(function(event){
+			event.preventDefault();
+			$.ajax({
+				url: $(this).attr("action"),
+				type: $(this).attr("method"),
+				data: $(this).serialize()
+			}).done(function(data){
+				console.log(data);
+				userList.empty();
+				var strTem = "";
+				for(var i = 0, iL = data.userList.length; i < iL; i++){
+					var cData = data.userList[i];
+					strTem += ('<tr data-uid="'+ cData._id +'">' +
+					'<td>'+ cData.account +'</td>' +
+					'<td>'+ cData.role_prop.real_name +'</td>' +
+					'<td data-sex="'+ cData.role_prop.sex +'">'+ (cData.role_prop.sex == 0? "男": "女") +'</td>' +
+					'<td>'+ cData.role_prop.age +'</td>' +
+					'<td>'+ ((cData.role_prop.address)||'未填写') +'</td>' +
+					'<td>'+ cData.role_prop.tel_phone +'</td>' +
+					'<td>'+ cData.role_prop.phone +'</td>' +
+					'<td>' +
+						'<div role="group" class="btn-group btn-group-sm">' +
+							'<button type="button" class="btn btn-default edit_btn view_calendar">用户日历</button>' +
+							'<button type="button" class="btn btn-default edit_btn view_info">查看资料</button>' +
+						'</div>' +
+					'</td>' +
+				'</tr>'
+				);
+					
+				}
+				userList.html(strTem)
+
+			}).fail(function(jqXHR, textStatus, errorThrown ){
+				console.log("textStatus:" + textStatus)
+				console.log("errorThrown:" + errorThrown)
+			})
+		})
+
+
+
+
+		// 病人紧急事件报警监控
+		var doctorId = "#{user._id}";
+	
+		
+		
+		$(".reflash_event").click(function(event){
+			event.preventDefault();
+			getUnlookEvent();
+			updateEventAmount();
+		})
+		
+		function getUnlookEvent(){
+			$.get("/get_unView_event?did=" + doctorId, function(data){
+				createEvent(data.eventList);
+				updateEventAmount(data.eventList.length)
+			});
+		}
+		
+		function updateEventAmount(data){
+			$("#eventAmount").text(data);
+		}
+		function createEvent(data){
+			if(!data) return;
+
+			var strTem = "";
+			// 默认显示5条
+			for(var i = 0, len = 5; i < len; i++){
+				var cData = data[i];
+				strTem += '<tr>' +
+				    '<td>'+ cData.name +'</td>' +
+				    '<td>'+ cData.patient_name + '</td>' +
+				    '<td>'+ 1 +'</td>' +
+				    '<td>'+ moment(cData.happen_time).format("YYYY年MM月DD日 HH:MM:SS") +'</td>' +
+				'</tr>'
+			}
+			$(".message_box tbody").html(strTem);
+			//- return strTem;
+		}
+
+		setTimeout(function(){
+			getUnlookEvent()
+		}, 500)
+		setInterval(function(){
+			getUnlookEvent();
+		}, 6000)

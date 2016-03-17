@@ -1,6 +1,6 @@
 // var mongoJoin = require("mongo-join");
 
-var LIMIT = 1;
+var LIMIT = 3;
 
 exports.my_care_patient = function(req, res, next) {
     var curDoctor = req.session.user;
@@ -26,7 +26,8 @@ exports.my_care_patient = function(req, res, next) {
                 pageRange: Math.ceil(count / LIMIT),
                 curPage: parseInt(page),
                 isLast: (LIMIT * page >= count ? true : false),
-                isFirst: (page - 1 === 0 ? true : false)
+                isFirst: (page - 1 === 0 ? true : false),
+                conditioRole: 3
             })
 
         })
@@ -53,7 +54,7 @@ exports.get_patient_info = function(req, res, next) {
 exports.event_list = function(req, res, next) {
     var curDoctor = req.session.user;
     var page = req.query.p || 1;
-    var options = { skip: (page - 1) * LIMIT, limit: LIMIT, sort: { level: -1 } };
+    var options = { skip: (page - 1) * LIMIT, limit: LIMIT, sort: { level: 1 } };
 
     var myCarePatient = curDoctor.care_patient;
 
@@ -151,6 +152,7 @@ exports.add_diagnose = function(req, res, next) {
         patient_id: rb.patient_id,
         patient: rb.patient_id,
         doctor_name: req.session.user.role_prop.real_name,
+        patient_name: rb.patient_name,
         content: rb.diagnose_content,
         create_time: Date.now(),
         update_time: Date.now()
@@ -182,5 +184,29 @@ exports.modify_diagnose = function(req, res, next) {
         if (err) return next(err);
 
         res.json(true)
+    })
+}
+
+
+
+
+exports.get_unView_event = function(req, res, next){
+    var cDoctor = req.session.user;
+
+    var myCarePatient = cDoctor.care_patient;
+
+    req.models.Event.find({
+        user_id: {
+            "$in": myCarePatient
+        },
+        is_view: false
+    },function(err, eventList){
+        if(err) return next(err);
+
+        res.send({
+            status: "success",
+            eventList: eventList
+        })
+
     })
 }

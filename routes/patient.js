@@ -28,7 +28,8 @@ exports.my_related_doctor = function(req, res, next) {
                 pageRange: Math.ceil(count / LIMIT),
                 curPage: parseInt(page),
                 isLast: (LIMIT * page >= count ? true : false),
-                isFirst: (page - 1 === 0 ? true : false)
+                isFirst: (page - 1 === 0 ? true : false),
+                conditioRole: 2
             })
 
         })
@@ -70,13 +71,14 @@ exports.my_calendar = function(req, res, next) {
 }
 
 exports.get_calendar_events = function(req, res, next) {
+    var pid = req.query.pid;
     req.models.Event.find({
-        user_id: req.session.user._id
+        user_id: pid
     }).select({ "_id": 1, "name": 1, "content": 1, "happen_time": 1, "level": 1, "end_tiem": 1, "is_view": 1 }).exec(function(err, eventList) {
         if (err) return next(err);
 
         res.json({
-            eventList: req.models.Event.hydrate(eventList),
+            eventList: eventList,
             today: moment(Date.now()).format("YYYY-MM-DD")
         })
     })

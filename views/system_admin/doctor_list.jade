@@ -11,7 +11,7 @@ block content
 	include ../includes/userSearchForm
 	
 	button(type="button" class="btn btn-default" data-toggle="modal" data-target="#add-user") 添加新系统用户
-	table.table.table-striped
+	table.table.table-striped#userlist
 		thead 
 			tr 
 				td 账户名
@@ -39,7 +39,7 @@ block content
 						div.btn-group.btn-group-sm(role="group")
 							button.btn.btn-default(type="button" class="edit_btn") 查看/编辑
 							button.btn.btn-default(type="button" class="patient_btn") 选择患者
-							button.btn.btn-default(type="button") 删除
+							button.btn.btn-default(type="button" class="del_user") 删除
 							
 	include ../includes/pagination
 
@@ -67,7 +67,7 @@ block content
 									th 手机
 							tbody
 					div.modal-footer
-						button(type="button" class="btn btn-default" id="close-family-form-btn").pull-right 关闭
+						button(type="button" class="btn btn-default" id="close-family-form-btn" data-dismiss="modal").pull-right 关闭
 						button(type="submit" style="margin-right:10px").btn.btn-primary.pull-right 确定添加
 
 	
@@ -82,7 +82,7 @@ block content
 							span &times;
 						h4 添加医生用户
 					div(class="modal-body")
-							input(type="hidden" name="role" value="1")
+							input(type="hidden" name="role" value="2")
 							div.form-group
 								label(class="col-sm-3 control-label text-left") 账户名：
 								div.col-sm-9
@@ -201,7 +201,7 @@ block exclusiveScript
 						'<td>'+ user.location +'</td>' +
 						'<td>'+ user.phone +'</td>' +
 						'<td>'+ user.tel_phone +'</td>' +
-						'<td><div role="group" class="btn-group btn-group-sm"><button type="button" class="btn btn-default edit_btn">查看/编辑</button><button type="button" class="btn btn-default patient_btn">查看家属</button><button type="button" class="btn btn-default">删除</button></div></td>'+
+						'<td><div role="group" class="btn-group btn-group-sm"><button type="button" class="btn btn-default edit_btn">查看/编辑</button><button type="button" class="btn btn-default patient_btn">查看家属</button><button type="button" class="btn btn-default del_user">删除</button></div></td>'+
 					'</tr>').prependTo(userTable.find("tbody"));
 					
 					addUserDialog.modal('hide')
@@ -323,9 +323,12 @@ block exclusiveScript
 
 			patientDialog.modal('show')
 		})
+		
 
+		// 搜索
 		var searchForm = $("#search-form");
 		var userList = $("#userlist").find("tbody");
+
 		searchForm.submit(function(event){
 			event.preventDefault();
 			$.ajax({
@@ -335,30 +338,48 @@ block exclusiveScript
 			}).done(function(data){
 				console.log(data);
 				userList.empty();
-
+				var strTem = "";
 				for(var i = 0, iL = data.userList.length; i < iL; i++){
 					var cData = data.userList[i];
-					$('<tr data-uid="'+ cData._id +'" data-role="2" data-patient-list="'+ cData.care_patient +'">' +
-		        '<td>'+ cData.account +'</td>' +
-		        '<td>'+ cData.role_prop.real_name+'</td>' +
-		        '<td data-sex="'+ cData.role_prop.sex +'">'+ cData.role_prop.sex?"男":"女" +'</td>' +
-		        '<td>'+ cData.role_prop.age +'</td>' +
-		        '<td>'+ cData. +'</td>' +
-		        '<td>6E-206</td>' +
-		        '<td>22222333</td>' +
-		        '<td>33333333333</td>' +
-		        '<td>' +
-		            '<div role="group" class="btn-group btn-group-sm">' +
-		                '<button type="button" class="btn btn-default edit_btn">查看/编辑</button>' +
-		                '<button type="button" class="btn btn-default patient_btn">选择患者</button>' +
-		                '<button type="button" class="btn btn-default">删除</button>' +
-		            '</div>' +
-		        '</td>' +
-		    '</tr>').appendTo(userList)
+					strTem += ('<tr data-uid="'+ cData._id +'" data-role="2" data-patient-list="'+ cData.care_patient +'">' +
+								        '<td>'+ cData.account +'</td>' +
+								        '<td>'+ cData.role_prop.real_name+'</td>' +
+								        '<td data-sex="'+ cData.role_prop.sex +'">'+ (cData.role_prop.sex?"男":"女") +'</td>' +
+								        '<td>'+ cData.role_prop.age +'</td>' +
+								        '<td>'+ cData.role_prop.title +'</td>' +
+								        '<td>'+ cData.role_prop.location +'</td>' +
+								        '<td>'+ cData.role_prop.phone +'</td>' +
+								        '<td>'+ cData.role_prop.tel_phone +'</td>' +
+								        '<td>' +
+								            '<div role="group" class="btn-group btn-group-sm">' +
+								                '<button type="button" class="btn btn-default edit_btn">查看/编辑</button>' +
+								                '<button type="button" class="btn btn-default patient_btn">选择患者</button>' +
+								                '<button type="button" class="btn btn-default del_user">删除</button>' +
+								            '</div>' +
+								        '</td>' +
+								    '</tr>');
+					
 				}
+				console.log(userList)
+				console.log(strTem)
+				userList.html(strTem)
 
 			}).fail(function(jqXHR, textStatus, errorThrown ){
 				console.log("textStatus:" + textStatus)
 				console.log("errorThrown:" + errorThrown)
 			})
+		})
+
+
+
+		userList.on("click", ".del_user", function(event){
+			event.preventDefault();
+			if(window.confirm("确认要删除吗？")){
+				var cTr = $(this).closest("tr");
+				var uId = cTr.data("uid");
+				$.get("/del_user?uid=" + uId, function(data){
+					console.log(data);
+					cTr.remove();
+				})
+			}
 		})

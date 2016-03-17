@@ -38,11 +38,15 @@ router.get("/system_user_list", system_admin.system_user_list)
 router.get("/doctor_list", system_admin.doctor_list)
 router.get("/patient_list", system_admin.patient_list)
 
+router.get("/del_user", system_admin.del_user)
+
 router.post("/add_system_user", system_admin.add_system_user)
 router.post("/edit_system_user", system_admin.edit_system_user)
 
 router.post("/modify_password", system_admin.modify_password)
-router.post("/condition_search", system_admin.condition_search)
+router.post("/user_search", system_admin.user_search)
+router.post("/event_search", system_admin.event_search)
+router.post("/diagnose_search", system_admin.diagnose_search)
 
 router.post("/add_patient_user", system_admin.add_patient_user)
 router.post("/edit_patient_user", system_admin.edit_patient_user)
@@ -65,6 +69,7 @@ router.get("/diagnose_list", doctor.diagnose_list);
 router.get("/get_related_diagnose", doctor.get_related_diagnose)
 router.post("/modify_diagnose", doctor.modify_diagnose)
 router.post("/add_diagnose", doctor.add_diagnose)
+router.get("/get_unView_event", doctor.get_unView_event)
 
 router.get("/select_event", event.select_event)
 router.post("/select_event", event.select_event_handle)

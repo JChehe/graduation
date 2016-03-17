@@ -6,28 +6,9 @@ block exclusiveStyle
 block content
 	h3.page-header 您所在的路径：信息系统 / 我的监护医生
 
-	form.form-inline(id="search-form")
-		div.form-group
-			label(for="name") 姓名&nbsp;
-			input( type="text" class="form-control" id="name" name="name")
-		div.form-group
-			label(for="sex") 性别&nbsp;
-			select( name="sex" id="sex" class="form-control")
-				option(value="-1") 性别
-				option(value="0") 男
-				option(value="1") 女
-		div.form-group(id="min-age")
-			label(for="min-age") 年龄&nbsp;
-			input(type="text" class="form-control" id="min-age" name="min-age")
-		|  - 
-		div.form-group
-			label(for="max-age" class="sr-only") 年龄
-			input(type="text" class="form-control" id="max-age" name="max-age")
-		button(type="submit" class="btn btn-default")
-			span(class="glyphicon glyphicon-search" aria-hidden="true") 搜索
+	include ../includes/userSearchForm
 
-
-	table.table.table-striped
+	table#userlist.table.table-striped
 		thead 
 			tr 
 				td 账户名
@@ -52,3 +33,41 @@ block content
 					td= roleProp.tel_phone
 				
 	include ../includes/pagination
+	
+block exclusiveScript
+	script.
+		var searchForm = $("#search-form");
+		var userList = $("#userlist").find("tbody");
+
+		searchForm.submit(function(event){
+			event.preventDefault();
+			$.ajax({
+				url: $(this).attr("action"),
+				type: $(this).attr("method"),
+				data: $(this).serialize()
+			}).done(function(data){
+				console.log(data);
+				userList.empty();
+				var strTem = "";
+				for(var i = 0, iL = data.userList.length; i < iL; i++){
+					var cData = data.userList[i];
+					var sex = cData.role_prop.sex == 0 ?"男": "女";
+					console.log(typeof sex)
+					strTem += ('<tr data-uid="'+ cData._id +'">' +
+						'<td>'+ cData.account +'</td>' +
+						'<td>'+ cData.role_prop.real_name +'</td>' +
+						'<td data-sex="'+ cData.sex +'">'+ sex +'</td>' +
+						'<td>'+ cData.role_prop.age +'</td>' +
+						'<td>'+ cData.role_prop.title+'</td>' +
+						'<td>'+ cData.role_prop.location +'</td>' +
+						'<td>'+ cData.role_prop.phone +'</td>' +
+						'<td>'+ cData.role_prop.tel_phone +'</td>' +
+					'</tr>');
+				}
+				userList.html(strTem)
+
+			}).fail(function(jqXHR, textStatus, errorThrown ){
+				console.log("textStatus:" + textStatus)
+				console.log("errorThrown:" + errorThrown)
+			})
+		})

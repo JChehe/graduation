@@ -57,7 +57,7 @@ block exclusiveScript
 	script(src="js/libs/zh-cn.js")
 	script.
 		window.onload = function(){
-			$.get("/get_calendar_events", function(data){
+			$.get("/get_calendar_events?pid=#{user._id}", function(data){
 				console.log(data)
 				var events = [];
 				console.log(data.eventList)
@@ -109,6 +109,7 @@ block exclusiveScript
 			})
 		}
 
+		
 		
 
 		var viewDiagnoseDialog = $("#view-diagnose");

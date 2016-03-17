@@ -7,25 +7,8 @@ block exclusiveStyle
 block content
 	h3.page-header 你所在的路径：信息系统 / 事件列表
 	
-	form.form-inline(id="search-form")
-		div.form-group
-			label(for="name") 姓名&nbsp;
-			input( type="text" class="form-control" id="name" name="name")
-		div.form-group
-			label(for="sex") 性别&nbsp;
-			select( name="sex" id="sex" class="form-control")
-				option(value="-1") 性别
-				option(value="0") 男
-				option(value="1") 女
-		div.form-group(id="min-age")
-			label(for="min-age") 年龄&nbsp;
-			input(type="text" class="form-control" id="min-age" name="min-age")
-		|  - 
-		div.form-group
-			label(for="max-age" class="sr-only") 年龄
-			input(type="text" class="form-control" id="max-age" name="max-age")
-		button(type="submit" class="btn btn-default")
-			span(class="glyphicon glyphicon-search" aria-hidden="true") 搜索
+	include ../includes/eventSearchForm
+
 	table.table.table-striped#eventListTable
 		thead 
 			tr 
@@ -77,7 +60,8 @@ block content
 								th 性别
 								th 年龄
 								th 代码
-								th 具体操作
+								if user.role == 2
+									th 具体操作
 						tbody
 							tr
 								td
@@ -87,10 +71,11 @@ block content
 								td
 								td
 								td C
-								td
-									div.btn-group.btn-group-sm(role="group")
-										button(type="button" class="btn btn-default diagnose-btn") 诊断
-										//- button(type="button" class="btn btn-default") 打印诊断信息
+								if user.role == 2
+									td
+										div.btn-group.btn-group-sm(role="group")
+											button(type="button" class="btn btn-default diagnose-btn") 诊断
+											//- button(type="button" class="btn btn-default") 打印诊断信息
 					div.diagnose-container#diagnose-list
 						h5 最近5条诊断信息
 							//- button.btn.btn-default.pull-right 诊断
@@ -101,31 +86,14 @@ block content
 									th 诊断时间
 									th 医生
 									th 内容
-									th 操作
+									if user.role == 2
+										th 操作
 							tbody
-								tr(data-diagnoseid="111")
-									td 2015-2-5
-									td doctor01
-									td.dia-content 
-										p 镇八角打开拉萨觉得s
-									td 
-										button(type="button" class="btn btn-warning btn-xs modify-btn") 编辑
-								tr
-									td 2015-2-5
-									td doctor01
-									td.dia-content 
-										p 镇八角打开拉萨觉得s
-									td
-										button(type="button" class="btn btn-warning btn-xs modify-btn") 编辑
-								tr
-									td 2015-2-5
-									td doctor01
-									td.dia-content 
-										p 镇八角打开拉萨觉得s
-									td
-						form#diagnose-form(action="/add_diagnose?eid=" method="post" style="display:none;")
-							textarea.form-control(name="diagnose_content" rows="3" placeholder="请输入诊断信息")
-							input(type="hidden" name="patient_id")
+						if user.role == 2
+							form#diagnose-form(action="/add_diagnose?eid=" method="post" style="display:none;")
+								textarea.form-control(name="diagnose_content" rows="3" placeholder="请输入诊断信息")
+								input(type="hidden" name="patient_id")
+								input(type="hidden" name="patient_name")
 							div.btn-group
 								button.btn.btn-default(type="button") 取消
 								button.btn.btn-success(type="submit") 确认
@@ -137,8 +105,11 @@ block content
 
 
 block exclusiveScript
+	script(src="/js/libs/moment.min.js")
+	script(src="/js/libs/zh-cn.js")
 	script.
 		var curDotorId = "#{user._id}";
+		var isPatient = "#{user.role}" == "3"? true: false;
 		// 查看详情的点击按钮
 		var curEventId;
 		var viewDiagnoseDialog = $("#view-diagnose");
@@ -159,22 +130,24 @@ block exclusiveScript
 				$(this).text(eventData[index])
 			});
 
-			viewDiagnoseDialog.find("[name=patient_id]").val(curTr.data("uid"));
+			viewDiagnoseDialog.find("[name=patient_id]").val(curTr.data("uid")).end().find("[name=patient_name]").val(curTr.data("patientname"))
 
 			$.get("/get_related_diagnose?eid=" + curEventId, function(data){
 				console.log(data);
 				var diaStr = "";
+
 				var curDotorStr = '<button type="button" class="btn btn-warning btn-xs modify-btn">编辑</button>'; // 本医生特有的
+				var dotcorStr = isPatient? '' : '<td>' + curDotorStr+'</td>' // 医生才有，病人没有
 				for(var i = 0, len = data.length; i < len; i++){
 					var cData = data[i];
 					var isCurData = (curDotorId == cData.doctor_id ? curDotorStr : "");
 					diaStr += '<tr data-diagnoseid="'+ cData._id +'">' +
-				        '<td>'+ cData.create_time +'</td>' +
+				        '<td>'+ moment(cData.create_time).format("YYYY-MM-DD HH:mm") +'</td>' +
 				        '<td>'+ cData.doctor_name +'</td>' +
 				        '<td class="dia-content">' +
 				            '<p>'+ cData.content +'</p>' +
 				        '</td>' +
-				        '<td>' + curDotorStr+'</td>' +
+				         dotcorStr +
 				    '</tr>'
 				}
 
@@ -250,4 +223,45 @@ block exclusiveScript
 			}
 
 			
+		});
+
+
+
+		// 搜索
+		var searchForm = $("#search-form");
+		var eventList = $("#eventListTable").find("tbody");
+
+		searchForm.submit(function(event){
+			event.preventDefault();
+			$.ajax({
+				url: $(this).attr("action"),
+				type: $(this).attr("method"),
+				data: $(this).serialize()
+			}).done(function(data){
+				console.log(data);
+				eventList.empty();
+				var strTem = "";
+				for(var i = 0, iL = data.eventList.length; i < iL; i++){
+					var cData = data.eventList[i];
+					var happentime = moment(cData.happen_time).format("YYYY年MM月DD日 HH:MM:SS")
+					strTem += '<tr data-uid="'+ cData.user._id +'" data-eventid="'+ cData._id +'" data-event-level="'+ cData.level +'" data-event="'+ cData.name +'" data-happentime="'+ happentime +'" data-isview="'+ (event.is_view?"已查看":"未查看") +'" data-patientname="'+ cData.user.role_prop.real_name +'" data-sex="'+ (cData.user.role_prop.sex==0? "男": "女") +'" data-age="'+ cData.user.role_prop.age +'">' +
+				        '<td>'+ cData.name +'</td>' +
+				        '<td>'+ happentime +'</td>' +
+				        '<td>'+ cData.user.role_prop.real_name +'</td>' +
+				        '<td data-sex="'+ cData.user.role_prop.sex +'">'+ (cData.user.role_prop.sex==0? "男": "女") +'</td>' +
+				        '<td>'+ cData.user.role_prop.age +'</td>' +
+				        '<td data-isview="'+ cData.isView +'">'+ (cData.isView? "已查看": "未查看") +'</td>' +
+				        '<td><a href="javascript:;">查看具体信息</a></td>' +
+				        '<td>' +
+				            '<button type="button" data-toggle="modal" data-target="#view-diagnose" class="btn btn-default btn-sm">查看详情</button>' +
+				        '</td>' +
+				    '</tr>'
+					
+				}
+				eventList.html(strTem)
+
+			}).fail(function(jqXHR, textStatus, errorThrown ){
+				console.log("textStatus:" + textStatus)
+				console.log("errorThrown:" + errorThrown)
+			})
 		})

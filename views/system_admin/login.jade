@@ -17,6 +17,76 @@ block exclusiveStyle
 			width: 215px;
 			margin-top: 15px;
 		}
+		.navbar-fixed-top{
+			opacity: 0;
+			-webkit-transform: translateY(-100%);
+			-ms-transform: translateY(-100%);
+			-o-transform: translateY(-100%);
+			transform: translateY(-100%);
+			-webkit-transition: all .6s;
+			-o-transition: all .6s;
+			transition: all .6s;
+		}
+		.navbar-fixed-top.active{
+			opacity: 1;
+			-webkit-transform: translateY(0);
+			-ms-transform: translateY(0);
+			-o-transform: translateY(0);
+			transform: translateY(0);
+		}
+
+		form>.form_group input{
+			-webkit-transition: all .4s;
+			-o-transition: all .4s;
+			transition: all .4s;
+		}
+
+		form>.form_group:nth-child(odd) input{
+			opacity: 0;
+			-webkit-transform: translateX(-30%);
+			-ms-transform: translateX(-30%);
+			-o-transform: translateX(-30%);
+			transform: translateX(-30%);
+		}
+		form>.form_group:nth-child(even) input{
+			opacity: 0;
+			-webkit-transform: translateX(30%);
+			-ms-transform: translateX(30%);
+			-o-transform: translateX(30%);
+			transform: translateX(30%);
+		}
+
+		form.active>.form_group input{
+			opacity: 1;
+			-webkit-transform: translateY(0);
+			-ms-transform: translateY(0);
+			-o-transform: translateY(0);
+			transform: translateY(0);
+		}
+
+		form [type="submit"]{
+			-webkit-transition: all .4s;
+			-o-transition: all .4s;
+			transition: all .4s;
+			opacity: 0;
+			-webkit-transform: translateY(30px);
+			-ms-transform: translateY(30px);
+			-o-transform: translateY(30px);
+			transform: translateY(30px);
+		}
+
+		form.active [type="submit"]{
+			opacity: 1;
+			-webkit-transform: translateY(0);
+			-ms-transform: translateY(0);
+			-o-transform: translateY(0);
+			transform: translateY(0);
+		}
+	script.
+		window.onload = function(){
+			$(".navbar-fixed-top").addClass("active");
+			$("form").addClass("active")
+		}
 -var isLogin = {isLogin};
 block content
 	main.wrap
@@ -24,12 +94,12 @@ block content
 			div.form_group
 				label
 					span 帐号
-					input(class="form-control" name="username" type="text" autofocus value="admin")
+					input(class="form-control" name="username" type="text" autofocus value="doctor01")
 
 			div.form_group
 				label
 					span 密码
-					input(class="form-control" name="password" type="password" value="admin")
+					input(class="form-control" name="password" type="password" value="123456")
 			button.btn.btn-success(type="submit") 登录
 
 

@@ -127,3 +127,43 @@ header h3{
     margin-bottom: 25px;
 }
 
+
+
+body.active .navbar-fixed-top, body.active .sidebar{
+    opacity: 1;
+    -webkit-transform: translate3d(0,0,0);
+    -ms-transform: translate3d(0,0,0);
+    -o-transform: translate3d(0,0,0);
+    transform: translate3d(0,0,0);
+}
+ body.active .main{
+    opacity: 1;
+ }
+.navbar-fixed-top{
+    opacity: 0;
+    -webkit-transform: translateY(-100%);
+    -ms-transform: translateY(-100%);
+    -o-transform: translateY(-100%);
+    transform: translateY(-100%);
+    -webkit-transition: all .4s;
+    -o-transition: all .4s;
+    transition: all .4s;
+}
+
+.sidebar{
+    opacity: 0;
+    -webkit-transform: translateX(-60%);
+    -ms-transform: translateX(-60%);
+    -o-transform: translateX(-60%);
+    transform: translateX(-60%);
+    -webkit-transition: all .4s .2s;
+    -o-transition: all .4s .2s;
+    transition: all .4s .2s;
+}
+
+.main{
+    opacity: 0;
+    -webkit-transition: all .4s .4s;
+    -o-transition: all .4s .4s;
+    transition: all .4s .4s;
+}
