@@ -4,9 +4,11 @@ block exclusiveStyle
 	link(rel="stylesheet" href="css/index.css")
 
 block content
-	h3.page-header 你所在的路径：病人信息系统 / 首页
+	h3.page-header 你所在的路径：信息系统 / 首页
 	div#default-page
 		h2.sub-header
-		p.bg-success 欢迎#{user.role_prop.real_name || user.account}，你上次登录系统的时间是：2015-10-2 11：06：59，祝你健康！
+		p.bg-success 欢迎#{user.role_prop.real_name || user.account}，祝你身体健康！
+
+		img(src="/img/banner.gif", alt="" style="width: 100%")
 
 block exclusiveScript

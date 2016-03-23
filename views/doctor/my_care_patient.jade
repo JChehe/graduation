@@ -54,33 +54,34 @@ block content
 	
 	include ../includes/userSearchForm
 	
-	//- button(type="button" class="btn btn-default" data-toggle="modal" data-target="#add-user") 添加新系统用户
-	table.table.table-striped#userlist
-		thead 
-			tr 
-				td 账户名
-				td 姓名
-				td 性别
-				td 年龄
-				td 地址
-				td 电话
-				td 手机
-				td 操作
-		tbody
-			each value, index in userList
-				-var roleProp = value.role_prop
-				tr(data-uid="#{value._id}")
-					td= value.account
-					td= roleProp.real_name
-					td(data-sex="#{roleProp.sex}")= roleProp.sex == 0? "男": "女"
-					td= roleProp.age
-					td= roleProp.address
-					td= roleProp.tel_phone
-					td= roleProp.phone
-					td
-						div.btn-group.btn-group-sm(role="group")
-							button.btn.btn-default(type="button" class="edit_btn view_calendar") 用户日历
-							button.btn.btn-default(type="button" class="edit_btn view_info") 查看资料
+	
+	div.table-responsive
+		table.table.table-striped#userlist
+			thead 
+				tr 
+					td 账户名
+					td 姓名
+					td 性别
+					td 年龄
+					td 地址
+					td 电话
+					td 手机
+					td 操作
+			tbody
+				each value, index in userList
+					-var roleProp = value.role_prop
+					tr(data-uid="#{value._id}")
+						td= value.account
+						td= roleProp.real_name
+						td(data-sex="#{roleProp.sex}")= roleProp.sex == 0? "男": "女"
+						td= roleProp.age
+						td= roleProp.address
+						td= roleProp.tel_phone
+						td= roleProp.phone
+						td
+							div.btn-group.btn-group-sm(role="group")
+								button.btn.btn-default(type="button" class="edit_btn view_calendar") 用户日历
+								button.btn.btn-default(type="button" class="edit_btn view_info") 查看资料
 					
 	include ../includes/pagination
 
@@ -213,7 +214,7 @@ block exclusiveScript
 				url: "/get_patient_info/" +  curTr.data("uid")
 			}).done(function(data){
 				console.log(data);
-				var patientData = data.data;
+				var patientData = data.data.patient;
 				var patientRoleProp = patientData.role_prop;
 				patientInfoDialog.find(".modal-title").text(patientRoleProp.real_name+"的信息").end()
 					.find(".account").text(patientData.account).end()
@@ -230,15 +231,15 @@ block exclusiveScript
 					.find(".tel_phone").text(patientRoleProp.tel_phone).end()
 					.find(".address").text(patientRoleProp.address);
 				
-				var family = patientData.family
+				var familyList = data.data.familyList;
 				patientInfoDialog.find(".family_table tbody").empty()
-				for(var i = 0, len = family.length; i < len; i++){
-					var curFamily = family[i];
+				for(var i = 0, len = familyList.length; i < len; i++){
+					var curFamily = familyList[i];
 					$('<tr>' +
 						'<td>'+curFamily.name+'</td>' +
-						'<td>'+curFamily.phone+'</td>' +
+						'<td>'+curFamily.tel_phone+'</td>' +
 						'<td>'+curFamily.relationship+'</td>' +
-						'<td>'+(curFamily.is_receive_message == "0"? "是":"否")+'</td>' +
+						'<td>'+(curFamily.is_message == true? "是":"否")+'</td>' +
 						'<td>'+curFamily.remark+'</td>' +
 					'</tr>').appendTo(patientInfoDialog.find(".family_table tbody"))
 				}

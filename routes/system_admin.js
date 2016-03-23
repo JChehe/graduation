@@ -9,8 +9,14 @@ exports.index = function(req, res, next) {
 
 // 个人信息
 exports.perinfo = function(req, res, next) {
-    res.render("system_admin/per_info", {
-        user: req.session.user
+    req.models.Family.find({
+        patient_id: req.session.user._id
+    }, function(err, familyList) {
+        if (err) return next(err);
+        res.render("system_admin/per_info", {
+            user: req.session.user,
+            familyList: familyList
+        })
     })
 }
 
@@ -46,14 +52,14 @@ exports.modify_password = function(req, res, next) {
 }
 
 // 删除用户
-exports.del_user = function(req, res, next){
+exports.del_user = function(req, res, next) {
     var uid = req.query.uid;
     console.log(uid);
 
     req.models.User.remove({
         _id: uid
-    }, function(err){
-        if(err) return next(err);
+    }, function(err) {
+        if (err) return next(err);
         res.send({
             status: true
         })
@@ -68,9 +74,9 @@ exports.user_search = function(req, res, next) {
     console.log(typeof req.body["min-age"]); // String
     var realNameQuery = null;
     var realName = req.body["real_name"]
-    if(realName){
+    if (realName) {
         realNameQuery = new RegExp(realName)
-    }else{
+    } else {
         realNameQuery = {
             "$exists": true
         }
@@ -80,7 +86,7 @@ exports.user_search = function(req, res, next) {
 
     var sex = req.body["sex"] == "-1" ? ["0", "1"] : [req.body["sex"]]
     console.log(typeof req.body["role"])
-   
+
     req.models.User.find({
         // "role": req.body["role"],
         // "role_prop.real_name": new RegExp(realName),
@@ -631,7 +637,7 @@ exports.add_patient_user = function(req, res, next) {
         } else {
             console.log("帐号不存在，可以注册。")
             var reqBody = req.body;
-
+            var age = calculateAge(new Date(reqBody.birthday), null);
             var newUser = {
                 account: reqBody.account,
                 password: reqBody.password,
@@ -645,7 +651,8 @@ exports.add_patient_user = function(req, res, next) {
                     tel_phone: reqBody.tel_phone,
                     birthday: reqBody.birthday,
                     address: reqBody.address,
-                    medical_case: reqBody.medical_case
+                    medical_case: reqBody.medical_case,
+                    age: age
                 }
             }
 
@@ -665,7 +672,8 @@ exports.add_patient_user = function(req, res, next) {
                         tel_phone: reqBody.tel_phone,
                         birthday: reqBody.birthday,
                         address: reqBody.address,
-                        medical_case: reqBody.medical_case
+                        medical_case: reqBody.medical_case,
+                        age: age
                     }
                 })
             })
@@ -682,7 +690,7 @@ exports.edit_patient_user = function(req, res, next) {
         if (err) return next(err);
 
         var reqBody = req.body;
-
+        var age = calculateAge(new Date(reqBody.birthday), null);
         user.update({
             $set: {
                 role_prop: {
@@ -694,7 +702,8 @@ exports.edit_patient_user = function(req, res, next) {
                     tel_phone: reqBody.tel_phone,
                     birthday: reqBody.birthday,
                     address: reqBody.address,
-                    medical_case: reqBody.medical_case
+                    medical_case: reqBody.medical_case,
+                    age: age
                 }
             }
         }, function(err, count, raw) {
@@ -706,7 +715,7 @@ exports.edit_patient_user = function(req, res, next) {
                 info: "修改成功~",
                 user: {
                     real_name: reqBody.real_name,
-                    age: reqBody.age,
+                    age: age,
                     sex: reqBody.sex,
                     id_card: reqBody.id_card,
                     height: reqBody.height,
@@ -722,80 +731,92 @@ exports.edit_patient_user = function(req, res, next) {
     })
 }
 
+function calculateAge(birthday, ondate) {
+    // if ondate is not specified consider today's date
+    if (ondate == null) { ondate = new Date(); }
+    // if the supplied date is before the birthday returns 0
+    if (ondate < birthday) {
+        console.log("haha")
+        return 0;
+    }
+    console.log(typeof ondate)
+    var age = ondate.getFullYear() - birthday.getFullYear();
+    if (birthday.getMonth() > ondate.getMonth() || (birthday.getMonth() == ondate.getMonth() && birthday.getDate() > ondate.getDate())) { age--; }
+    return age;
+}
 // 系统管理员/管理员 下的 查询病人家属模块
-exports.family = function(req, res, next) {
-    var curPatient = req.params.id;
-    console.log(curPatient)
-    req.models.User.findOne({
-        _id: curPatient
-    }, function(err, user) {
+exports.get_family = function(req, res, next) {
+    var curPatientId = req.params.id;
+    console.log(curPatientId)
+    req.models.Family.find({
+        patient_id: curPatientId
+    }, function(err, familyList) {
+        if (err) return next(err);
         // console.log(user)
         res.send({
             status: true,
             info: "查询成功",
-            familyList: user.family
+            familyList: familyList
         })
     })
 }
 
 
 // 系统管理员/管理员 下的 处理（添加或编辑）病人家属模块
-
 exports.handle_family = function(req, res, next) {
-        var curPatientId = req.params.id;
-        var reqBody = req.body;
-        var curFamilyId = reqBody.family_id;
-
-        var randomId = "";
-        if (curFamilyId == "") { // 为空即新建
-            randomId = uuid.v1()
-            reqBody.family_id = randomId
-        }
-        req.models.User.findOne({
-            _id: curPatientId
-        }, function(err, user) {
-            if (err) return next(err);
-
-            // 为空即新建
-            if (curFamilyId == "") {
-                console.log("新建")
-                user.update({
-                    $push: {
-                        family: reqBody
-                    }
-                }, function(err, count, raw) {
-                    if (err) return next(err);
-                    res.send({
-                        status: true,
-                        info: "成功插入~",
-                        family: reqBody
-                    })
-                })
-            } else {
-                console.log("修改")
-                var newFamilyArr = user.family;
-                newFamilyArr.forEach(function(value, index) {
-                    if (value.family_id == curFamilyId) {
-                        newFamilyArr[index] = reqBody
-                    }
-                })
-                user.update({
-                    $set: {
-                        family: newFamilyArr
-                    }
-                }, function(err, count, raw) {
-                    if (err) return next(err);
-                    res.send({
-                        status: true,
-                        info: "成功更新~",
-                        family: reqBody
-                    })
-                })
-            }
-
-
-
-        })
-
+    var rb = req.body;
+    console.log(rb)
+    var familyId = rb.family_id;
+    console.log(rb.is_message)
+    console.log(typeof rb.is_message)
+    var familyObj = {
+        patient_id: rb.patient_id,
+        name: rb.name,
+        tel_phone: rb.tel_phone,
+        relationship: rb.relationship,
+        is_message: rb.is_message,
+        remark: rb.remark
     }
-    /* 系统管理员/管理员 下的 病人模块结束 */
+    if (familyId) {
+        req.models.Family.findOneAndUpdate({
+            _id: familyId
+        }, familyObj, { new: true }, function(err, doc) {
+            if (err) return next(err);
+            console.log(familyObj)
+            console.log(doc)
+            res.send({
+                status: true,
+                family: doc,
+                info: "修改成功"
+            })
+        })
+    } else {
+        req.models.Family.create(familyObj, function(err, doc) {
+            if (err) return next(err);
+            res.send({
+                status: true,
+                family: doc,
+                info: "新增成功"
+            })
+        })
+    }
+
+}
+
+exports.del_family = function(req, res, next) {
+    req.models.Family.findOneAndRemove({
+        _id: req.params.id
+    }, null, function(err, doc) {
+        if (err) return next(err);
+
+        res.send({
+            status: true,
+            family: doc,
+            info: "删除成功"
+        })
+    })
+
+}
+
+
+/* 系统管理员/管理员 下的 病人模块结束 */

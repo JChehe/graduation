@@ -8,36 +8,36 @@ block content
 	h3.page-header 你所在的路径：信息系统 / 事件列表
 	
 	include ../includes/eventSearchForm
-
-	table.table.table-striped#eventListTable
-		thead 
-			tr 
-				td 事件
-				td 出现时间
-				td 病人名字
-				td 性别
-				td 年龄
-				td 状态
-				td 心电数据
-				td 操作
-		tbody
-			each event, index in eventList
-				-var curPatient = event.user;
-				-var curRoleProp = curPatient.role_prop;
-				-var happenTime = moment(event.happen_time).format("YYYY年MM月DD日 HH:MM:SS");
-				-var sex=curRoleProp.sex == 0? "男": "女";
-				-var isView = event.is_view?"已查看":"未查看"
-				tr(data-uid="#{curPatient._id}" data-eventid="#{event._id}" data-event-level="#{event.level}" data-event="#{event.name}" data-happentime="#{happenTime}" data-isview="#{isView}" data-patientName="#{curRoleProp.real_name}" data-sex="#{sex}" data-age="#{curRoleProp.age}")
-					td= event.name
-					td= happenTime
-					td= curRoleProp.real_name
-					td(data-sex="#{curRoleProp.sex}")= sex
-					td= curRoleProp.age
-					td(data-isview="#{event.is_view}")= isView
-					td
-						a(href="javascript:;") 查看具体信息
-					td
-						button(type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#view-diagnose") 查看详情
+	div.table-responsive
+		table.table.table-striped#eventListTable
+			thead 
+				tr 
+					td 事件
+					td 出现时间
+					td 病人名字
+					td 性别
+					td 年龄
+					td 状态
+					td 心电数据
+					td 操作
+			tbody
+				each event, index in eventList
+					-var curPatient = event.user;
+					-var curRoleProp = curPatient.role_prop;
+					-var happenTime = moment(event.happen_time).format("YYYY年MM月DD日 HH:MM:SS");
+					-var sex=curRoleProp.sex == 0? "男": "女";
+					-var isView = event.is_view?"已查看":"未查看"
+					tr(data-uid="#{curPatient._id}" data-eventid="#{event._id}" data-event-level="#{event.level}" data-event="#{event.name}" data-happentime="#{happenTime}" data-isview="#{isView}" data-patientName="#{curRoleProp.real_name}" data-sex="#{sex}" data-age="#{curRoleProp.age}")
+						td= event.name
+						td= happenTime
+						td= curRoleProp.real_name
+						td(data-sex="#{curRoleProp.sex}")= sex
+						td= curRoleProp.age
+						td(data-isview="#{event.is_view}")= isView
+						td
+							a(href="javascript:;") 查看具体信息
+						td
+							button(type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#view-diagnose") 查看详情
 
 	include ../includes/pagination
 	
@@ -94,9 +94,9 @@ block content
 								textarea.form-control(name="diagnose_content" rows="3" placeholder="请输入诊断信息")
 								input(type="hidden" name="patient_id")
 								input(type="hidden" name="patient_name")
-							div.btn-group
-								button.btn.btn-default(type="button") 取消
-								button.btn.btn-success(type="submit") 确认
+								div.btn-group
+									button.btn.btn-default(type="button") 取消
+									button.btn.btn-success(type="submit") 确认
 
 
 				div(class="modal-footer")
@@ -253,7 +253,7 @@ block exclusiveScript
 				        '<td data-isview="'+ cData.isView +'">'+ (cData.isView? "已查看": "未查看") +'</td>' +
 				        '<td><a href="javascript:;">查看具体信息</a></td>' +
 				        '<td>' +
-				            '<button type="button" data-toggle="modal" data-target="#view-diagnose" class="btn btn-default btn-sm">查看详情</button>' +
+				            '<button type="button" data-toggle="modal" data-target="#view-diagnose" class="btn btn-success btn-sm">查看详情</button>' +
 				        '</td>' +
 				    '</tr>'
 					

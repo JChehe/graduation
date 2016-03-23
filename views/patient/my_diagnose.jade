@@ -8,28 +8,28 @@ block content
 
 	include ../includes/diagnoseSearchForm 
 
-
-	table.table.table-striped(id="diagnose_table")
-		thead 
-			tr 
-				td 姓名
-				td 性别
-				td 年龄
-				td 诊断时间
-				td 医生
-				td 内容
-				td 操作
-		tbody
-			each diagnose in myDiagnoseList
-				tr(data-patient="#{user.role_prop.real_name}" data-doctor="#{diagnose.doctor_name}" data-diagnose-content="#{diagnose.content}")
-					td= user.role_prop.real_name
-					td= user.role_prop.sex
-					td= user.role_prop.age
-					td= moment(diagnose.update_time).format("YYYY年MM月DD日 HH:MM:SS")
-					td= diagnose.doctor_name
-					td= diagnose.content.length>20? diagnose.content.substr(0,20) + "..." : diagnose.content
-					td
-						button.btn.btn-default.btn-sm.view_diagnose(data-toggle="modal" data-target="#diagnose_dialog") 查看诊断信息
+	div.table-responsive
+		table.table.table-striped(id="diagnose_table")
+			thead 
+				tr 
+					td 姓名
+					td 性别
+					td 年龄
+					td 诊断时间
+					td 医生
+					td 内容
+					td 操作
+			tbody
+				each diagnose in myDiagnoseList
+					tr(data-patient="#{user.role_prop.real_name}" data-doctor="#{diagnose.doctor_name}" data-diagnose-content="#{diagnose.content}")
+						td= user.role_prop.real_name
+						td= user.role_prop.sex
+						td= user.role_prop.age
+						td= moment(diagnose.update_time).format("YYYY年MM月DD日 HH:MM:SS")
+						td= diagnose.doctor_name
+						td= diagnose.content.length>20? diagnose.content.substr(0,20) + "..." : diagnose.content
+						td
+							button.btn.btn-success.btn-sm.view_diagnose(data-toggle="modal" data-target="#diagnose_dialog") 查看诊断信息
 						
 	include ../includes/pagination
 
@@ -104,7 +104,7 @@ block exclusiveScript
 					    '<td>'+ cData.doctor_name +'</td>' +
 					    '<td>'+ cData.content +'</td>' +
 					    '<td>' +
-					        '<button data-toggle="modal" data-target="#diagnose_dialog" class="btn btn-default btn-sm view_diagnose">查看诊断信息</button>' +
+					        '<button data-toggle="modal" data-target="#diagnose_dialog" class="btn btn-success btn-sm view_diagnose">查看诊断信息</button>' +
 					    '</td>' +
 					'</tr>')
 				}

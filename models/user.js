@@ -13,10 +13,10 @@ var userSchema = new mongoose.Schema({
         }, "密码长度要介于6至15位。"]
     },
     /*
-    	0: 系统管理员，
-    	1: 管理员
-    	2: 医生，
-    	3: 病人
+        0: 系统管理员，
+        1: 管理员
+        2: 医生，
+        3: 病人
     */
     role: { // 角色权限
         type: String
@@ -32,7 +32,7 @@ var userSchema = new mongoose.Schema({
             default: "0" // 男
         },
         id_card: String, // 身份证
-        birthday: Date,  // 生日
+        birthday: Date, // 生日
         height: Number, // 身高
         weight: Number, // 重量
         phone: String, // 电话号码
@@ -49,7 +49,7 @@ var userSchema = new mongoose.Schema({
     related_doctor: Array, // 病人的照顾医生
     // event_list: mongoose.Schema.Types.ObjectId,
     createAt: { // 帐号创建日期
-        type: Date, 
+        type: Date,
         default: Date.now
     }
 })
@@ -63,14 +63,16 @@ userSchema.static({
             limit: 20
         }, callback)
     },
-    getCount: function(query, callback){
+    getCount: function(query, callback) {
 
-        this.count(query, function(err, count){
-            if(err) return next(err);
+        this.count(query, function(err, count) {
+            if (err) return next(err);
             callback(count);
         })
     }
 })
+
+
 
 
 module.exports = mongoose.model("User", userSchema)

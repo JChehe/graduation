@@ -7,72 +7,69 @@ block content
 	h3.page-header 你所在的路径：病人信息系统 / 首页
 	div#default-page
 		h2.sub-header
-		p.bg-success 欢迎#{user.role_prop.real_name || user.account}，你上次登录系统的时间是：2015-10-2 11：06：59，祝你健康！
+		p.bg-success 欢迎#{user.role_prop.real_name || user.account}，祝你身体健康！
 
 	div#personal-info
 		div#base-info-container
-			table.table.table-bordered
-				caption 用户基本资料
-					button(class="btn btn-default pull-right" data-toggle="modal" data-target="#modify-password") 修改密码
-				tbody
-					- userRole = user.role == 0? "超级管理员" : (user.role == 1 ? "管理员" : (user.role == 2 ? "医生" :"病人"))
-					tr
-						td(scope="row") 账户名：
-							span= user.account
-						td(colspan="2") 用户角色：
-							span= userRole
-					tr
-						td(scope="row") 姓名：
-							span= user.role_prop.real_name
-						td 性别：
-							span= user.role_prop.sex == 0 ? "男" :　"女"
-						td 年龄：
-							span 21
-					tr
-						td(scope="row") 身高：
-							span 0
-						td(colspan="2") 体重：
-							span 0
-					tr
-						td(scope="row" colspan="3") 过往病史：
-							span 无
-					tr
-						td(scope="row") 身份证号：
-							span 441900199402101078
-						td(colspan="2") 住院号：
-							span 0
-					tr 
-						td(scope="row") 联系电话：
-							span 076955555
-						td(colspan="2") 手机号码：
-							span 13555555555
-					tr
-						td(scope="row" colspan="3") 住址：
-							span 深圳罗湖
-	
-	div#relatives-info-container
-		table.table.table-bordered
-			caption 病人的家属资料
-			thead
-				tr
-					td 姓名
-					td 电话
-					td 与病人关系
-					td 是否接收短信通知
-					td 备注
-			tbody
-				tr
-					td 梁东
-					td 1358228878778
-					td 夫君
-					td 是
-					td
-				tr
-					td 梁东
-					td 1358228878778
-					td 夫君
-					td 是
-					td
+			div.table-responsive
+				table.table.table-bordered
+					caption 用户基本资料
+						button(class="btn btn-warning pull-right" data-toggle="modal" data-target="#modify-password") 修改密码
+					tbody
+						- var userRole = user.role == 0? "超级管理员" : (user.role == 1 ? "管理员" : (user.role == 2 ? "医生" :"病人"))
+						tr
+							td(scope="row") 账户名：
+								span= user.account
+							td(colspan="2") 用户角色：
+								span= userRole
+						tr
+							td(scope="row") 姓名：
+								span= user.role_prop.real_name
+							td 性别：
+								span= user.role_prop.sex == 0 ? "男" :　"女"
+							td 年龄：
+								span= user.role_prop.age
+						tr
+							td(scope="row") 身高：
+								span= user.role_prop.height
+							td(colspan="2") 体重：
+								span= user.role_prop.weight
+						tr
+							td(scope="row" colspan="3") 过往病史：
+								span= (user.role_prop.medical_case || "无")
+						tr
+							td(scope="row") 身份证号：
+								span= user.role_prop.id_card
+							td(colspan="2") 住院号：
+								span= user.role_prop.location
+						tr 
+							td(scope="row") 联系电话：
+								span= user.role_prop.phone
+							td(colspan="2") 手机号码：
+								span= user.role_prop.tel_phone
+						tr
+							td(scope="row" colspan="3") 住址：
+								span= user.role_prop.address || "无"
+	if user.role == 3
+		div#relatives-info-container
+			div.table-responsive
+				table.table.table-bordered
+					caption 病人的家属资料
+					thead
+						tr
+							td 姓名
+							td 电话
+							td 与病人关系
+							td 是否接收短信通知
+							td 备注
+					tbody
+						each value, index in familyList
+							tr
+								td= value.name
+								td= value.tel_phone
+								td= value.relationship
+								td= (value.is_message) ? "是": "否"
+								td= (value.remark)
 	
 		
 	div(class="modal fade" id="modify-password")
@@ -102,6 +99,8 @@ block content
 
 block exclusiveScript
 	script.
+		
+
 		var modifyPasswordDialog = $("#modify-password")
 		var modifyPasswordForm = modifyPasswordDialog.find("form")
 		
@@ -151,4 +150,7 @@ block exclusiveScript
 				return false;
 			}
 		})
+
+
+
 	

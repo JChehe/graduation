@@ -39,14 +39,25 @@ exports.my_care_patient = function(req, res, next) {
 exports.get_patient_info = function(req, res, next) {
     var curPatientId = req.params.id;
     req.models.User.findOne({
-        _id: curPatientId
+        _id: curPatientId,
+        role: 3
     }, function(err, patient) {
         if (err) return next(err);
-        res.send({
-            status: true,
-            info: "查询成功",
-            data: patient
+
+        req.models.Family.find({
+            patient_id: patient._id
+        }, function(err, familyList) {
+            if (err) return next(err);
+            res.send({
+                status: true,
+                info: "查询成功",
+                data: {
+                    patient: patient,
+                    familyList: familyList
+                }
+            })
         })
+
     })
 }
 
@@ -99,22 +110,22 @@ exports.diagnose_list = function(req, res, next) {
         if (err) return next(err);
 
         req.models.Diagnose.find({
-            patient_id: {
-                "$in": cDoctor.care_patient
-            }
-        }, null, options).populate("patient")
-        .exec(function(err, diagnoseList) {
-            if (err) return next(err);
-            console.log(diagnoseList)
-            res.render("doctor/diagnose_list", {
-                user: req.session.user,
-                diagnoseList: diagnoseList,
-                pageRange: Math.ceil(count / LIMIT),
-                curPage: parseInt(page),
-                isLast: (LIMIT * page >= count ? true : false),
-                isFirst: (page - 1 === 0 ? true : false)
-            })
-        });
+                patient_id: {
+                    "$in": cDoctor.care_patient
+                }
+            }, null, options).populate("patient")
+            .exec(function(err, diagnoseList) {
+                if (err) return next(err);
+                console.log(diagnoseList)
+                res.render("doctor/diagnose_list", {
+                    user: req.session.user,
+                    diagnoseList: diagnoseList,
+                    pageRange: Math.ceil(count / LIMIT),
+                    curPage: parseInt(page),
+                    isLast: (LIMIT * page >= count ? true : false),
+                    isFirst: (page - 1 === 0 ? true : false)
+                })
+            });
     })
 
     /*  res.render("doctor/diagnose_list", {
@@ -190,7 +201,7 @@ exports.modify_diagnose = function(req, res, next) {
 
 
 
-exports.get_unView_event = function(req, res, next){
+exports.get_unView_event = function(req, res, next) {
     var cDoctor = req.session.user;
 
     var myCarePatient = cDoctor.care_patient;
@@ -200,8 +211,8 @@ exports.get_unView_event = function(req, res, next){
             "$in": myCarePatient
         },
         is_view: false
-    },function(err, eventList){
-        if(err) return next(err);
+    }, function(err, eventList) {
+        if (err) return next(err);
 
         res.send({
             status: "success",

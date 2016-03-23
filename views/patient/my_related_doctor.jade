@@ -7,30 +7,31 @@ block content
 	h3.page-header 您所在的路径：信息系统 / 我的监护医生
 
 	include ../includes/userSearchForm
-
-	table#userlist.table.table-striped
-		thead 
-			tr 
-				td 账户名
-				td 姓名
-				td 性别
-				td 年龄
-				td 职位
-				td 办公室
-				td 电话
-				td 手机
-		tbody
-			each value, index in userList
-				-var roleProp = value.role_prop
-				tr(data-uid="#{value._id}")
-					td= value.account
-					td= roleProp.real_name
-					td(data-sex="#{roleProp.sex}")= roleProp.sex == 0? "男": "女"
-					td= roleProp.age
-					td= roleProp.title
-					td= roleProp.location
-					td= roleProp.phone
-					td= roleProp.tel_phone
+	
+	div.table-responsive
+		table#userlist.table.table-striped
+			thead 
+				tr 
+					td 账户名
+					td 姓名
+					td 性别
+					td 年龄
+					td 职位
+					td 办公室
+					td 电话
+					td 手机
+			tbody
+				each value, index in userList
+					-var roleProp = value.role_prop
+					tr(data-uid="#{value._id}")
+						td= value.account
+						td= roleProp.real_name
+						td(data-sex="#{roleProp.sex}")= roleProp.sex == 0? "男": "女"
+						td= roleProp.age
+						td= roleProp.title
+						td= roleProp.location
+						td= roleProp.phone
+						td= roleProp.tel_phone
 				
 	include ../includes/pagination
 	

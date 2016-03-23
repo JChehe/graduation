@@ -10,34 +10,35 @@ block content
 	
 	include ../includes/userSearchForm
 	
-	button(type="button" class="btn btn-default" data-toggle="modal" data-target="#add-user") 添加新系统用户
-	table.table.table-striped#userlist
-		thead 
-			tr 
-				td 账户名
-				td 姓名
-				td 性别
-				td 年龄
-				td 地址
-				td 电话
-				td 手机
-				td 操作
-		tbody
-			each value, index in userList
-				-var roleProp = value.role_prop
-				tr(data-uid="#{value._id}" data-role="#{value.role}" data-idcard="#{roleProp.id_card}" data-height="#{roleProp.height}" data-weight="#{roleProp.weight}" data-birthday="#{roleProp.birthday}" data-medicalcase="#{roleProp.medical_case}")
-					td= value.account
-					td= roleProp.real_name
-					td(data-sex="#{roleProp.sex}")= roleProp.sex == 0? "男": "女"
-					td= roleProp.age
-					td= roleProp.address
-					td= roleProp.phone
-					td= roleProp.tel_phone
-					td
-						div.btn-group.btn-group-sm(role="group")
-							button.btn.btn-default(type="button" class="edit_btn") 查看/编辑
-							button.btn.btn-default(type="button" class="family_btn") 查看家属
-							button.btn.btn-default(type="button" class="del_user") 删除
+	button(type="button" class="btn btn-info" data-toggle="modal" data-target="#add-user") 添加新系统用户
+	div.table-responsive
+		table.table.table-striped#userlist
+			thead 
+				tr 
+					td 账户名
+					td 姓名
+					td 性别
+					td 年龄
+					td 地址
+					td 电话
+					td 手机
+					td 操作
+			tbody
+				each value, index in userList
+					-var roleProp = value.role_prop
+					tr(data-uid="#{value._id}" data-role="#{value.role}" data-idcard="#{roleProp.id_card}" data-height="#{roleProp.height}" data-weight="#{roleProp.weight}" data-birthday="#{roleProp.birthday}" data-medicalcase="#{roleProp.medical_case}")
+						td= value.account
+						td= roleProp.real_name
+						td(data-sex="#{roleProp.sex}")= roleProp.sex == 0? "男": "女"
+						td= roleProp.age
+						td= roleProp.address
+						td= roleProp.phone
+						td= roleProp.tel_phone
+						td
+							div.btn-group.btn-group-sm(role="group")
+								button.btn.btn-default(type="button" class="edit_btn") 查看/编辑
+								button.btn.btn-default(type="button" class="family_btn") 查看家属
+								button.btn.btn-danger(type="button" class="del_user") 删除
 
 	include ../includes/pagination
 
@@ -209,6 +210,7 @@ block content
 				div(class="modal-body")
 					form.form-horizontal.text-left.clearfix(action="/handle_family" method="post" style="display:none" id="family-form")
 						input(type="hidden" name="family_id" id="family_id")
+						input(type="hidden" name="patient_id" id="patient_id")
 						div.form-group
 							label.col-sm-4.control-label 名字：
 							div.col-sm-8
@@ -220,22 +222,22 @@ block content
 						div.form-group
 							label.col-sm-4.control-label 电话号码：
 							div.col-sm-8
-								input(type="text" name="phone").form-control
+								input(type="text" name="tel_phone").form-control
 						div.form-group
 							label.col-sm-4.control-label 是否接收短信通知
 							div.col-sm-8
 								label.radio-inline
-									input(type="radio" name="is_receive_message" value="1") 
+									input(type="radio" name="is_message" value="1") 
 									| 是
 								label.radio-inline
-									input(type="radio" name="is_receive_message" value="1")
+									input(type="radio" name="is_message" value="0")
 									| 否
 						div.form-group
 							label.col-sm-4.control-label 备注
 							div.col-sm-8
 								textarea.form-control(rows="3" name="remark")
 						button(type="button" class="btn btn-default" id="close-family-form-btn").pull-right 关闭
-						button(type="submit" style="margin-right:10px").btn.btn-primary.pull-right 确定添加
+						button(type="submit" style="margin-right:10px").btn.btn-primary.pull-right 确定
 
 				div(class="modal-footer")
 					button(type="button" class="btn btn-default" data-dismiss="modal") 关闭
@@ -265,7 +267,7 @@ block exclusiveScript
 						'<td>'+ user.address +'</td>' +
 						'<td>'+ user.phone +'</td>' +
 						'<td>'+ user.tel_phone +'</td>' +
-						'<td><div role="group" class="btn-group btn-group-sm"><button type="button" class="btn btn-default edit_btn">查看/编辑</button><button type="button" class="btn btn-default family_btn">查看家属</button><button type="button" class="btn btn-default">删除</button></div></td>'+
+						'<td><div role="group" class="btn-group btn-group-sm"><button type="button" class="btn btn-default edit_btn">查看/编辑</button><button type="button" class="btn btn-default family_btn">查看家属</button><button type="button" class="btn btn-danger">删除</button></div></td>'+
 					'</tr>').prependTo(userTable.find("tbody"));
 					
 					addUserDialog.modal('hide')
@@ -322,7 +324,7 @@ block exclusiveScript
 				type: editUserForm.attr("method"),
 				data: editUserForm.serialize()
 			}).done(function(data){
-				alert(data.info);
+				//- alert(data.info);
 
 				if(data.status){
 					var user = data.user;
@@ -360,9 +362,10 @@ block exclusiveScript
 		var curPatientId = "";
 		userTable.find("tbody").on("click", ".family_btn", function(event){
 			var curTr = $(this).closest("tr")
-			curPatientId = curTr.data("uid")
+			curPatientId = curTr.data("uid");
+			$("#patient_id").val(curPatientId)
 			$.ajax({
-				url : "/family/"+curPatientId,
+				url : "/get_family/"+curPatientId,
 				type: "get"
 			}).done(function(data){
 				console.log(data)
@@ -372,16 +375,16 @@ block exclusiveScript
 
 				for(var i = 0, iL = familyList.length; i < iL; i++){
 					var curFamily = familyList[i]
-					$('<tr data-family-id='+ curFamily.family_id +'>' +
+					$('<tr data-family-id='+ curFamily._id +'>' +
 				        '<td>'+curFamily.name+'</td>' +
-				        '<td>'+curFamily.phone+'</td>' +
+				        '<td>'+curFamily.tel_phone+'</td>' +
 				        '<td>'+curFamily.relationship+'</td>' +
-				        '<td>'+(curFamily.is_receive_message == "0" ? "是": "否")+'</td>' +
+				        '<td>'+(curFamily.is_message == true ? "是": "否")+'</td>' +
 				        '<td>'+curFamily.remark+'</td>' +
 				        '<td>' +
 				            '<div role="group" class="btn-group btn-group-sm">' +
 				                '<button type="button" class="btn btn-default edit-family">编辑</button>' +
-				                '<button type="button" class="btn btn-default del_family">删除</button>' +
+				                '<button type="button" class="btn btn-danger del_family">删除</button>' +
 				            '</div>' +
 				        '</td>' +
 				    '</tr>').appendTo(familyTbody)
@@ -402,12 +405,22 @@ block exclusiveScript
 		var curPatient = null;
 		$("#add-family-btn").click(function(event){
 			isFamilyCreate.val("")
+			familyForm[0].reset()
 			familyForm.show()
 		})
 		familyTbody.on("click", ".edit-family", function(event){
-			curFamilyId = $(this).closest("tr").data("familyId");
+			var cTr = $(this).closest("tr");
+			curFamilyId = cTr.data("familyId");
 			isFamilyCreate.val(curFamilyId);
-			familyForm.show()
+			familyForm.show();
+			var allTd = cTr.find("td");
+			var isMessageIndex = (allTd.eq(3).text()=="是" ? 0 : 1);
+			
+			familyForm.find("[name=name]").val(allTd.eq(0).text()).end()
+				.find("[name=relationship]").val(allTd.eq(1).text()).end()
+				.find("[name=tel_phone]").val(allTd.eq(2).text()).end()
+				.find("[name=is_message]").eq(isMessageIndex).prop("checked", true).end().end()
+				.find("[name=remark]").val(allTd.eq(4).text());
 		})
 		familyForm.submit(function(event){
 			event.preventDefault();
@@ -422,33 +435,35 @@ block exclusiveScript
 				console.log(data)
 
 				var curFamily = data.family;
-				if(data.status == "true"){
+				if(data.status == true){
 					// 为空及为新建家属
 					if(isCreate == ""){
-						$('<tr data-family-id='+ curFamily.id +'>' +
+						$('<tr data-family-id='+ curFamily._id +'>' +
 					        '<td>'+curFamily.name+'</td>' +
-					        '<td>'+curFamily.phone+'</td>' +
+					        '<td>'+curFamily.tel_phone+'</td>' +
 					        '<td>'+curFamily.relationship+'</td>' +
-					        '<td>'+(curFamily.is_receive_message == "0" ? "是": "否")+'</td>' +
+					        '<td>'+(curFamily.is_message == true ? "是": "否")+'</td>' +
 					        '<td>'+curFamily.remark+'</td>' +
 					        '<td>' +
 					            '<div role="group" class="btn-group btn-group-sm">' +
 					                '<button type="button" class="btn btn-default">编辑</button>' +
-					                '<button type="button" class="btn btn-default del_user">删除</button>' +
+					                '<button type="button" class="btn btn-danger del_user">删除</button>' +
 					            '</div>' +
 					        '</td>' +
 					    '</tr>').appendTo(familyTbody)
 					}else{
-						var neddEditTr = familyTbody.find("tr[data-family-id="+curFamily.id+"]");
-						neddEditTr.find("td").eq(0).text(curFamily.name).end()
-							.eq(1).text(curFamily.phone).end()
+						var needEditTr = familyTbody.find("[data-family-id="+curFamily._id+"]");
+						//- alert(curFamily.name)
+						needEditTr.find("td").eq(0).text(curFamily.name).end()
+							.eq(1).text(curFamily.tel_phone).end()
 							.eq(2).text(curFamily.relationship).end()
-							.eq(3).text(curFamily.is_receive_message =="0"?"是":"否").end()
+							.eq(3).text(curFamily.is_message ==true?"是":"否").end()
 							.eq(4).text(curFamily.remark)
 					}
 
-
-					familyDialog.modal("hide")
+					
+					familyForm[0].reset()
+					//- familyDialog.modal("hide")
 				}
 				
 			}).fail(function(jqXHR, textStatus, errorThrown ){
@@ -456,7 +471,16 @@ block exclusiveScript
 				console.log("errorThrown:" + errorThrown)
 			})
 		})
+		
+		familyDialog.on("click", ".del_family", function(event){
+			var cTr = $(this).closest("tr");
 
+			$.get("/del_family/" + cTr.data("familyId"), function(data){
+				if(data.status == true){
+					cTr.remove();
+				}
+			})
+		})
 		// 搜索
 
 		var searchForm = $("#search-form");
@@ -486,7 +510,7 @@ block exclusiveScript
 				        '<div role="group" class="btn-group btn-group-sm">' +
 				            '<button type="button" class="btn btn-default edit_btn">查看/编辑</button>' +
 				            '<button type="button" class="btn btn-default family_btn">查看家属</button>' +
-				            '<button type="button" class="btn btn-default del_user">删除</button>' +
+				            '<button type="button" class="btn btn-danger del_user">删除</button>' +
 				        '</div>' +
 				    '</td>' +
 				'</tr>');
@@ -512,3 +536,8 @@ block exclusiveScript
 				})
 			}
 		})
+
+
+		//- $('#myModal').on('hidden.bs.modal', function (e) {
+		
+		//- })

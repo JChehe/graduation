@@ -29,7 +29,7 @@ block content
 					td= diagnose.doctor_name
 					td= diagnose.content
 					td 
-						button.btn.btn-default.btn-sm.view_diagnose(data-toggle="modal" data-target="#diagnose_dialog") 查看诊断信息
+						button.btn.btn-success.btn-sm.view_diagnose(data-toggle="modal" data-target="#diagnose_dialog") 查看诊断信息
 			
 	include ../includes/pagination
 	
@@ -103,7 +103,7 @@ block exclusiveScript
 					    '<td>'+ cData.doctor_name +'</td>' +
 					    '<td>'+ cData.content +'</td>' +
 					    '<td>' +
-					        '<button data-toggle="modal" data-target="#diagnose_dialog" class="btn btn-default btn-sm view_diagnose">查看诊断信息</button>' +
+					        '<button data-toggle="modal" data-target="#diagnose_dialog" class="btn btn-success btn-sm view_diagnose">查看诊断信息</button>' +
 					    '</td>' +
 					'</tr>')
 				}
