@@ -1,0 +1,167 @@
+style.
+	#chat-container{
+		position: fixed;
+		left: 100%;
+		width: 300px;
+		top: 0;
+		bottom: 0;
+		background-color: #fff;
+		box-shadow: 0 0 8px rgba(0,0,0,.2);
+		z-index: 1100;
+		-webkit-transition: all .4s;
+		-o-transition: all .4s;
+		transition: all .4s;
+	}
+	#chat-container.active{
+		-webkit-transform: translateX(-100%);
+		-ms-transform: translateX(-100%);
+		-o-transform: translateX(-100%);
+		transform: translateX(-100%);
+	}
+	#chat-container.active .nav .iconfont{
+		
+		-webkit-transform: rotate(180deg);
+		-o-transform: rotate(180deg);
+		transform: rotate(180deg);
+	}
+	#chat-container .nav .iconfont{
+		display: block;
+		-webkit-transition: all .3s .4s;
+		-o-transition: all .3s .4s;
+		transition: all .3s .4s;
+	}
+	#chat-container .nav{
+		font-family: "Microsoft Yahei";
+		position: absolute;
+		right: 100%;
+		top: 10%;
+		width: 32px;
+		line-height: 36px;
+		text-align: center;
+		background-color: #5cb85c;
+		color: #fff;
+		cursor: pointer;
+		
+	}
+	#chat-container .nav.in{
+
+	}
+	.title{
+		text-align: center;
+		margin-top: 10px;
+	}
+	.content{
+
+		height: 600px;
+		height: calc( 100% - 208px);
+		overflow: auto;
+		border:1px solid #ccc;
+		padding: 10px;
+		width: 100%;
+		position: relative;
+	}
+	.control{
+		position:absolute;
+		left: 0;right:0;
+		bottom: 0;
+	}
+	.form-group{
+		padding-left: 10px;
+		padding-right: 10px;
+	}
+	.control [type="submit"]{
+		margin-top: 15px;
+		width: 100%;
+	}
+	.content .msg{
+		clear:both;
+		margin-bottom: 8px;
+	}
+	.content .msg .msg-content{
+		border-radius: 5px;
+		padding: 3px 6px;
+		overflow: hidden;
+	}
+	
+	.msg .user-name{
+		margin-top: 3px;
+	}
+	
+	.msg.me .msg-content{
+		background-color: #dff0d8;
+	}
+	.msg.me .user-name{
+		float: left;
+	}
+	.msg.other .msg-content{
+		background-color: #fcf8e3;
+	}
+	.msg.other .user-name{
+		float:right;
+	}
+	.msg-content .time{
+		margin-bottom: 3px;
+		font-size: 12px;
+		color: #999;
+	}
+	.msg.other .time{
+		text-align: right;
+	}
+	#talk-people{
+		width: 100%;
+	}
+	.get-history-btn{
+		position:absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		text-align: center;
+		background-color: rgba(0,0,0,.4);
+		color:#fff;
+		cursor: pointer;
+		line-height: 24px;
+		box-shadow: 0 0 3px rgba(0,0,0,.2);
+	}
+	.content-list{
+		position: relative;
+		height: 100%;
+	}
+	.user-chat-content{
+		height: 100%;
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: 0;
+		overflow: auto;
+		display: none;
+	}
+	.user-chat-content.active{
+		display: block;
+	}
+div#chat-container.active
+	div.header
+		h3.title 聊天
+		//- if user.role == 2
+		//- 	label 选择病人
+		//- else if user.role == 3
+		//- 	label 选择医生
+		input.form-control(type="hidden" name="talk_people_id")
+		div.btn-group#talk-people
+			button.btn.btn-primary(type='button')= (user.role == 2? "选择病人": "选择病人")
+			button.btn.btn-primary.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+				span.caret
+				span.sr-only 选择对象
+			ul.dropdown-menu
+	div.content
+		div.content-list
+	div.control
+		form(action="")
+			textarea.form-control(name="message")
+			button.btn.btn-success.btn-block(type="submit") 发送
+	div.nav
+		i.iconfont &#xe60a;
+script.
+	var USERID = "#{user._id}";
+	var USERROLE = "#{user.role}";
+script(src="/js/chat-client.js")
+//- script.

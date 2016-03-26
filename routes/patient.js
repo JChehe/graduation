@@ -39,6 +39,7 @@ exports.my_related_doctor = function(req, res, next) {
 
 
 
+
 exports.my_diagnose = function(req, res, next) {
     var page = req.query.p || 1;
     var options = { skip: (page - 1) * LIMIT, limit: LIMIT, sort: { "update_time": -1 } }

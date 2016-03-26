@@ -32,8 +32,6 @@ exports.my_care_patient = function(req, res, next) {
 
         })
     })
-
-
 }
 
 exports.get_patient_info = function(req, res, next) {
