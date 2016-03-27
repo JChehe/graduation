@@ -29,16 +29,35 @@ exports.save_chat_record = function(req, res, next) {
 }
 
 exports.get_chat_record = function(req, res, next) {
-	var limitNum = req.query.limit || 10;
-	console.log(req.query.timestamp)
+	var limitNum = req.query.limit || 0; // 0 是无限制
+	// console.log(req.query.timestamp)
+	var topTimeStamp = req.query.firstloadtimestamp;
+	var belong = req.query.belong;
+	var belongQuery;
+	if(belong){
+		belongQuery = belong
+	}else{
+		belongQuery = {$exists: true}
+	}
+
+	if(topTimeStamp){
+		topTimeStamp = Date(+topTimeStamp); // 主要用于获取历史信息
+	}else{
+		topTimeStamp = Date.now(); // 主要用于获取；轮询新信息
+	}
+	var topTimeStamp = req.query.firstloadtimestamp || Date.now();
+
     req.models.Chat.find({
         patient_id: req.query.patient_id,
-        doctor_id: req.query.doctor_id/*,
+        doctor_id: req.query.doctor_id,
         create_at: {
         	// 字符串对于 Date() 是非法值，需要转为整数
-            "$lt": new Date(+req.query.timestamp) // 最近一条时间消息的时间，防止因轮训时间而错过信息
-        }*/
-    }, null, {sort: {create_at : -1},limit: limitNum, skip: req.query.skip}, function(err, chatRecordList) {
+            "$gt": new Date(+req.query.timestamp), // 大于
+            "$lte" : topTimeStamp
+        },
+        belong: belongQuery
+
+    }, null, {limit: limitNum}, function(err, chatRecordList) {
         if (err) return next(err);
         res.send({
             status: true,

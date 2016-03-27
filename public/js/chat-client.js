@@ -10,16 +10,18 @@ $(function() {
     var talkPeoGroup = talkPeo.find(".dropdown-menu");
     var talkPeoInput = $("[name=talk_people_id]");
     var getHistoryBtn = $(".get-history-btn");
-/*
-    var lastMsgTimeStamp = Date.now();
-    var firstMsgTimeStamp = Date.now();*/
 
-    var curChatUser = {};
+    // var curChatUser = {}; // 保存当前用户的信息
+
+    var firstLoadTimeStamp = Date.now(); // 首次进入时间，用于获取历史记录的，只能获取这时刻之前的历史记录，其余通过轮询获取
+
+    // toggle 聊天框
     chatContainer.on("click", ".nav", function(event) {
         event.preventDefault();
         chatContainer.toggleClass('active');
     })
 
+    // 提交信息处理
     chatForm.submit(function(event) {
         event.preventDefault();
         var value = chatTextArea.val().trim();
@@ -30,12 +32,13 @@ $(function() {
         }, function(data) {
             if (data.status == true) {
                 var msgStr = createChat(data.chatRecord, true);
-                addChat(msgStr, curChatUser.id, true);
+                addChat(msgStr, chatList.children('div.active').data("id"), true);
                 chatTextArea.val("")
             }
         })
     });
 
+    // 初始化：获取聊天对象，并生成对应聊天窗口（独立的）
     $.get("/get_talk_people", function(data) {
         if (data.status == true) {
             var liTemStr = "";
@@ -43,29 +46,96 @@ $(function() {
             for (var i = 0, len = data.userList.length; i < len; i++) {
                 var cData = data.userList[i];
                 liTemStr += "<li data-user-id='" + cData._id + "'><a href='javascript:;'>" + cData.role_prop.real_name + "</a></li>"
-                divTemStr += "<div id=" + cData._id + " class='user-chat-content' data-first-msg-timestamp="+ Date.now() +"><div class='get-history-btn'>点击获取最近与" + cData.role_prop.real_name + "的" + LIMIT + "条信息</div></div>";
+                divTemStr += "<div id=" + cData._id + " data-id="+ cData._id +" data-name="+ cData.role_prop.real_name +" class='user-chat-content' data-last-msg-timestamp=" + 0 + "><div class='get-history-btn'>点击获取最近与" + cData.role_prop.real_name + "的" + LIMIT + "条信息</div></div>";
             }
             talkPeoGroup.html(liTemStr)
-            chatList.html(divTemStr)
+            chatList.html(divTemStr);
+
+            // 轮询
+            chatList.children('div').each(function(index) {
+                var chatContainerId = $(this).attr('id');
+                chatPoll(chatContainerId)
+            })
 
         }
     })
 
-    // 获取最近信息
+    // chat轮询
+    function chatPoll(chatContainerId, limit) {
+        limit = limit || 0; // 默认是0，即无限制
+        console.log(chatContainerId);
+
+        (function(chatContainerId) {
+            setInterval(function() {
+                getNewChat(chatContainerId);
+            }, 8000);
+            getNewChat(chatContainerId);
+        })(chatContainerId);
+
+        function getNewChat(chatContainerId) {
+            var random = Date.now();
+            if (USERROLE == "2") {
+                $.ajax("/get_chat_record?belong=" + 3 + "&patient_id=" + chatContainerId + "&doctor_id=" + USERID + "&limit=" + limit + "&timestamp=" + ($("#" + chatContainerId).find(".other:last").data('timestamp') || firstLoadTimeStamp) + "&random=" + random)
+                    .done(function(data) {
+                        chatPollAfater(data, chatContainerId);
+                    }).fail();
+            } else if (USERROLE == "3") {
+                $.ajax("/get_chat_record?belong=" + 2 + "&patient_id=" + USERID + "&doctor_id=" + chatContainerId + "&limit=" + limit + "&timestamp=" + ($("#" + chatContainerId).find(".other:last").data('timestamp') || firstLoadTimeStamp) + "&random=" + random)
+                    .done(function(data) {
+                        chatPollAfater(data, chatContainerId);
+                    }).fail();
+            }
+        }
+    }
+
+
+    function chatPollAfater(data, chatContainerId) {
+        var chatStr = createChat(data.chatRecordList, true);
+        console.log($(chatStr).length)
+        var chatHtml = $(chatStr);
+
+        var newMsgList = $("#" + chatContainerId).find('.new');
+        if (newMsgList.length === 0) {
+            $("#" + chatContainerId).append(chatHtml);
+        } else {
+            chatHtml.each(function(index) {
+                // console.log($(this).data("timestamp"));
+                insertWhere($(this), newMsgList)
+            })
+        }
+
+
+        function insertWhere(msg, newMsgList) {
+            var msgCreateAt = parseInt(msg.data("timestamp"), 10);
+            for (var i = 0, len = newMsgList.length; i < len; i++) {
+                // todo 插入正确的顺序, 更优的做法是：将新信息的timestamp存在数组里，而不是每次通过获取data方法获取（尽管是jQuery的方法，而是不DOM方法）
+                if (parseInt(newMsgList.eq(i).data('timestamp')) > msgCreateAt) {
+                    msg.insertBefore(newMsgList.eq(i));
+                    break;
+                }
+            }
+            if(i === newMsgList.length){
+                msg.insertAfter(newMsgList.last())
+            }
+        }
+    }
+
+
+    // 获取历史信息，默认限制10条
     chatList.on("click", ".get-history-btn", function(event) {
         event.preventDefault();
-        var chatContainerId = $(this).closest('div').attr("id");
+        var chatContainer = $(this).parent();
+        var chatContainerId = chatContainer.attr("id");
         var $that = $(this)
-        getHistory().done(function(data) {
+        getHistory(chatContainerId).done(function(data) {
             console.log("获取最近10条信息");
             console.log(data);
-            var chatStr = createChat(data.chatRecordList);
-            addChat(chatStr, curChatUser.id, false);
-
-            if(data.chatRecordList.length < LIMIT){
-                $that.text("你与"+ curChatUser.name +"聊天记录已全部加载");
+            var chatStr = createChat(data.chatRecordList, chatContainerId, false);
+            addChat(chatStr, chatContainer.data("id"), false);
+            if (data.chatRecordList.length < LIMIT) {
+                $that.text("你与" + chatContainer.data("name") + "聊天记录已全部加载");
                 $that.delay(2500).fadeOut('400', function() {
-                    
+
                 });
             }
         }).fail(function() {
@@ -85,8 +155,8 @@ $(function() {
         talkPeoInput.val($(this).data('userId'));
         talkPeoName.text($(this).text());
 
-        curChatUser.id = userId
-        curChatUser.name = $(this).text().trim();
+        /*curChatUser.id = userId
+        curChatUser.name = $(this).text().trim();*/
         chatList.find("#" + userId).siblings('div').removeClass('active').end().addClass('active')
 
     });
@@ -94,8 +164,10 @@ $(function() {
 
 
 
-    function createChat(data, isSend) {
 
+
+    function createChat(data, chatContainerId, isSend) {
+        var chatContainer = $("#"+chatContainerId);
         var temStr = "";
         if (data == undefined) {
             console.log("无数据");
@@ -106,28 +178,32 @@ $(function() {
             data = [data];
         }
 
-        for (var i = data.length -1; i>=0; i--) {
+        for (var i = 0, len = data.length; i < len; i++) {
 
             var cData = data[i];
             var className = msgBelongMe(cData) ? "me" : "other";
             var belongId = cData.belong == "2" ? cData.doctor_id : cData.patient_id;
-            var name = className === "me" ? "我：" : "：" + curChatUser.name
-            temStr += '<div class="msg ' + className + ' data-user-id="' + belongId + '"  data-timestamp=' + Date.parse(cData.create_at) + '"><span class="user-name">' + name + '</span>' +
+            var name = className === "me" ? "我：" : "：" + chatContainer.data('name');
+
+            if (i === len - 1 && !isSend) {
+                className += " last-history";
+            }
+
+            if (isSend) {
+                className += " new";
+            }
+
+            temStr += '<div class="msg ' + className + ' data-user-id="' + belongId + '"  data-timestamp=' + Date.parse(cData.create_at) + '><span class="user-name">' + name + '</span>' +
                 '<div class="msg-content">' +
-                '<p class="time">' + moment(cData.create_at).format("YYYY-MM-DD hh:mm:ss") + '</p>' +
+                '<p class="time">' + moment(cData.create_at).format("YYYY-MM-DD HH:mm:ss") + '</p>' +
                 '<p>' + cData.content + '</p>' +
                 '</div>' +
                 '</div>';
 
-            if(i === 0 && !isSend){
-                $("#" + curChatUser.id).data('first-msg-timestamp', Date.parse(cData.create_at))
+            if (i === len - 1 && !isSend) {
+                $("#" + chatContainer.data("id")).data('last-msg-timestamp', Date.parse(cData.create_at))
             }
-            /*if (i === 0) {
-                firstMsgTimeStamp = Date.parse(cData.create_at);
-                console.log(Date.parse(cData.create_at))
-            } else if (i === len - 1) {
-                lastMsgTimeStamp = Date.parse(cData.create_at);
-            }*/
+
         }
 
         return temStr;
@@ -152,15 +228,15 @@ $(function() {
         }
     }
 
-    function getHistory(limit) {
+    function getHistory(chatContainerId, limit) {
         limit = limit || LIMIT;
         var otherId = talkPeoInput.val();
         var random = Date.now();
-        console.log($("#" + curChatUser.id).data("first-msg-timestamp"))
+        // console.log($("#" + curChatUser.id).data("first-msg-timestamp"))
         if (USERROLE == "2") {
-            return $.ajax("/get_chat_record?skip="+ $("#" + curChatUser.id).find(".msg").length +"&patient_id=" + otherId + "&doctor_id=" + USERID + "&limit=" + LIMIT + "&timestamp=" + $("#" + curChatUser.id).data("first-msg-timestamp") + "&t="+ random);
+            return $.ajax("/get_chat_record?&patient_id=" + otherId + "&doctor_id=" + USERID + "&limit=" + LIMIT + "&timestamp=" + $("#" + chatContainerId).data("last-msg-timestamp") + "&firstloadtimestamp=" + firstLoadTimeStamp);
         } else if (USERROLE == "3") {
-            return $.ajax("/get_chat_record?skip="+ $("#" + curChatUser.id).find(".msg").length +"&patient_id=" + USERID + "&doctor_id=" + otherId + "&limit=" + LIMIT + "&timestamp=" + $("#" + curChatUser.id).data("first-msg-timestamp") + "&t="+ random);
+            return $.ajax("/get_chat_record?&patient_id=" + USERID + "&doctor_id=" + otherId + "&limit=" + LIMIT + "&timestamp=" + $("#" + chatContainerId).data("last-msg-timestamp") + "&firstloadtimestamp=" + firstLoadTimeStamp);
         }
     }
 
@@ -169,17 +245,22 @@ $(function() {
             isLast = true;
         }
         // console.log($('#' + chatContainerId).length)
-
         var cChatContainer = $('#' + chatContainerId)
-
         if (isLast) {
             cChatContainer.append(obj);
         } else {
-            cChatContainer.prepend(obj);
+            // cChatContainer.prepend(obj);
+            var lastHistory = cChatContainer.find('.last-history:last');
+            if (lastHistory.length === 0) {
+                var newMsg = cChatContainer.find(".new"); // 新发送信息
+                if (newMsg.length > 0) {
+                    newMsg.first().before(obj);
+                } else {
+                    cChatContainer.append(obj)
+                }
+            } else {
+                lastHistory.after(obj);
+            }
         }
-    }
-
-    function lastMsgTimeStamp() {
-
     }
 })
