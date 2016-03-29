@@ -1,11 +1,15 @@
 extends ../layout
 
 block exclusiveStyle
-	link(rel="stylesheet" href="css/message_box.css")
-	link(rel="stylesheet" href="js/libs/cupertino/jquery-ui.min.css")
-	link(rel="stylesheet" href="css/libs/fullcalender/fullcalendar.css")
-	link(rel="stylesheet" href="css/libs/fullcalender/fullcalendar.print.css" media='print')
+	link(rel="stylesheet" href="/js/libs/cupertino/jquery-ui.min.css")
+	link(rel="stylesheet" href="/css/libs/fullcalender/fullcalendar.css")
+	link(rel="stylesheet" href="/css/libs/fullcalender/fullcalendar.print.css" media='print')
+	link(rel="stylesheet" href="/css/message_box.css")
+	
 	style.
+		#calendar{
+			max-width: 900px;
+		}
 		#calendar-container{
 			display:none;
 			position: fixed;
@@ -145,38 +149,6 @@ block content
 								td 555
 				div(class="modal-footer")
 					button(class="btn btn-default" data-dismiss="modal") 关闭
-	
-	//- div(class="modal fade" id="patient_calender_dialog" tabindex="-1" role="dialog")
-	//- 	div(class="modal-dialog modal-lg")
-	//- 		div(class="modal-content")
-	//- 			div(class="modal-header")
-	//- 				h4(class="modal-title") 谁谁谁的时间日历
-	//- 			div(class="modal-body")
-					
-					
-	//- 			div(class="modal-footer")
-	//- 				button(class="btn btn-default" data-dismiss="modal") 关闭
-	
-	
-	section.message_box
-		div.header 病人紧急事件报警监控
-		div.content
-			table.table
-				thead
-					tr
-						th 事件
-						th 姓名
-						th 次数
-						th 时间
-				tbody
-					
-		div.footer
-			| 当前共
-			span#eventAmount 0
-			| 条未查看的事件 
-			span(class="glyphicon glyphicon-envelope" aria-hidden="true" style="color:#f0ad4e")
-			a(href="javascript:;" class="reflash_event") 刷新	
-			a(href="/event_list") 查看全部事件
 						
 	div(class="modal fade" id="view-diagnose")
 		div(class="modal-dialog")
@@ -202,10 +174,10 @@ block content
 			span(aria-hidden='true') ×
 		div#calendar
 block exclusiveScript
-	script(src="js/libs/moment.min.js")
-	script(src="js/libs/jquery-ui.custom.min.js")
-	script(src="js/libs/fullcalendar.min.js")
-	script(src="js/libs/zh-cn.js")
+	script(src="/js/libs/moment.min.js")
+	script(src="/js/libs/jquery-ui.custom.min.js")
+	script(src="/js/libs/fullcalendar.min.js")
+	script(src="/js/libs/zh-cn.js")
 	script.
 		var patientInfoDialog = $("#patient_info_dialog");
 		$("table tbody").on("click", ".view_info", function(event){
@@ -252,10 +224,7 @@ block exclusiveScript
 
 
 
-		$(".message_box").on("click", ".header", function(event){
-			$(".message_box").toggleClass("down")
-		})
-
+		
 
 		var calendar = $("#calendar");
 		$('#calendar').fullCalendar({
@@ -370,52 +339,5 @@ block exclusiveScript
 				console.log("errorThrown:" + errorThrown)
 			})
 		})
-
-
-
-
-		// 病人紧急事件报警监控
-		var doctorId = "#{user._id}";
 	
-		
-		
-		$(".reflash_event").click(function(event){
-			event.preventDefault();
-			getUnlookEvent();
-			updateEventAmount();
-		})
-		
-		function getUnlookEvent(){
-			$.get("/get_unView_event?did=" + doctorId, function(data){
-				createEvent(data.eventList);
-				updateEventAmount(data.eventList.length)
-			});
-		}
-		
-		function updateEventAmount(data){
-			$("#eventAmount").text(data);
-		}
-		function createEvent(data){
-			if(!data) return;
-
-			var strTem = "";
-			// 默认显示5条
-			for(var i = 0, len = 5; i < len; i++){
-				var cData = data[i];
-				strTem += '<tr>' +
-				    '<td>'+ cData.name +'</td>' +
-				    '<td>'+ cData.patient_name + '</td>' +
-				    '<td>'+ 1 +'</td>' +
-				    '<td>'+ moment(cData.happen_time).format("YYYY年MM月DD日 HH:MM:SS") +'</td>' +
-				'</tr>'
-			}
-			$(".message_box tbody").html(strTem);
-			//- return strTem;
-		}
-
-		setTimeout(function(){
-			getUnlookEvent()
-		}, 500)
-		setInterval(function(){
-			getUnlookEvent();
-		}, 6000)
+	script(src="/js/message_box.js")

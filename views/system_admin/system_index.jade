@@ -1,7 +1,9 @@
 extends ../layout
 
 block exclusiveStyle
-	link(rel="stylesheet" href="css/index.css")
+	link(rel="stylesheet" href="/css/index.css")
+	if user.role == 2
+		link(rel="stylesheet" href="/css/message_box.css")
 
 block content
 	h3.page-header 你所在的路径：信息系统 / 首页
@@ -10,5 +12,7 @@ block content
 		p.bg-success 欢迎#{user.role_prop.real_name || user.account}，祝你身体健康！
 
 		img(src="/img/banner.gif", alt="" style="width: 100%")
-
+	
 block exclusiveScript
+	if user.role == 2
+		script(src="/js/message_box.js")

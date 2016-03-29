@@ -57,6 +57,7 @@ exports.add_event = function(req, res, next) {
     })
 }
 
+// 手动输入添加事件
 exports.add_event_handle = function(req, res, next) {
     var rb = req.body;
 
@@ -74,10 +75,57 @@ exports.add_event_handle = function(req, res, next) {
             patient_name: patient.role_prop.real_name,
             patient_age: patient.role_prop.age,
             patient_sex: patient.role_prop.sex
-        }, function(err, event){
-            if(err) return next(err);
+        }, function(err, event) {
+            if (err) return next(err);
             res.redirect("/add_event")
 
+        })
+    })
+}
+
+// 事件响应机制
+exports.create_event = function(req, res, next){
+    var rb = req.body;
+
+    req.models.User.findOne({
+        _id: rb.user_id,
+        role: 3
+    }, function(err, user){
+        if(err) return next(err);
+
+        req.models.Event.create({
+            user_id: rb.user_id,
+            name: rb.name,
+            content: rb.content,
+            level: rb.level,
+            is_view: false,
+            user: rb.user_id,
+            patient_name: user.role_prop.real_name,
+            patient_age: user.role_prop.age,
+            patient_sex: user.role_prop.sex
+        }, function(err, event){
+            if(err) return next(err);
+            res.send({
+                status: true,
+                info: "产生事件成功",
+                event:event
+            })
+        })
+    })
+}
+
+
+
+exports.set_event_view = function(req, res, next) {
+    var cEventId = req.body.eventId;
+    req.models.Event.findOneAndUpdate({
+        _id: cEventId
+    }, { is_view: true }, { new: true }, function(err, doc) {
+        if (err) return next(err);
+        res.send({
+            status: true,
+            event: doc,
+            info: "该事件已查看"
         })
     })
 }

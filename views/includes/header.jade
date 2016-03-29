@@ -16,50 +16,62 @@ nav(class="navbar navbar-inverse navbar-fixed-top")
                     
                     if user.role == 0
                         li.mobile-show
-                            a(href="/system_user_list") 系统用户管理
+                            a(href="/system_user_list")
+                                span.iconfont &#xe60b; 系统用户管理
                         li.mobile-show
-                            a(href="/doctor_list") 医生用户管理
+                            a(href="/doctor_list")
+                                span.iconfont &#xe609; 医生用户管理
                         li.mobile-show
-                            a(href="/patient_list") 病人用户管理
+                            a(href="/patient_list")
+                                span.iconfont &#xe604; 病人用户管理
                     if user.role == 1
                         li.mobile-show
-                            a(href="/doctor_list") 医生用户管理
+                            a(href="/doctor_list")
+                                span.iconfont &#xe609; 医生用户管理
                         li.mobile-show
-                            a(href="/patient_list") 病人用户管理
+                            a(href="/patient_list")
+                                span.iconfont &#xe604; 病人用户管理
                     if user.role == 2
                         li.mobile-show
-                            a(href="/my_care_patient") 我的监护病人
+                            a(href="/my_care_patient")
+                                span.iconfont &#xe604; 我的监护病人
                         li.mobile-show
-                            a(href="/event_list") 事件列表
+                            a(href="/event_list")
+                                span.iconfont &#xe606; 事件列表
                         li.mobile-show
-                            a(href="/diagnose_list") 诊断信息
+                            a(href="/diagnose_list")
+                                span.iconfont &#xe607; 诊断信息
+                        //- li.mobile-show
+                        //-     a(href="/select_event") 选择病人与事件文档
                         li.mobile-show
-                            a(href="/ecg") 24小时心电图
-                        li.mobile-show
-                            a(href="/select_event") 选择病人与事件文档
-                        li.mobile-show
-                            a(href="/add_event") 为病人添加事件
+                            a(href="/add_event")
+                                span.iconfont &#xe606; 为病人添加事件
                     if user.role == 3
                         li.mobile-show
-                            a(href="/my_related_doctor") 我的监护医生
+                            a(href="/my_related_doctor")
+                                span.iconfont &#xe609; 我的监护医生
                         li.mobile-show
-                            a(href="/my_diagnose") 我的诊断记录
+                            a(href="/my_diagnose")
+                                span.iconfont &#xe607; 我的诊断记录
                         li.mobile-show
-                            a(href="/my_calendar") 我的日历视图
+                            a(href="/my_calendar") 
+                                span.iconfont &#xe608; 我的日历视图
                         li.mobile-show
-                            a(href="/patient/event_list") 事件列表
+                            a(href="/patient/event_list")
+                                span.iconfont &#xe606; 事件列表
                         li.mobile-show
-                            a(href="/ecg") 24小时心电图
+                            a(href="/ecg")
+                                span.iconfont &#xe605; 24小时心电图
+                        li.mobile-show
+                            a(href="/detection")
+                                span.iconfont &#xe60c; 监测
 
                     li.ness-item.perinfo
                         a(href="/perinfo") 
-                            span.iconfont &#xe602;
-                                | 个人信息
+                            span.iconfont &#xe602; 个人信息
                     li.ness-item.homepage
                         a(href="/")
-                            span.iconfont &#xe601;
-                                | 返回首页
+                            span.iconfont &#xe601; 返回首页
                     li.ness-item.lagout
                         a(href="/logout") 
-                            span.iconfont &#xe600;
-                                | 退出登录
+                            span.iconfont &#xe600; 退出登录

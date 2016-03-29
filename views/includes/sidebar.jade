@@ -4,17 +4,27 @@ div(class="col-sm-3 col-md-2 sidebar")
         -var userRole = user.role
         if userRole == 0
             li
-                a(href="/system_user_list") 系统用户管理
+                a(href="/system_user_list")
+                    span.iconfont &#xe60b;
+                        | 系统用户管理
             li
-                a(href="/doctor_list") 医生用户管理
+                a(href="/doctor_list")
+                    span.iconfont &#xe609;
+                        | 医生用户管理
             li
-                a(href="/patient_list") 病人用户管理
+                a(href="/patient_list")
+                    span.iconfont &#xe604;
+                        | 病人用户管理
 
         if userRole == 1
             li
-                a(href="/doctor_list") 医生用户管理
+                a(href="/doctor_list")
+                    span.iconfont &#xe609;
+                        | 医生用户管理
             li
-                a(href="/patient_list") 病人用户管理
+                a(href="/patient_list")
+                    span.iconfont &#xe604;
+                        | 病人用户管理
 
         if userRole == 2
             li
@@ -29,14 +39,14 @@ div(class="col-sm-3 col-md-2 sidebar")
                 a(href="/diagnose_list")
                     span.iconfont &#xe607;
                         | 诊断信息
-            li
-                a(href="/ecg")
-                    span.iconfont &#xe605;
-                        | 24小时心电图
-            li
-                a(href="/select_event")
-                    span.iconfont &#xe606;
-                        | 选择病人与事件文档
+            //- li
+            //-     a(href="/ecg")
+            //-         span.iconfont &#xe605;
+            //-             | 24小时心电图
+            //- li
+            //-     a(href="/select_event")
+            //-         span.iconfont &#xe606;
+            //-             | 选择病人与事件文档
             li
                 a(href="/add_event")
                     span.iconfont &#xe606;
@@ -62,4 +72,8 @@ div(class="col-sm-3 col-md-2 sidebar")
             li
                 a(href="/ecg")
                     span.iconfont &#xe605;
-                        |24小时心电图
+                        | 24小时心电图
+            li
+                a(href="/detection")
+                    span.iconfont &#xe60c;
+                        | 监测

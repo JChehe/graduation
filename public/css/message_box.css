@@ -2,7 +2,8 @@
 	position: fixed;
 	right: 0;
 	bottom: 0;
-	width: 30%;
+	/*width: 30%;*/
+	max-width: 570px;
 	border: 1px solid #aaa;
 	border-radius: 5px 5px 0 0;
 	background-color: #fff;
@@ -35,6 +36,3 @@
 }
 
 
-#calendar{
-	max-width: 900px;
-}

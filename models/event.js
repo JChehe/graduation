@@ -20,4 +20,3 @@ var eventSchema = new Schema({  // 原型
 
 
 module.exports = mongoose.model("Event", eventSchema); // 模型
-	

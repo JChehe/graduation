@@ -81,7 +81,6 @@ exports.event_list = function(req, res, next) {
             path: "user"
         }).exec(function(err, eventList) {
             if (err) return next(err);
-            console.log(page)
             res.render("doctor/event_list", {
                 user: req.session.user,
                 eventList: eventList,
@@ -209,7 +208,7 @@ exports.get_unView_event = function(req, res, next) {
             "$in": myCarePatient
         },
         is_view: false
-    }, function(err, eventList) {
+    },null, { sort: {happen_time: -1} }, function(err, eventList) {
         if (err) return next(err);
 
         res.send({
@@ -219,3 +218,4 @@ exports.get_unView_event = function(req, res, next) {
 
     })
 }
+

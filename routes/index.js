@@ -99,15 +99,15 @@ router.post("/add_care_patient", auth.adminRequired, system_admin.add_care_patie
 
 /* 医生权限以上 开始 */
 
-router.get("/my_care_patient", auth.doctorRequired, doctor.my_care_patient)
-router.get("/get_patient_info/:id", doctor.get_patient_info)
+router.get("/my_care_patient", auth.doctorRequired, doctor.my_care_patient);
+router.get("/get_patient_info/:id", doctor.get_patient_info);
 
-router.get("/event_list", auth.doctorRequired, doctor.event_list)
+router.get("/event_list", auth.doctorRequired, doctor.event_list);
 router.get("/diagnose_list", auth.doctorRequired, doctor.diagnose_list);
-router.post("/modify_diagnose", auth.doctorRequired, doctor.modify_diagnose)
-router.post("/add_diagnose", auth.doctorRequired, doctor.add_diagnose)
-router.get("/get_unView_event", auth.doctorRequired, doctor.get_unView_event)
-
+router.post("/modify_diagnose", auth.doctorRequired, doctor.modify_diagnose);
+router.post("/add_diagnose", auth.doctorRequired, doctor.add_diagnose);
+router.get("/get_unView_event", auth.doctorRequired, doctor.get_unView_event);
+router.post("/set_event_view", auth.doctorRequired, event.set_event_view);
 /* 医生权限以上 开始 */
 
 
@@ -125,6 +125,8 @@ router.get("/get_family/:id", auth.patientRequired, system_admin.get_family)
 router.get("/get_related_diagnose", auth.patientRequired, doctor.get_related_diagnose)
 router.get("/get_calendar_events", auth.patientRequired, patient.get_calendar_events);
 
+router.get("/detection", auth.patientRequired, patient.detection);
+router.post("/create_event", auth.patientRequired, event.create_event);
 /* 病人权限以上 结束 */
 
 

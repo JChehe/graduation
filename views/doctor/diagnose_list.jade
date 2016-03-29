@@ -1,7 +1,7 @@
 extends ../layout
 
 block exclusiveStyle
-	//- link(rel="stylesheet" href="css/mess")
+	link(rel="stylesheet" href="/css/message_box.css")
 
 block content
 	h3.page-header 您所在的路径：信息系统 / 诊断信息
@@ -56,8 +56,9 @@ block content
 				
 
 block exclusiveScript
-	script(src="js/libs/moment.min.js")
-	script(src="js/libs/zh-cn.js")
+	script(src="/js/libs/moment.min.js")
+	script(src="/js/libs/zh-cn.js")
+	script(src="/js/message_box.js")
 	script.
 		var diagnoseDialog = $("#diagnose_dialog"),
 			diagnosePatient = diagnoseDialog.find(".patient_name"),

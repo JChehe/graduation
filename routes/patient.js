@@ -118,3 +118,10 @@ exports.ecg = function(req, res, next) {
         user: req.session.user
     })
 }
+
+
+exports.detection = function(req, res, next){
+    res.render("patient/detection", {
+        user: req.session.user
+    })
+}
