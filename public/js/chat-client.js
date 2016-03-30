@@ -60,7 +60,6 @@ $(function() {
             talkPeoGroup.html(liTemStr)
             chatList.html(divTemStr);
 
-            // 轮询
             
             chatList.children('div').each(function(index) {
                 var chatContainerId = $(this).attr('id');
@@ -92,12 +91,12 @@ $(function() {
                 function getNewChat(chatContainerId) {
                     var random = Date.now();
                     if (USERROLE == "2") {
-                        $.ajax("/get_chat_record?belong=" + 3 + "&patient_id=" + chatContainerId + "&doctor_id=" + USERID + "&limit=" + limit + "&timestamp=" + ($("#" + chatContainerId).find(".other:last").data('timestamp') || firstLoadTimeStamp) + "&random=" + random)
+                        $.ajax("/get_chat_record?belong=" + 3 + "&patient_id=" + chatContainerId + "&doctor_id=" + USERID + "&limit=" + limit + "&timestamp=" + ($("#" + chatContainerId).find(".pollMsg:last").data('timestamp') || firstLoadTimeStamp) + "&random=" + random)
                             .done(function(data) {
                                 chatPollAfater(data, chatContainerId);
                             }).fail();
                     } else if (USERROLE == "3") {
-                        $.ajax("/get_chat_record?belong=" + 2 + "&patient_id=" + USERID + "&doctor_id=" + chatContainerId + "&limit=" + limit + "&timestamp=" + ($("#" + chatContainerId).find(".other:last").data('timestamp') || firstLoadTimeStamp) + "&random=" + random)
+                        $.ajax("/get_chat_record?belong=" + 2 + "&patient_id=" + USERID + "&doctor_id=" + chatContainerId + "&limit=" + limit + "&timestamp=" + ($("#" + chatContainerId).find(".pollMsg:last").data('timestamp') || firstLoadTimeStamp) + "&random=" + random)
                             .done(function(data) {
                                 chatPollAfater(data, chatContainerId);
                             }).fail();
@@ -138,6 +137,7 @@ $(function() {
             $("#" + chatContainerId).append(chatHtml);
         } else {
             chatHtml.each(function(index) {
+                $(this).addClass('pollMsg')
                 // console.log($(this).data("timestamp"));
                 insertWhere($(this), newMsgList)
             })
