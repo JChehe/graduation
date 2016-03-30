@@ -207,6 +207,10 @@ block exclusiveScript
                     '</tr>').prependTo($("#diagnose-list").find("tbody"))
             })
         })
+        diagnoseForm.on("click", function(event){
+            event.preventDefault();
+            diagnoseForm.fadeToggle();
+        })
 
 
 
