@@ -1,7 +1,7 @@
 extends ../layout
 
 block exclusiveStyle
-	//- link(rel="stylesheet" href="css/index.css")
+	link(rel="stylesheet" href="/css/message_box.css")
 
 block content
 	h3.page-header 你所在的路径：病人信息系统 / 首页
@@ -98,6 +98,7 @@ block content
 					button(type="submit" class="btn btn-primary" form="modify_password_form") 确定
 
 block exclusiveScript
+	script(src="/js/message_box.js")
 	script.
 		
 
