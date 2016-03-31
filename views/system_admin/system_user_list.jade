@@ -26,7 +26,9 @@ block content
 						td(data-sex='#{value["role_prop"]["sex"]}')= value["role_prop"]["sex"] == 0? "男" : "女"
 						td= value["role_prop"]["age"]
 						td
-							button.btn.btn-warning.btn-xs(type="button") 编辑
+							div.btn-group.btn-group-sm(role="group")
+								button.btn.btn-warning(type="button" class="edit_btn") 编辑
+								button.btn.btn-danger(type="button" class="del_btn") 删除
 
 	include ../includes/pagination
 
@@ -47,37 +49,37 @@ block content
 						div.form-group
 							label(class="col-sm-3 control-label text-left") 账户名：
 							div.col-sm-9
-								input(type="text" class="form-control" placeholder="请输入您的用户名" name="account")
+								input(type="text" class="form-control" placeholder="请输入您的用户名" name="account" required)
 						div.form-group
 							label(for="" class="col-sm-3 control-label text-left") 姓名：
 							div.col-sm-9
-								input( type="text" class="form-control" placeholder="请输入您的真实姓名" name="real_name")
+								input( type="text" class="form-control" placeholder="请输入您的真实姓名" name="real_name" required)
 						div.form-group
 							label(class="col-sm-3 control-label text-left") 性别：
 							div.col-sm-9
 								label(class="radio-inline")
-									input(type="radio" name="sex" value="0") 
+									input(type="radio" name="sex" value="0" required) 
 									| 男
 								label(class="radio-inline")
-									input(type="radio" name="sex" value="1") 
+									input(type="radio" name="sex" value="1" required) 
 									| 女
 						div.form-group
 							label(for="" class="col-sm-3 control-label text-left") 密码：
 							div.col-sm-9
-								input(type="password" class="form-control" name="password")
+								input(type="password" class="form-control" name="password" required)
 
 						div.form-group
 							label(for="" class="col-sm-3 control-label text-left") 确认密码：
 							div.col-sm-9
-								input(type="password" class="form-control")
+								input(type="password" class="form-control" required)
 						div.form-group
 							label(class="col-sm-3 control-label text-left") 用户角色：
 							div.col-sm-9
 								label(class="radio-inline")
-									input(type="radio" name="role" value="0") 
+									input(type="radio" name="role" value="0" required) 
 									| 系统管理员
 								label(class="radio-inline")
-									input(type="radio" name="role" value="1") 
+									input(type="radio" name="role" value="1" required) 
 									| 管理员
 
 

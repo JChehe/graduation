@@ -1,7 +1,8 @@
 extends ../layout
 
 block exclusiveStyle
-	link(rel="stylesheet" href="/css/message_box.css")
+	if user.role == 2
+		link(rel="stylesheet" href="/css/message_box.css")
 
 block content
 	h3.page-header 你所在的路径：病人信息系统 / 首页
@@ -98,7 +99,8 @@ block content
 					button(type="submit" class="btn btn-primary" form="modify_password_form") 确定
 
 block exclusiveScript
-	script(src="/js/message_box.js")
+	if user.role == 2
+		script(src="/js/message_box.js")
 	script.
 		
 
@@ -125,8 +127,8 @@ block exclusiveScript
 				alert("新密码与确认密码不一致~")
 			}else if(oldPassVal === newPassVal){
 				alert("旧密码与新密码相同~")
-			}else if(newPassVal.length <= 6){
-				alert("新密码长度须大于6位")
+			}else if(newPassVal.length < 6){
+				alert("新密码长度须大于或等于6位")
 			}else{
 				validate = true;
 			}
@@ -139,8 +141,9 @@ block exclusiveScript
 				}).done(function(data){
 					alert(data.info);
 					if( data.status ){
-						modifyPasswordDialog.modal('hide')
-						modifyPasswordForm.trigger("reset")
+						//- modifyPasswordDialog.modal('hide')
+						//- modifyPasswordForm.trigger("reset")
+						window.location.href = "/login"
 					}
 					
 				}).fail(function(jqXHR, textStatus, errorThrown ){

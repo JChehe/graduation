@@ -173,7 +173,7 @@ searchForm.submit(function(event) {
                 '<td>' +
                 '<div role="group" class="btn-group btn-group-sm">' +
                 '<button type="button" class="btn btn-default edit_btn">查看/编辑</button>' +
-                '<button type="button" class="btn btn-default patient_btn">选择患者</button>' +
+                '<button type="button" class="btn btn-success patient_btn">选择患者</button>' +
                 '<button type="button" class="btn btn-danger del_user">删除</button>' +
                 '</div>' +
                 '</td>' +

@@ -37,7 +37,7 @@ block content
 						td
 							div.btn-group.btn-group-sm(role="group")
 								button.btn.btn-default(type="button" class="edit_btn") 查看/编辑
-								button.btn.btn-default(type="button" class="family_btn") 查看家属
+								button.btn.btn-success(type="button" class="family_btn") 查看家属
 								button.btn.btn-danger(type="button" class="del_user") 删除
 
 	include ../includes/pagination
@@ -60,61 +60,61 @@ block content
 						div.form-group
 							label(class="col-sm-3 control-label text-left") 账户名：
 							div.col-sm-9
-								input(type="text" class="form-control" placeholder="请输入您的用户名" name="account")
+								input(type="text" class="form-control" placeholder="请输入您的用户名" name="account" required="true")
 						div.form-group
 							label(for="" class="col-sm-3 control-label text-left") 姓名：
 							div.col-sm-9
-								input( type="text" class="form-control" placeholder="请输入您的真实姓名" name="real_name")
+								input( type="text" class="form-control" placeholder="请输入您的真实姓名" name="real_name" required="true")
 						div.form-group
 							label(class="col-sm-3 control-label text-left") 性别：
 							div.col-sm-9
 								label(class="radio-inline")
-									input(type="radio" name="sex" value="0") 
+									input(type="radio" name="sex" value="0" required="true") 
 									| 男
 								label(class="radio-inline")
-									input(type="radio" name="sex" value="1") 
+									input(type="radio" name="sex" value="1" required="true") 
 									| 女
 						div.form-group
 							label(class="col-sm-3 control-label text-left") 生日：
 							div.col-sm-9
-								input(type="date" name="birthday" class="form-control") 
+								input(type="date" name="birthday" class="form-control" required="true") 
 						div.form-group
 							label(for="" class="col-sm-3 control-label text-left") 密码：
 							div.col-sm-9
-								input(type="password" class="form-control" name="password")
+								input(type="password" class="form-control" name="password" required="true")
 									
 						div.form-group
 							label(for="" class="col-sm-3 control-label text-left") 确认密码：
 							div.col-sm-9
-								input(type="password" class="form-control")
+								input(type="password" class="form-control" required="true")
 						div.form-group
 							label(class="col-sm-3 control-label text-left") 身份证号：
 							div.col-sm-9
-								input(type="text" class="form-control" name="id_card")
+								input(type="text" class="form-control" name="id_card" required="true")
 						div.form-group
 							label(class="col-sm-3 control-label text-left") 身高：
 							div.col-sm-9
-								input(type="text" class="form-control" name="height")
+								input(type="text" class="form-control" name="height" required="true")
 						div.form-group
 							label(class="col-sm-3 control-label text-left") 体重：
 							div.col-sm-9
-								input(type="text" class="form-control" name="weight")
+								input(type="text" class="form-control" name="weight" required="true")
 						div.form-group
 							label(class="col-sm-3 control-label text-left") 手机号码：
 							div.col-sm-9
-								input(type="text" class="form-control" name="tel_phone")
+								input(type="text" class="form-control" name="tel_phone" required="true")
 						div.form-group
 							label(class="col-sm-3 control-label text-left") 电话号码：
 							div.col-sm-9
-								input(type="text" class="form-control" name="phone")
+								input(type="text" class="form-control" name="phone" required="true")
 						div.form-group
 							label(class="col-sm-3 control-label text-left") 住址：
 							div.col-sm-9
-								input(type="text" class="form-control" name="address")
+								input(type="text" class="form-control" name="address" required="true")
 						div.form-group
 							label(class="col-sm-3 control-label text-left") 病例：
 							div.col-sm-9
-								textarea(class="form-control" name="medical_case")
+								textarea(class="form-control" name="medical_case" required="true")
 
 				div(class="modal-footer")
 					button(type="button" class="btn btn-default" data-dismiss="modal") 关闭
@@ -249,17 +249,33 @@ block exclusiveScript
 		// 添加病人用户
 		var addUserDialog = $("#add-user")
 		var addUserForm = addUserDialog.find("form")
-		var userTable = $("table")
+		var userTable = $("table");
+	
+
+
 		addUserDialog.find(":submit").click(function(event){
+			event.preventDefault();
+			var validate = true;
+
+			addUserForm.find(":input").each(function(){
+				if($(this).val().trim().length === 0){
+					alert("有表单没填写");
+					validate = false;
+					return false;
+				}
+			})
+
+
+
+			if(!validate) return;
 			$.ajax({
 				url: addUserForm.attr("action"),
 				type: addUserForm.attr("method"),
 				data: addUserForm.serialize()
 			}).done(function(data){
-
 				if(data.status){
 					var user = data.user;
-					$('<tr data-uid='+ user.uid +' data-role='+ user.role +'>' +
+					$('<tr data-uid='+ user._id +' data-role='+ user.role +' data-idcard="'+ user.id_card +'" data-height="'+ user.height +'" data-weight="'+ user.weight +'" data-birthday="'+ user.birthday +'" data-medicalcase="'+ user.medical_case +'">' +
 						'<td>'+user.account+'</td>' +
 						'<td>'+user.real_name+'</td>' +
 						'<td data-sex='+ user.sex +'>'+(user.sex == "0" ? "男": "女")+'</td>' +
@@ -267,13 +283,14 @@ block exclusiveScript
 						'<td>'+ user.address +'</td>' +
 						'<td>'+ user.phone +'</td>' +
 						'<td>'+ user.tel_phone +'</td>' +
-						'<td><div role="group" class="btn-group btn-group-sm"><button type="button" class="btn btn-default edit_btn">查看/编辑</button><button type="button" class="btn btn-default family_btn">查看家属</button><button type="button" class="btn btn-danger">删除</button></div></td>'+
+						'<td><div role="group" class="btn-group btn-group-sm"><button type="button" class="btn btn-default edit_btn">查看/编辑</button><button type="button" class="btn btn-success family_btn">查看家属</button><button type="button" class="btn btn-danger">删除</button></div></td>'+
 					'</tr>').prependTo(userTable.find("tbody"));
 					
 					addUserDialog.modal('hide')
 					addUserForm.trigger("reset")
 				}else{
 					//- alert(data.info)
+					alert(data.info)
 				}
 				
 			}).fail(function(jqXHR, textStatus, errorThrown ){
@@ -509,7 +526,7 @@ block exclusiveScript
 				    '<td>' +
 				        '<div role="group" class="btn-group btn-group-sm">' +
 				            '<button type="button" class="btn btn-default edit_btn">查看/编辑</button>' +
-				            '<button type="button" class="btn btn-default family_btn">查看家属</button>' +
+				            '<button type="button" class="btn btn-success family_btn">查看家属</button>' +
 				            '<button type="button" class="btn btn-danger del_user">删除</button>' +
 				        '</div>' +
 				    '</td>' +

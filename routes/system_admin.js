@@ -1,7 +1,9 @@
-var uuid = require('node-uuid');
-var LIMIT = 3;
+var salt = require("../middlewares/salt");
+var config = require("../config.default")
+var LIMIT = 5;
 // 默认信息
 exports.index = function(req, res, next) {
+    console.log(req.cookies)
     res.render("system_admin/system_index", {
         user: req.session.user
     })
@@ -22,33 +24,38 @@ exports.perinfo = function(req, res, next) {
 
 // 修改密码
 exports.modify_password = function(req, res, next) {
-    console.log(req.session.user)
-    console.log(req.session.user._id)
-    console.log(req.body["old-password"])
+    var user = req.session.user;
     req.models.User.findOne({
-        _id: req.session.user._id,
-        password: req.body["old-password"]
+        _id: user._id
     }, function(err, user) {
+        console.log("comparePassword" in user)
         if (err) return next(err);
-        if (user == null) {
-            res.send({
-                status: false,
-                info: "旧密码不正确。"
-            })
-        } else {
-            user.update({
-                $set: {
-                    password: req.body["new-password"]
-                }
-            }, function(err, count, raw) {
-                if (err) return next(err);
-                res.send({
-                    status: true,
-                    info: "修改密码成功"
+        user.comparePassword(req.body["old-password"], true, function(isMatch) {
+            console.log("isMatch" + isMatch)
+            if (isMatch) {
+                user.update({
+                    $set: {
+                        password: salt.md5(req.body["new-password"])
+                    }
+                }, function(err, count, raw) {
+                    if (err) return next(err);
+                    req.session.destroy();
+                    res.clearCookie(config.auth_cookie_name, "/")
+                    
+                    res.send({
+                        status: true,
+                        info: "修改密码成功"
+                    })
                 })
-            })
-        }
+            } else {
+                res.send({
+                    status: false,
+                    info: "旧密码不正确。"
+                })
+            }
+        })
     })
+
 }
 
 // 删除用户
@@ -70,8 +77,10 @@ exports.del_user = function(req, res, next) {
 
 // 按条件搜索用户列表
 exports.user_search = function(req, res, next) {
-    console.log(req.body)
-    console.log(typeof req.body["min-age"]); // String
+    var cUser = req.session.user;
+    var cUserRole = cUser.role;
+
+
     var realNameQuery = null;
     var realName = req.body["real_name"]
     if (realName) {
@@ -85,24 +94,37 @@ exports.user_search = function(req, res, next) {
     var maxAge = req.body["max-age"] != "" ? parseInt(req.body["max-age"], 10) : 100000000;
 
     var sex = req.body["sex"] == "-1" ? ["0", "1"] : [req.body["sex"]]
-    console.log(typeof req.body["role"])
 
-    req.models.User.find({
-        // "role": req.body["role"],
-        // "role_prop.real_name": new RegExp(realName),
+    var queryObj = {
+        "role": req.body["role"],
+        // "role_prop.real_name": realName,
         "role_prop.sex": {
             "$in": sex
         },
-        "$or": [{
+        /*"$or": [{
             "role_prop.real_name": realNameQuery
         }, {
             "account": realNameQuery
-        }],
+        }],*/
         "role_prop.age": {
             "$gte": minAge,
             "$lte": maxAge
         }
-    }, function(err, userList) {
+    }
+
+    if (cUserRole === "2") {
+        queryObj["_id"] = {
+            $in: cUser.care_patient
+        }
+    } else if (cUserRole === "3") {
+        queryObj["_id"] = {
+            $in: cUser.related_doctor
+        }
+    }
+
+    console.log(queryObj)
+
+    req.models.User.find(queryObj, function(err, userList) {
         if (err) return next(err);
         console.log(userList)
             // 在前端判断人数，然后进行相应控制
@@ -658,10 +680,12 @@ exports.add_patient_user = function(req, res, next) {
 
             req.models.User.create(newUser, function(err, UserResponse) {
                 if (err) return next(err);
+                console.log(UserResponse)
                 res.send({
                     status: true,
                     info: "添加成功",
                     user: {
+                        _id: UserResponse._id,
                         account: reqBody.account,
                         role: reqBody.role,
                         real_name: reqBody.real_name,

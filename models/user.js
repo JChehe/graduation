@@ -1,4 +1,5 @@
-var mongoose = require("mongoose")
+var mongoose = require("mongoose");
+var salt = require("../middlewares/salt")
 
 var userSchema = new mongoose.Schema({
     account: {
@@ -51,9 +52,32 @@ var userSchema = new mongoose.Schema({
     createAt: { // 帐号创建日期
         type: Date,
         default: Date.now
-    }
+    },
+    loginTime: Array
+
 })
 
+userSchema.pre("save", function(next){
+    var saltStr = salt.md5(this.password)
+    this.password = saltStr;
+    next();
+})
+
+userSchema.methods = {
+    comparePassword: function(password, isNeedSalt, cb){
+        if(isNeedSalt){
+            passwordsalt = salt.md5(password)
+        }else{
+            passwordsalt = password
+        }
+        
+        if(passwordsalt == this.password){
+            cb(true);
+        }else{
+            cb(false);
+        }
+    }
+}
 
 userSchema.static({
     list: function(userRole, callback) {
@@ -73,6 +97,9 @@ userSchema.static({
 })
 
 
-
+/*function md5(str){
+    var md5 = crypto.createsalt("md5");
+    return md5.update(str).digest("hex");
+}*/
 
 module.exports = mongoose.model("User", userSchema)

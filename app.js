@@ -6,15 +6,17 @@ var logger = require("morgan")
 var cookieParser = require("cookie-parser")
 var session = require("express-session")
 
+var mongoStore = require("connect-mongo")(session)
+
 var bodyParser = require("body-parser")
 var mongoose = require("mongoose")
-
-// var ueditor = require("ueditor")
 
 var routes = require("./routes/index.js")
 var models = require("./models/index.js")
 
-var dbUrl = process.env.MONGOHQ_URL || "mongodb://@localhost:27017/graduationProject"
+var config = require("./config.default")
+
+var dbUrl = process.env.MONGOHQ_URL || config.dbUrl
 var db = mongoose.connect(dbUrl, { safe: true })
 
 var app = express();
@@ -23,7 +25,7 @@ var app = express();
 app.set("appName", "graduation_Project")
 app.set("views", path.join(__dirname, "views"))
 app.set("view engine", "jade")
-app.set("port", process.env.PORT || 3000)
+app.set("port", process.env.PORT || config.port)
 app.use(express.static(path.join(__dirname, "public")))
 
 app.use(favicon(__dirname + '/public/favicon.ico'));
@@ -31,9 +33,17 @@ app.use(logger("dev"))
 
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
-app.use(cookieParser("ljc"))
-app.use(session({ secret: "hehe", cookie: { maxAge: 6000000000 },resave: true, saveUninitialized: true }))
+app.use(cookieParser(config.session_secret))
 
+// 实现session持久化
+app.use(session({
+    secret: config.session_secret,
+    store: new mongoStore({
+        url: dbUrl,
+        collection: "sessions",
+        ttl: 14 * 24 * 60 * 60 // = 14 days. Default
+    })
+}))
 
 app.locals.moment = require("moment");
 
@@ -61,6 +71,7 @@ app.use(function(req, res, next) {
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
+    // mongoose.set("debug", true); // 显示mongoDB 执行语句
     app.use(function(error, req, res, next) {
         res.status(error.status || 500);
         res.render('error', {
@@ -69,16 +80,6 @@ if (app.get('env') === 'development') {
         });
     });
 }
-
-/*// production error handler
-// no stacktraces leaked to user
-app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error', {
-        message: err.message,
-        error: {}
-    });
-});*/
 
 
 var server = http.createServer(app)

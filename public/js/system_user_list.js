@@ -35,8 +35,8 @@ addUserDialog.find(":submit").click(function(event) {
 // 点击表格行时，设置表单的默认信息
 var editUserDialog = $('#edit-user');
 var curTr = null;
-userTable.find("tbody").on("click", "tr", function(event) {
-    curTr = $(this)
+userTable.find("tbody").on("click", ".edit_btn", function(event) {
+    curTr = $(this).closest('tr');
     var curAllTd = curTr.find("td")
     editUserDialog.find("[name='account']").val(curAllTd.eq(0).text()).end()
         .find("[name='real_name']").val(curAllTd.eq(1).text()).end()
@@ -55,6 +55,18 @@ userTable.find("tbody").on("click", "tr", function(event) {
         .find("[name=edit_user_id]").val(curTr.data("uid"))
 
     editUserDialog.modal('show')
+}).on("click", ".del_btn", function(event){
+    event.preventDefault();
+    if(window.confirm("确定要删除吗？")){
+        var curTr = $(this).closest('tr');
+        $.get("/del_user?uid="+ curTr.data("uid"), function(data){
+            if(data.status === true){
+                curTr.remove();
+            }
+        })
+    }
+    
+
 })
 
 // 编辑系统用户表单处理

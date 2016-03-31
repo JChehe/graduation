@@ -39,7 +39,7 @@ block content
 						td 
 							div.btn-group.btn-group-sm(role="group")
 								button.btn.btn-default(type="button" class="edit_btn") 查看/编辑
-								button.btn.btn-default(type="button" class="patient_btn") 选择患者
+								button.btn.btn-success(type="button" class="patient_btn") 选择患者
 								button.btn.btn-danger(type="button" class="del_user") 删除
 							
 	include ../includes/pagination
@@ -87,29 +87,29 @@ block content
 							div.form-group
 								label(class="col-sm-3 control-label text-left") 账户名：
 								div.col-sm-9
-									input(type="text" class="form-control" placeholder="请输入您的用户名" name="account")
+									input(type="text" class="form-control" placeholder="请输入您的用户名" name="account" required="true")
 							div.form-group
 								label(for="" class="col-sm-3 control-label text-left") 姓名：
 								div.col-sm-9
-									input( type="text" class="form-control" placeholder="请输入您的真实姓名" name="real_name")
+									input( type="text" class="form-control" placeholder="请输入您的真实姓名" name="real_name" required="true")
 							div.form-group
 								label(class="col-sm-3 control-label text-left") 性别：
 								div.col-sm-9
 									label(class="radio-inline")
-										input(type="radio" name="sex" value="0") 
+										input(type="radio" name="sex" value="0" required="true") 
 										| 男
 									label(class="radio-inline")
-										input(type="radio" name="sex" value="1") 
+										input(type="radio" name="sex" value="1" required="true") 
 										| 女
 							div.form-group
 								label(for="" class="col-sm-3 control-label text-left") 密码：
 								div.col-sm-9
-									input(type="password" class="form-control" name="password")
+									input(type="password" class="form-control" name="password" required="true")
 										
 							div.form-group
 								label(for="" class="col-sm-3 control-label text-left") 确认密码：
 								div.col-sm-9
-									input(type="password" class="form-control")
+									input(type="password" class="form-control" required="true")
 							div.form-group
 								label(class="col-sm-3 control-label text-left") 电话号码：
 								div.col-sm-9
@@ -117,13 +117,13 @@ block content
 							div.form-group
 								label(class="col-sm-3 control-label text-left") 手机号码：
 								div.col-sm-9
-									input(type="text" class="form-control" name="tel_phone")
+									input(type="text" class="form-control" name="tel_phone" required="true")
 							div.form-group
-								label(class="col-sm-3 control-label text-left") 科室：
+								label(class="col-sm-3 control-label text-left" required="true") 科室：
 								div.col-sm-9
 									input(type="text" class="form-control" name="location")
 							div.form-group
-								label(class="col-sm-3 control-label text-left") 职位：
+								label(class="col-sm-3 control-label text-left" required="true") 职位：
 								div.col-sm-9
 									input(type="text" class="form-control" name="title")
 					div.modal-footer

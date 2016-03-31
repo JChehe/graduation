@@ -9,7 +9,13 @@ block content
 	h3.page-header 你所在的路径：信息系统 / 首页
 	div#default-page
 		h2.sub-header
-		p.bg-success 欢迎#{user.role_prop.real_name || user.account}，祝你身体健康！
+		script.
+			var a = 1
+
+
+		- var loginTime = user.loginTime
+		- var lastLoginTime = loginTime.length <= 1 ? Date.now() : loginTime[loginTime.length - 2] 
+		p.bg-success 欢迎#{user.role_prop.real_name || user.account}，您上次登录的时间是 #{moment(lastLoginTime).format("YYYY年MM月DD日 HH:mm:ss")} ，祝你身体健康！
 
 		img(src="/img/banner.gif", alt="" style="width: 100%")
 	

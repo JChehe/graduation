@@ -4,17 +4,17 @@ block exclusiveStyle
 	//- link(rel='stylesheet', href="/css/login.css")
 	style.
 		main.wrap{
-			text-align: center;
 			margin-bottom: 30px;
 		}
 		form{
-			padding: 5px;
+			width: 195px;
+			margin: 0 auto;
 		}
 		label{
 			text-align:left
 		}
 		button[type="submit"]{
-			width: 215px;
+			width: 100%;
 			margin-top: 15px;
 		}
 		.navbar-fixed-top{
@@ -100,6 +100,11 @@ block content
 				label
 					span 密码
 					input(class="form-control" name="password" type="password" value="123456")
+			div.form_group
+				label
+					input(type='checkbox' name="is_remember" value ="1") 
+					|  记住我
+
 			button.btn.btn-success(type="submit") 登录
 
 
