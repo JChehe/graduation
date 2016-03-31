@@ -25,35 +25,31 @@ exports.perinfo = function(req, res, next) {
 // 修改密码
 exports.modify_password = function(req, res, next) {
     var user = req.session.user;
-    req.models.User.findOne({
-        _id: user._id
-    }, function(err, user) {
-        console.log("comparePassword" in user)
-        if (err) return next(err);
-        user.comparePassword(req.body["old-password"], true, function(isMatch) {
-            console.log("isMatch" + isMatch)
-            if (isMatch) {
-                user.update({
-                    $set: {
-                        password: salt.md5(req.body["new-password"])
-                    }
-                }, function(err, count, raw) {
-                    if (err) return next(err);
-                    req.session.destroy();
-                    res.clearCookie(config.auth_cookie_name, "/")
-                    
-                    res.send({
-                        status: true,
-                        info: "修改密码成功"
-                    })
-                })
-            } else {
+
+    user = new req.models.User(user); // session.user 是 plain object， 需要 Usermodels 包装成mongoose对象
+    user.comparePassword(req.body["old-password"], true, function(isMatch) {
+        console.log("isMatch" + isMatch)
+        if (isMatch) {
+            user.update({
+                $set: {
+                    password: salt.md5(req.body["new-password"])
+                }
+            }, function(err, count, raw) {
+                if (err) return next(err);
+                req.session.destroy();
+                res.clearCookie(config.auth_cookie_name, "/")
+
                 res.send({
-                    status: false,
-                    info: "旧密码不正确。"
+                    status: true,
+                    info: "修改密码成功"
                 })
-            }
-        })
+            })
+        } else {
+            res.send({
+                status: false,
+                info: "旧密码不正确。"
+            })
+        }
     })
 
 }
