@@ -1,75 +1,117 @@
 extends ../layout
 
 block exclusiveStyle
-	//- link(rel="stylesheet" href="css/mess")
-	style.
-		#ecg_area{
-			position: relative;
+    //- link(rel="stylesheet" href="css/mess")
+    style.
+        #ecg_area{
+            position: relative;
+            max-width: 900px;
+            padding-bottom: 400px;
+        }
+        #ecg_area>canvas{
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+        #ecg_bg { 
+            background-color: #000;
+            background:#131; background-image: radial-gradient(#242, #121);  
+        }
 
-		}
-		#ecg_area>canvas{
-			position: absolute;
-			left: 0;
-			top: 0;
-			width: 100%;
-		}
-		#ecg_bg { 
-			background-color: #000;
-			background:#131; background-image: radial-gradient(#242, #121);  
-		}
-
-		@media print {
-			#save_ecg, .sidebar{
-				display:none;
-			}
-		}
-		
-
+        @media print {
+            #save_ecg, .sidebar, .ecg-form,#chat-container{
+                display:none;
+            }
+        }
+        
+        .ecg-form{
+            width: 300px;
+        }
+    
 block content
-	h3.page-header 您所在的路径：信息系统 / 心电图
-	button(type="button" class="btn btn-default" id="save_ecg") 打印心电图
-	button(type="button" class="btn btn-default" id="save_img") 保存为图片
-	div#ecg_area
-		canvas#ecg_bg(width="900", height="400")
-		canvas#ecg(width="900", height="400")
-	audio#audio1(src="audio/beep.mp3" preload="auto")
-	
-	
-	div(class="modal fade" id="diagnose_dialog")
-		div(class="modal-dialog modal-lg")
-			div.modal-content
-				div.modal-header
-					button(type="button" class="close" data-dismiss="modal" aria-label="Close")
-						span(aria-hidden="true") &times;
-					h4.modal-title 查看诊断信息
-				div.modal-body
-					div.row
-						div.col-sm-6
-							p.patient_name 
-						div.col-sm-6
-							p.diagnose_doctor
-					div.row
-						div.col-sm-12
-							h4 诊断内容：
-							p.diagnose_content(style="text-indent:2em")
+    h3.page-header 您所在的路径：信息系统 / 心电图
+    div.btn-group
+        button(type="button" class="btn btn-default" id="save_ecg") 打印心电图
+        button(type="button" class="btn btn-default" id="save_img") 保存为图片
+        button(type="button" class="btn btn-success" id="uploda_img") 上传到服务器
+    div#ecg_area
+        canvas#ecg_bg(width="900", height="400")
+        canvas#ecg(width="900", height="400")
+    audio#audio1(src="audio/beep.mp3" preload="auto")
+    
+    form.ecg-form
+        .form-group
+            label(for='event-name') 事件名称
+            input#event-name.form-control(type='text' name="event[name]")
+        .form-group
+            label(for='event-content') 事件内容
+            input#event-content.form-control(type='text' name="event[content]")
+        .form-group
+            label(for='event-level') 事件等级
+            select.form-control(name="event[level]")
+                option(value="0") 0
+                option(value="1") 1
+                option(value="2") 2
+                option(value="3") 3
+                option(value="4") 4
+        .form-group
+            label(for='event-img') 图片
+            input#event-img(type='text' name="event[img]")
+        button.btn.btn-default(type='submit') 生成事件
+    div(class="modal fade" id="diagnose_dialog")
+        div(class="modal-dialog modal-lg")
+            div.modal-content
+                div.modal-header
+                    button(type="button" class="close" data-dismiss="modal" aria-label="Close")
+                        span(aria-hidden="true") &times;
+                    h4.modal-title 查看诊断信息
+                div.modal-body
+                    div.row
+                        div.col-sm-6
+                            p.patient_name 
+                        div.col-sm-6
+                            p.diagnose_doctor
+                    div.row
+                        div.col-sm-12
+                            h4 诊断内容：
+                            p.diagnose_content(style="text-indent:2em")
 
-				div.modal-footer
-					button(type="button" class="btn btn-default") 关闭
-				
+                div.modal-footer
+                    button(type="button" class="btn btn-default") 关闭
+                
 
 block exclusiveScript
-	script(src="js/ecg.js")
-	script.
-		var ecg = $("#ecg");
-		$("#save_ecg").click(function(){
-			window.print()
-		})
-		
-		$("#save_img").click(function(){
-			//- var imgData = ecg.toDataURL();
-			var canvas = document.getElementById("ecg")
-			var w=window.open(canvas.toDataURL("image/jpeg"),"smallwin","width=400,height=350");
+    script(src="js/ecg.js")
+    script.
+        var canvas = document.getElementById("ecg")
+        var ecg = $("#ecg");
+        $("#save_ecg").click(function(){
+            window.print()
+        })
+        
+        $("#save_img").click(function(){
+            //- var imgData = ecg.toDataURL();
+            
+            var w=window.open(canvas.toDataURL("image/jpeg", 1.0),"smallwin","width=400,height=350");
+        
 
+        })
+        
+        var eventImgInput = $("#event-img");
 
-		})
-		
+        $("#uploda_img").click(function(event){
+            event.preventDefault();
+            
+            eventImgInput.val(canvas.toDataURL("image/jpeg", 0.8).replace(/^data:image\/\w+;base64,/, ""));
+        })
+        
+        $(".ecg-form").submit(function(event){
+            event.preventDefault();
+            var $that = $(this);
+
+    
+            $.post("/upload_ecg",$that.serialize(), function(data){
+                console.log(data);
+            })
+        })

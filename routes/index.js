@@ -127,6 +127,8 @@ router.get("/get_calendar_events", auth.patientRequired, patient.get_calendar_ev
 
 router.get("/detection", auth.patientRequired, patient.detection);
 router.post("/create_event", auth.patientRequired, event.create_event);
+
+router.post("/upload_ecg", auth.patientRequired, event.upload_ecg);
 /* 病人权限以上 结束 */
 
 

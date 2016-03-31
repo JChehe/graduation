@@ -1,3 +1,7 @@
+var fs = require("fs-extra");
+var path = require("path")
+
+
 exports.select_event = function(req, res, next) {
     var resPatientList = [];
     var resEventList = [];
@@ -84,14 +88,14 @@ exports.add_event_handle = function(req, res, next) {
 }
 
 // 事件响应机制
-exports.create_event = function(req, res, next){
+exports.create_event = function(req, res, next) {
     var rb = req.body;
 
     req.models.User.findOne({
         _id: rb.user_id,
         role: 3
-    }, function(err, user){
-        if(err) return next(err);
+    }, function(err, user) {
+        if (err) return next(err);
 
         req.models.Event.create({
             user_id: rb.user_id,
@@ -103,12 +107,12 @@ exports.create_event = function(req, res, next){
             patient_name: user.role_prop.real_name,
             patient_age: user.role_prop.age,
             patient_sex: user.role_prop.sex
-        }, function(err, event){
-            if(err) return next(err);
+        }, function(err, event) {
+            if (err) return next(err);
             res.send({
                 status: true,
                 info: "产生事件成功",
-                event:event
+                event: event
             })
         })
     })
@@ -128,4 +132,52 @@ exports.set_event_view = function(req, res, next) {
             info: "该事件已查看"
         })
     })
+}
+
+
+exports.upload_ecg = function(req, res, next) {
+    var rb = req.body;
+    console.log(rb);
+    var user = req.session.user;
+    var uid = user._id;
+    var eName = rb.event.name;
+    var eLevel = rb.event.level;
+    var eConent = rb.event.content;
+    var eImgBase64 = rb.event.img;
+
+    eImgBase64 = eImgBase64.replace(/^data:image\/\w+;base64,/, "");
+
+    var folder = "./public/upload/ecg/" + uid;
+    fs.mkdirs(folder, function(err) {
+        if (err) return next(err);
+        var fileName = Date.now() + ".jpg";
+        var imgPath = path.join(folder, fileName);
+        fs.writeFile(imgPath , eImgBase64, "base64", function(err) {
+            if (err) return next(err);
+
+            req.models.Event.create({
+                name: eName,
+                content: eConent,
+                level: eLevel,
+                user_id: uid,
+                user: uid,
+                patient_name: user.role_prop.real_name,
+                patient_age: user.role_prop.age,
+                patient_sex: user.role_prop.sex,
+                img: imgPath.replace(/public\\/, "")
+            }, function(err, event) {
+                if (err) return next(err);
+                res.send({
+                    status: true,
+                    imgSrc: imgPath,
+                    info: "保存成功"
+                })
+            })
+
+        })
+
+    })
+
+
+
 }

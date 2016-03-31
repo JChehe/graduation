@@ -2,8 +2,11 @@ extends ../layout
 
 block exclusiveStyle
     link(rel="stylesheet" href="/css/message_box.css")
-
-
+    style.
+        #ecg-dialog .modal-body img{
+            max-width: 100%;
+        }
+    
 block content
     h3.page-header 你所在的路径：信息系统 / 事件列表
     
@@ -35,7 +38,10 @@ block content
                         td= curRoleProp.age
                         td(data-isview="#{event.is_view}")= isView
                         td
-                            a(href="/ecg" target="_blank") 查看具体信息
+                            if event.img
+                                a(href="javascript:;" class="ecg-btn" data-img="#{event.img}" data-toggle="modal" data-target="#ecg-dialog") 查看具体信息
+                            else
+                                | 无
                         td
                             button(type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#view-diagnose") 查看详情
 
@@ -103,7 +109,15 @@ block content
                     button(type="button" class="btn btn-default" data-dismiss="modal") 关闭
                     button(type="submit" class="btn btn-primary") 确定
 
-
+    .modal.fade#ecg-dialog(tabindex='-1', role='dialog')
+        .modal-dialog.modal-lg
+            .modal-content
+                .modal-header
+                    button.close(type='button', data-dismiss='modal', aria-label='Close')
+                      span(aria-hidden='true') &times;
+                    h4
+                .modal-body
+                    
 block exclusiveScript
     script(src="/js/libs/moment.min.js")
     script(src="/js/libs/zh-cn.js")
@@ -114,7 +128,9 @@ block exclusiveScript
         // 查看详情的点击按钮
         var curEventId;
         var viewDiagnoseDialog = $("#view-diagnose");
-        $("#eventListTable").on("click", "[data-target=#view-diagnose]", function(event){
+
+        var eventListTable = $("#eventListTable");
+        eventListTable.on("click", "[data-target=#view-diagnose]", function(event){
             var curTr = $(this).closest("tr");
             curEventId = curTr.data("eventid");
 
@@ -169,6 +185,14 @@ block exclusiveScript
             }
             
         });
+
+        var ecgDialog = $("#ecg-dialog");
+        eventListTable.on("click", ".ecg-btn", function(event){
+            event.preventDefault();
+            var cTr = $(this).closest("tr");
+            var ecgImgName = $(this).data("img")
+            ecgDialog.find(".modal-body").html("<img src='"+ecgImgName+"'>")
+        })
 
         // 查看诊断信息的按钮
         
