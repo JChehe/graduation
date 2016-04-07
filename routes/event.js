@@ -135,7 +135,7 @@ exports.set_event_view = function(req, res, next) {
 }
 
 
-exports.upload_ecg = function(req, res, next) {
+exports.upload_event = function(req, res, next) {
     var rb = req.body;
     console.log(rb);
     var user = req.session.user;
@@ -144,13 +144,14 @@ exports.upload_ecg = function(req, res, next) {
     var eLevel = rb.event.level;
     var eConent = rb.event.content;
     var eImgBase64 = rb.event.img;
-
+    var eDetectType = rb.event.detectType;
     eImgBase64 = eImgBase64.replace(/^data:image\/\w+;base64,/, "");
 
-    var folder = "./public/upload/ecg/" + uid;
+    var folder = "./public/upload/"+ eDetectType +"/" + uid;
+
     fs.mkdirs(folder, function(err) {
         if (err) return next(err);
-        var fileName = Date.now() + ".jpg";
+        var fileName = Date.now() + ".png";
         var imgPath = path.join(folder, fileName);
         fs.writeFile(imgPath , eImgBase64, "base64", function(err) {
             if (err) return next(err);
@@ -164,7 +165,7 @@ exports.upload_ecg = function(req, res, next) {
                 patient_name: user.role_prop.real_name,
                 patient_age: user.role_prop.age,
                 patient_sex: user.role_prop.sex,
-                img: imgPath.replace(/public\\/, "")
+                img: imgPath.replace(/public/, "")
             }, function(err, event) {
                 if (err) return next(err);
                 res.send({

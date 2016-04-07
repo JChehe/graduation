@@ -1,9 +1,7 @@
 extends ../layout
 
 block exclusiveStyle
-	link(rel="stylesheet" href="/css/index.css")
-	if user.role == 2
-		link(rel="stylesheet" href="/css/message_box.css")
+	link(rel="stylesheet" href="/css/index.min.css")
 
 block content
 	h3.page-header 你所在的路径：信息系统 / 首页
@@ -20,5 +18,3 @@ block content
 		img(src="/img/banner.gif", alt="" style="width: 100%")
 	
 block exclusiveScript
-	if user.role == 2
-		script(src="/js/message_box.js")

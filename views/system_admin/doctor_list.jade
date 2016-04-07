@@ -30,7 +30,7 @@ block content
 					tr(data-uid="#{value._id}" data-role="#{value.role}" data-patient-list="#{value.care_patient}")
 						td= value.account
 						td= roleProp.real_name
-						td(data-sex="#{roleProp.sex}")= roleProp.sex == 0? "男": "女"
+						td(data-sex="#{roleProp.sex}")= roleProp.sex == "0"? "男": "女"
 						td= roleProp.age
 						td= roleProp.title
 						td= roleProp.location
@@ -178,5 +178,5 @@ block content
 						button(type="submit" style="margin-right:10px").btn.btn-primary.pull-right 确定添加
 						
 block exclusiveScript
-	script(src="/js/doctor_list.js")
+	script(src="/js/doctor_list.min.js")
 		

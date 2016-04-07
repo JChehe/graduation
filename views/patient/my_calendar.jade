@@ -2,8 +2,8 @@ extends ../layout
 
 block exclusiveStyle
 	//- link(rel="stylesheet" href="js/libs/cupertino/jquery-ui.min.css")
-	link(rel="stylesheet" href="css/libs/fullcalender/fullcalendar.css")
-	link(rel="stylesheet" href="css/libs/fullcalender/fullcalendar.print.css" media='print')
+	link(rel="stylesheet" href="/css/libs/fullcalender/fullcalendar.css")
+	link(rel="stylesheet" href="/css/libs/fullcalender/fullcalendar.print.css" media='print')
 	style.
 		.level0{
 			border-color: #d9534f;
@@ -51,66 +51,13 @@ block content
 					button(type="submit" class="btn btn-primary") 确定
 
 block exclusiveScript
-	script(src="js/libs/moment.min.js")
-	script(src="js/libs/jquery-ui.custom.min.js")
-	script(src="js/libs/fullcalendar.min.js")
-	script(src="js/libs/zh-cn.js")
-	script.
-		window.onload = function(){
-			$.get("/get_calendar_events?pid=#{user._id}", function(data){
-				console.log(data)
-				var events = [];
-				console.log(data.eventList)
-				$.each(data.eventList, function(index){
-					if(!isNaN(+index)){
-
-						events[index] = {
-							title: this.name,
-							start: this.happen_time,
-							end: this.end_time,
-							className: "level" + this.level,
-							url: "get_related_diagnose?eid=" + this._id
-						}
-					}
-				})
-				console.log(events)
-				$('#calendar').fullCalendar({
-				    header: {
-						left: 'prev,next today',
-						center: 'title',
-						right: 'month,agendaWeek,agendaDay'
-					},
-					defaultDate: data.today,
-					buttonIcons: false, // show the prev/next text
-					weekNumbers: true,
-					editable: true,
-					eventLimit: true, // allow "more" link when too many events
-					events: events,
-					eventClick: function(calEvent, jsEvent, view){
-						event.preventDefault();
-						$.get(calEvent.url, function(data){
-							console.log(data);
-							var diaStr = "";
-
-							for(var i = 0, len = data.length; i < len; i++){
-								var cData = data[i];
-
-								diaStr += '<tr>' +
-							        '<td>'+ cData.create_time +'</td>' +
-							        '<td>'+ cData.doctor_name +'</td>' +
-							        '<td>'+ cData.content +'</td>' +
-							    '</tr>';
-							}
-							$(".diagnose-tbody").html(diaStr);
-							$("#view-diagnose").modal('toggle')
-						})
-					}
-				});
-			})
-		}
+	//- script(src="/js/libs/moment.min.js")
+	script(src="/js/libs/fullcalendar.min.js")
+	script(src="/js/libs/zh-cn.js")
+	script(src="/js/my_calendar.min.js")
+		
 
 		
 		
 
-		var viewDiagnoseDialog = $("#view-diagnose");
 		

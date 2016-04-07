@@ -1,7 +1,6 @@
 extends ../layout
 
 block exclusiveStyle
-	//- link(rel="stylesheet" href="css/index.css")
 
 block content
 	h3.page-header 你所在的路径：信息系统 / 系统用户列表
@@ -16,7 +15,8 @@ block content
 					td 账户名
 					td 姓名
 					td 性别
-					td 年龄
+					//- td 年龄
+					td 用户角色
 					td 操作
 			tbody
 				each value, index in userList
@@ -24,11 +24,13 @@ block content
 						td= value["account"] != undefined ? value["account"] : "未填写"
 						td= value["role_prop"]["real_name"] != undefined ? value["role_prop"]["real_name"] : "未填写"
 						td(data-sex='#{value["role_prop"]["sex"]}')= value["role_prop"]["sex"] == 0? "男" : "女"
-						td= value["role_prop"]["age"]
+						//- td= value["role_prop"]["age"]
+						td= value["role"] == 0 ? "系统管理员" : "管理员"
 						td
 							div.btn-group.btn-group-sm(role="group")
 								button.btn.btn-warning(type="button" class="edit_btn") 编辑
-								button.btn.btn-danger(type="button" class="del_btn") 删除
+								if value["role"] == 1
+									button.btn.btn-danger(type="button" class="del_btn") 删除
 
 	include ../includes/pagination
 
@@ -130,5 +132,5 @@ block content
 					button(type="button" class="btn btn-default" data-dismiss="modal") 关闭
 					button(type="submit" class="btn btn-primary") 确定
 block exclusiveScript
-	script(src="/js/system_user_list.js")
+	script(src="/js/system_user_list.min.js")
 		

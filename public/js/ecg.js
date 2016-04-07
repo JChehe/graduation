@@ -174,21 +174,21 @@ function mainLoop() { //draws traces to layer2 runs at 20 cps.
         }
     }
     loop20++; //50 ms counter
-    setTimeout(function(){
-		requestAnimationFrame(mainLoop)
-    },39)
-    
+    setTimeout(function() {
+        requestAnimationFrame(mainLoop)
+    }, 39)
+
 
 }
 
-	window.requestAnimationFrame = (function(){
-	  return  window.requestAnimationFrame       ||
-	          window.webkitRequestAnimationFrame ||
-	          window.mozRequestAnimationFrame    ||
-	          function( callback ){
-	            window.setTimeout(callback, 1000 / 60);
-	          };
-	})();
+window.requestAnimationFrame = (function() {
+    return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        function(callback) {
+            window.setTimeout(callback, 1000 / 60);
+        };
+})();
 
 
 window.onload = function() {
@@ -196,3 +196,36 @@ window.onload = function() {
     // var myVar = setInterval(mainLoop, 50); //main loop 50ms ie 20 cps
     requestAnimationFrame(mainLoop)
 }
+
+
+var canvas = document.getElementById("ecg")
+var ecg = $("#ecg");
+$("#save_ecg").click(function() {
+    window.print()
+})
+
+$("#save_img").click(function() {
+    //- var imgData = ecg.toDataURL();
+
+    var w = window.open(canvas.toDataURL("image/jpeg", 1.0), "smallwin", "width=400,height=350");
+
+
+})
+
+var eventImgInput = $("#event-img");
+
+$("#uploda_img").click(function(event) {
+    event.preventDefault();
+
+    eventImgInput.val(canvas.toDataURL("image/png", 0.8).replace(/^data:image\/\w+;base64,/, ""));
+})
+
+$(".ecg-form").submit(function(event) {
+    event.preventDefault();
+    var $that = $(this);
+
+
+    $.post("/upload_event", $that.serialize(), function(data) {
+        console.log(data);
+    })
+})

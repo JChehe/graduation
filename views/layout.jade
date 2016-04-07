@@ -6,7 +6,7 @@ html
 		meta(name="viewport", content="width=device-width, initial-scale=1")
 		title 实时监护系统
 		link(rel="stylesheet" href="/css/libs/bootstrap/bootstrap.min.css")
-		link(rel="stylesheet" href="/css/common.css")
+		link(rel="stylesheet" href="/css/common.min.css")
 		
 		
 		<!--[if IE 9]>
@@ -16,6 +16,8 @@ html
 		block exclusiveStyle
 		if isLogin && (user.role == 2 || user.role == 3)
 			link(rel="stylesheet" href="/css/chat.css")
+		if isLogin && user.role == 2
+			include includes/doctor_common_css.jade
 	body
 		include includes/header
 		
@@ -56,8 +58,9 @@ html
 			input(type="hidden" name="user-role" id="user-role" value="#{user.role}")
 		script(src="/js/libs/jquery-2.1.4.min.js")
 		script(src="/js/libs/bootstrap/bootstrap.min.js")
+		
 		script(src="/js/libs/moment.min.js")
-		script(src="/js/libs/zh-cn.js")
+		
 
 
 		script.
@@ -71,4 +74,6 @@ html
 		block exclusiveScript
 
 		if (isLogin && (user.role == 2 || user.role == 3))
-			script(src="/js/chat-client.js")
+			script(src="/js/chat-client.min.js")
+		if (isLogin && user.role == 2)
+			include includes/doctor_common_js.jade

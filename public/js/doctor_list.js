@@ -21,7 +21,7 @@ addUserDialog.find(":submit").click(function(event) {
                 '<td>' + user.location + '</td>' +
                 '<td>' + user.phone + '</td>' +
                 '<td>' + user.tel_phone + '</td>' +
-                '<td><div role="group" class="btn-group btn-group-sm"><button type="button" class="btn btn-default edit_btn">查看/编辑</button><button type="button" class="btn btn-default patient_btn">查看家属</button><button type="button" class="btn btn-danger del_user">删除</button></div></td>' +
+                '<td><div role="group" class="btn-group btn-group-sm"><button type="button" class="btn btn-default edit_btn">查看/编辑</button><button type="button" class="btn btn-success patient_btn">查看家属</button><button type="button" class="btn btn-danger del_user">删除</button></div></td>' +
                 '</tr>').prependTo(userTable.find("tbody"));
 
             addUserDialog.modal('hide')
@@ -164,7 +164,7 @@ searchForm.submit(function(event) {
             strTem += ('<tr data-uid="' + cData._id + '" data-role="2" data-patient-list="' + cData.care_patient + '">' +
                 '<td>' + cData.account + '</td>' +
                 '<td>' + cData.role_prop.real_name + '</td>' +
-                '<td data-sex="' + cData.role_prop.sex + '">' + (cData.role_prop.sex ? "男" : "女") + '</td>' +
+                '<td data-sex="' + cData.role_prop.sex + '">' + (cData.role_prop.sex == "0" ? "男" : "女") + '</td>' +
                 '<td>' + cData.role_prop.age + '</td>' +
                 '<td>' + cData.role_prop.title + '</td>' +
                 '<td>' + cData.role_prop.location + '</td>' +

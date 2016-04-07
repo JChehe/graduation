@@ -58,14 +58,19 @@ exports.modify_password = function(req, res, next) {
 exports.del_user = function(req, res, next) {
     var uid = req.query.uid;
     console.log(uid);
-
-    req.models.User.remove({
+    req.models.User.findOne({
         _id: uid
-    }, function(err) {
-        if (err) return next(err);
-        res.send({
-            status: true
-        })
+    }, function(err, user){
+        if(err) return next(err);
+        if(user.role == 0){
+            res.send("该用户为系统管理员，不可删除");
+        }else{
+            user.remove(function(){
+                res.send({
+                    status: true
+                })
+            })
+        }
     })
 }
 
@@ -90,9 +95,12 @@ exports.user_search = function(req, res, next) {
     var maxAge = req.body["max-age"] != "" ? parseInt(req.body["max-age"], 10) : 100000000;
 
     var sex = req.body["sex"] == "-1" ? ["0", "1"] : [req.body["sex"]]
-
+    // console.log(req.body["role"])
+    // console.log(typeof req.body["role"].split(","))
     var queryObj = {
-        "role": req.body["role"],
+        "role": {
+            $in: req.body["role"].split(",")
+        },
         // "role_prop.real_name": realName,
         "role_prop.sex": {
             "$in": sex
@@ -277,7 +285,9 @@ exports.diagnose_search = function(req, res, next) {
 exports.system_user_list = function(req, res, next) {
     var page = req.query.p || 1;
     var options = { skip: (page - 1) * LIMIT, limit: LIMIT }
-    var query = { role: 1 }
+    var query = { role: {
+        $in : [0 ,1]
+    }}
     req.models.User.getCount(query, function(count) {
         req.models.User.find(query, null, options, function(err, userList) {
             if (err) return next(err);
@@ -289,7 +299,7 @@ exports.system_user_list = function(req, res, next) {
                 curPage: parseInt(page),
                 isLast: (LIMIT * page >= count ? true : false),
                 isFirst: (page - 1 === 0 ? true : false),
-                conditioRole: 1
+                conditioRole: [0,1]
             })
         })
     })
@@ -328,7 +338,7 @@ exports.add_system_user = function(req, res, next) {
                 role = reqBody.role,
                 real_name = reqBody.real_name,
                 sex = reqBody.sex,
-                age = reqBody.age;
+                age = reqBody.age || 18;
 
             req.models.User.create({
                 account: account,
@@ -349,7 +359,7 @@ exports.add_system_user = function(req, res, next) {
                         account: req.body.account,
                         real_name: req.body.real_name,
                         sex: req.body.sex,
-                        age: req.body.age
+                        role: req.body.role
                     }
                 })
             })
@@ -453,7 +463,8 @@ exports.add_doctor_user = function(req, res, next) {
                     phone: reqBody.phone,
                     tel_phone: reqBody.tel_phone,
                     location: reqBody.location,
-                    title: reqBody.title
+                    title: reqBody.title,
+                    age: (Math.random()*(50-30) + 30).toFixed(0)
                 }
             }
 
@@ -466,6 +477,7 @@ exports.add_doctor_user = function(req, res, next) {
                         account: reqBody.account,
                         role: reqBody.role,
                         real_name: reqBody.real_name,
+                        title: reqBody.title,
                         sex: reqBody.sex,
                         location: reqBody.location,
                         phone: reqBody.phone,

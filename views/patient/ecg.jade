@@ -58,6 +58,7 @@ block content
         .form-group
             label(for='event-img') 图片
             input#event-img(type='text' name="event[img]")
+        input(type="hidden", name="event[detectType]" value="ecg")
         button.btn.btn-default(type='submit') 生成事件
     div(class="modal fade" id="diagnose_dialog")
         div(class="modal-dialog modal-lg")
@@ -82,36 +83,5 @@ block content
                 
 
 block exclusiveScript
-    script(src="js/ecg.js")
-    script.
-        var canvas = document.getElementById("ecg")
-        var ecg = $("#ecg");
-        $("#save_ecg").click(function(){
-            window.print()
-        })
+    script(src="/js/ecg.min.js")
         
-        $("#save_img").click(function(){
-            //- var imgData = ecg.toDataURL();
-            
-            var w=window.open(canvas.toDataURL("image/jpeg", 1.0),"smallwin","width=400,height=350");
-        
-
-        })
-        
-        var eventImgInput = $("#event-img");
-
-        $("#uploda_img").click(function(event){
-            event.preventDefault();
-            
-            eventImgInput.val(canvas.toDataURL("image/jpeg", 0.8).replace(/^data:image\/\w+;base64,/, ""));
-        })
-        
-        $(".ecg-form").submit(function(event){
-            event.preventDefault();
-            var $that = $(this);
-
-    
-            $.post("/upload_ecg",$that.serialize(), function(data){
-                console.log(data);
-            })
-        })

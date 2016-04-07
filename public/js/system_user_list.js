@@ -12,12 +12,15 @@ addUserDialog.find(":submit").click(function(event) {
 
         if (data.status) {
             var user = data.user;
+            var delBtn = user.role == 0 ? "" : '<button type="button" class="btn btn-danger del_btn">删除</button>'
             $('<tr data-uid=' + user.uid + ' data-role=' + user.role + '>' +
                 '<td>' + user.account + '</td>' +
                 '<td>' + user.real_name + '</td>' +
                 '<td data-sex=' + user.sex + '>' + (user.sex == "0" ? "男" : "女") + '</td>' +
-                '<td>' + (user.age == undefined ? "18" : user.age) + '</td>' +
-                '<td><button class="btn btn-warning btn-xs">编辑</td>' +
+                '<td>' + (user.role == 0 ? "系统管理员" : "管理员") + '</td>' +
+                '<td><div role="group" class="btn-group btn-group-sm">'+delBtn +
+                '<button type="button" class="btn btn-warning edit_btn">编辑</button>'+
+                '</div></td>' +
                 '</tr>').prependTo(userTable.find("tbody"));
 
             addUserDialog.modal('hide')
@@ -42,13 +45,13 @@ userTable.find("tbody").on("click", ".edit_btn", function(event) {
         .find("[name='real_name']").val(curAllTd.eq(1).text()).end()
         .find("[name='sex']").each(function() {
             if ($(this).val() == curAllTd.eq(2).data("sex")) {
-                $(this).attr("checked", true)
+                $(this).prop("checked", true)
                 return false;
             }
         }).end()
         .find("[name='role']").each(function() {
             if ($(this).val() == curTr.data("role")) {
-                $(this).attr("checked", true)
+                $(this).prop("checked", true)
                 return false;
             }
         }).end()
@@ -115,12 +118,14 @@ searchForm.submit(function(event) {
 
         for (var i = 0, iL = data.userList.length; i < iL; i++) {
             var curUserData = data.userList[i];
+            var delBtn = curUserData.role == 0 ? "" : '<button type="button" class="btn btn-danger del_btn">删除</button>'
             $('<tr data-uid="' + curUserData._id + '" data-role="' + curUserData.role + '">' +
                 '<td>' + curUserData.account + '</td>' +
                 '<td>' + curUserData.role_prop.real_name + '</td>' +
                 '<td data-sex="0">' + (curUserData.role_prop.sex == 0 ? "男" : "女") + '</td>' +
                 '<td>' + curUserData.role_prop.age + '</td>' +
-                '<td><button class="btn btn-warning btn-xs">编辑</td>' +
+                '<td><div role="group" class="btn-group btn-group-sm">'+
+                '<button type="button" class="btn btn-warning edit_btn">编辑</button>'+delBtn +
                 '</tr>').appendTo(userList)
         }
 
