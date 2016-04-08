@@ -83,7 +83,7 @@ userSchema.static({
     list: function(userRole, callback) {
         this.find({
             "role": userRole
-        }, null, {
+        }, "-password", {
             limit: 20
         }, callback)
     },

@@ -128,7 +128,7 @@ exports.user_search = function(req, res, next) {
 
     console.log(queryObj)
 
-    req.models.User.find(queryObj, function(err, userList) {
+    req.models.User.find(queryObj, "-password",function(err, userList) {
         if (err) return next(err);
         console.log(userList)
             // 在前端判断人数，然后进行相应控制
@@ -270,7 +270,7 @@ exports.diagnose_search = function(req, res, next) {
     }
     console.log(query)
     req.models.Diagnose.find(query, null, options)
-        .populate("patient")
+        .populate("patient", "-password -account -related_doctor -loginTime -care_patient")
         .exec(function(err, diagnoseList) {
             if (err) return next(err);
             res.send({

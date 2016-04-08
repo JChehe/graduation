@@ -13,7 +13,6 @@ var systemAdminRouter = express.Router(),
 
 var login = require("./login"),
     system_admin = require("./system_admin"),
-    admin = require("./admin"),
     doctor = require("./doctor"),
     patient = require("./patient"),
     event = require("./event");

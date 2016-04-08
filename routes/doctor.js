@@ -39,7 +39,7 @@ exports.get_patient_info = function(req, res, next) {
     req.models.User.findOne({
         _id: curPatientId,
         role: 3
-    }, function(err, patient) {
+    }, "-password", function(err, patient) {
         if (err) return next(err);
 
         req.models.Family.find({
