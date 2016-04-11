@@ -3,12 +3,26 @@ extends ../layout
 block exclusiveStyle
 	//- link(rel='stylesheet', href="/css/login.css")
 	style.
+		html,body{
+			height: 100%;
+		}
+		body:before{
+			content: "";
+			position:absolute;
+			left:0;top:0;
+			right: 0; bottom: 0;
+			background: url(/img/login_bg.jpg) 50% 50% no-repeat;
+			background-size: cover;
+			opacity: .9;
+		}
 		main.wrap{
 			margin-bottom: 30px;
 		}
 		form{
-			width: 195px;
-			margin: 0 auto;
+			width: 295px;
+			margin: 50px auto;
+			padding: 25px 50px;
+			background-color: rgba(255,255,255,.8)
 		}
 		label{
 			text-align:left
