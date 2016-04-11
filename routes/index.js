@@ -20,6 +20,7 @@ var login = require("./login"),
 
 
 
+
 router.get("/login", login.login)
 router.post("/login/login_handler", login.authenticate)
 
@@ -139,9 +140,9 @@ router.get("/add_event", auth.doctorRequired, event.add_event)
 router.post("/add_event_handle", auth.doctorRequired, event.add_event_handle)
 /* 额外功能，此部分功能应由硬件产生 结束 */
 
-
 router.get("/get_chat_record", auth.patientRequired, chat.get_chat_record);
 router.post("/save_chat_record", auth.patientRequired, chat.save_chat_record);
 router.get("/get_talk_people", auth.patientRequired, chat.get_talk_people);
+
 
 module.exports = router;

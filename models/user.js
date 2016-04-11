@@ -32,7 +32,10 @@ var userSchema = new mongoose.Schema({
             type: String,
             default: "0" // 男
         },
-        id_card: String, // 身份证
+        id_card: {
+            type: String,
+            unique: true
+        }, // 身份证
         birthday: Date, // 生日
         height: Number, // 身高
         weight: Number, // 重量
@@ -41,9 +44,8 @@ var userSchema = new mongoose.Schema({
         location: String, // 办公室或病房地址
         title: String, // 职称
         address: String, // 住址
-        description: String, // 描述
-        medical_case: String, // 病人病例
-        dependency: mongoose.Schema.Types.ObjectId // 病人所属
+        // description: String, // 描述
+        medical_case: String // 病人病例
     },
     family: Array, // 家属信息
     care_patient: Array, // 医生关注的病人

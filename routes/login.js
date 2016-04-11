@@ -5,7 +5,7 @@ var COOKIE_AUTO_LOGIN_TIME = 1000 * 60 * 60 * 24 * 7; // 7天
 // 登录
 exports.login = function(req, res, next) {
     var auto_login_cookie = req.cookies[config.auth_cookie_name];
-
+    debugger;
     if (auto_login_cookie) {
         console.log(auto_login_cookie)
         var auth_token = salt.decrypt(auto_login_cookie, "secret").split("\t");

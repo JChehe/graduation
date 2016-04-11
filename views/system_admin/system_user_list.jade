@@ -47,7 +47,7 @@ block content
 						span &times;
 					h4 添加系统用户
 				div(class="modal-body")
-					form.form-horizontal(method="post" action="/add_system_user")
+					form.form-horizontal#add-user-form(method="post" action="/add_system_user")
 						div.form-group
 							label(class="col-sm-3 control-label text-left") 账户名：
 							div.col-sm-9
@@ -73,7 +73,7 @@ block content
 						div.form-group
 							label(for="" class="col-sm-3 control-label text-left") 确认密码：
 							div.col-sm-9
-								input(type="password" class="form-control" required)
+								input#confirm-pass(type="password" class="form-control" required)
 						div.form-group
 							label(class="col-sm-3 control-label text-left") 用户角色：
 							div.col-sm-9
@@ -87,7 +87,7 @@ block content
 
 				div(class="modal-footer")
 					button(type="button" class="btn btn-default" data-dismiss="modal") 关闭
-					button(type="submit" class="btn btn-primary") 确定
+					button(type="submit" class="btn btn-primary" form="add-user-form") 确定
 	
 	//- 修改用户
 	div(class="modal fade" id="edit-user")
@@ -132,5 +132,4 @@ block content
 					button(type="button" class="btn btn-default" data-dismiss="modal") 关闭
 					button(type="submit" class="btn btn-primary") 确定
 block exclusiveScript
-	script(src="/js/system_user_list.min.js")
-		
+	script(src="/js/system_user_list.js")

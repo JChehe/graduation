@@ -68,7 +68,7 @@ exports.get_chat_record = function(req, res, next) {
 }
 
 exports.get_talk_people = function(req, res, next) {
-    var cUser = req.session.user;
+    var cUser = req.session.user || req.query.uid;
     var queryObj = null;
 
     if (cUser.role == 2) {

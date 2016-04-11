@@ -45,6 +45,8 @@ $(function() {
                 addChat(msgStr, chatList.children('div.active').data("id"), true);
                 chatTextArea.val("")
             }
+        }).fail(function(){
+            alert("发送失败")
         })
     });
     // 初始化：获取聊天对象，并生成对应聊天窗口（独立的）

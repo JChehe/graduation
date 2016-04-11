@@ -94,12 +94,12 @@ block content
 			div.form_group
 				label
 					span 帐号
-					input(class="form-control" name="username" type="text" autofocus value="")
+					input(class="form-control" name="username" type="text" autofocus value="" required)
 
 			div.form_group
 				label
 					span 密码
-					input(class="form-control" name="password" type="password" value="")
+					input(class="form-control" name="password" type="password" value="" required)
 			div.form_group
 				label
 					input(type='checkbox' name="is_remember" value ="1") 
@@ -114,4 +114,34 @@ block exclusiveScript
 			alert("#{error}")
 		}
 		console.log("#{user}")
+
+		$("form").submit(function(event){
+			var isValidate = true;
+		    var accountVal = $("[name=username]").val().trim();
+		    var passVal = $('[name=password]').val().trim();
+		    if (accountVal.length !== 0) {
+		        if (/[^\w\.@]/g.test(accountVal)) {
+		            alert("帐号存在非法字符");
+		            isValidate = false;
+		        } else if (accountVal.length < 3) {
+		            alert("账号长度小于3");
+		            isValidate = false;
+		        }
+		    } else {
+		        alert("账号不能为空");
+		        isValidate = false;
+		    }
+		    if (passVal.length < 4) {
+		        alert("密码长度小于4");
+		        isValidate = false;
+		    }
+
+		    if (!isValidate) {
+		        console.log("验证失败");
+		        event.preventDefault();
+		        return false;
+		    }
+
+		    //- $(this).submit();
+		})
 		

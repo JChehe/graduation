@@ -74,6 +74,6 @@ html
 		block exclusiveScript
 
 		if (isLogin && (user.role == 2 || user.role == 3))
-			script(src="/js/chat-client.min.js")
+			script(src="/js/chat-client.js")
 		if (isLogin && user.role == 2)
 			include includes/doctor_common_js.jade

@@ -98,7 +98,7 @@ block content
                             tbody
                         if user.role == 2
                             form#diagnose-form(action="/add_diagnose?eid=" method="post" style="display:none;")
-                                textarea.form-control(name="diagnose_content" rows="3" placeholder="请输入诊断信息")
+                                textarea.form-control(name="diagnose_content" rows="3" placeholder="请输入诊断信息" required="true")
                                 input(type="hidden" name="patient_id")
                                 input(type="hidden" name="patient_name")
                                 div.btn-group
