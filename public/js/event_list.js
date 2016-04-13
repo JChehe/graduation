@@ -1,5 +1,7 @@
-var curDotorId = "#{user._id}";
-var isPatient = "#{user.role}" == "3" ? true : false;
+var curDotorId = USERID;
+var isPatient = USERROLE == "3" ? true : false;
+
+
 // 查看详情的点击按钮
 var curEventId;
 var viewDiagnoseDialog = $("#view-diagnose");
@@ -107,7 +109,7 @@ diagnoseForm.submit(function(event) {
             '</tr>').prependTo($("#diagnose-list").find("tbody"))
     })
 })
-diagnoseForm.on("click", ".cancel-btn",function(event) {
+diagnoseForm.on("click", ".cancel-btn", function(event) {
     event.preventDefault();
     diagnoseForm.fadeToggle();
 })
@@ -117,30 +119,33 @@ diagnoseForm.on("click", ".cancel-btn",function(event) {
 // 查看相关诊断信息的 编辑按钮
 var viewDiagnose = $("#view-diagnose");
 var initVal;
-viewDiagnose.on("click", ".modify-btn", function(event) {
-    var curTr = $(this).closest("tr");
+if (USERROLE == 2) {
+    viewDiagnose.on("click", ".modify-btn", function(event) {
+        var curTr = $(this).closest("tr");
 
-    var diaContent = curTr.find(".dia-content")
+        var diaContent = curTr.find(".dia-content")
 
 
-    if ($(this).text() == "编辑") {
-        initVal = diaContent.find("p").text().trim();
-        diaContent.find("p").replaceWith("<textarea class='form-control'>" + initVal + "</textarea>");
-        $(this).text("保存");
+        if ($(this).text() == "编辑") {
+            initVal = diaContent.find("p").text().trim();
+            diaContent.find("p").replaceWith("<textarea class='form-control'>" + initVal + "</textarea>");
+            $(this).text("保存");
 
-    } else {
-        var textVal = diaContent.find("textarea").val().trim();
-        diaContent.find("textarea").replaceWith("<p>" + textVal + "</p>");
-        if (textVal !== initVal) { // 已做修改
-            $.post("/modify_diagnose?did=" + curTr.data("diagnoseid"), { content: textVal }, function(data) {
+        } else {
+            var textVal = diaContent.find("textarea").val().trim();
+            diaContent.find("textarea").replaceWith("<p>" + textVal + "</p>");
+            if (textVal !== initVal) { // 已做修改
+                $.post("/modify_diagnose?did=" + curTr.data("diagnoseid"), { content: textVal }, function(data) {
 
-            })
+                })
+            }
+            $(this).text("编辑");
         }
-        $(this).text("编辑");
-    }
 
 
-});
+    });
+}
+
 
 
 
@@ -167,8 +172,8 @@ searchForm.submit(function(event) {
                 '<td>' + cData.user.role_prop.real_name + '</td>' +
                 '<td data-sex="' + cData.user.role_prop.sex + '">' + (cData.user.role_prop.sex == 0 ? "男" : "女") + '</td>' +
                 '<td>' + cData.user.role_prop.age + '</td>' +
-                '<td data-isview="' + cData.is_view + '">' + (cData.is_view? "已查看" : "未查看") + '</td>' +
-                '<td><a href="javascript:;" data-img="'+ cData.img +'" data-toggle="modal" data-target="#ecg-dialog" class="ecg-btn">查看具体信息</a></td>' +
+                '<td data-isview="' + cData.is_view + '">' + (cData.is_view ? "已查看" : "未查看") + '</td>' +
+                '<td><a href="javascript:;" data-img="' + cData.img + '" data-toggle="modal" data-target="#ecg-dialog" class="ecg-btn">查看具体信息</a></td>' +
                 '<td>' +
                 '<button type="button" data-toggle="modal" data-target="#view-diagnose" class="btn btn-success btn-sm">查看详情</button>' +
                 '</td>' +
