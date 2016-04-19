@@ -7,7 +7,7 @@ html
 		title 实时监护系统
 		link(rel="stylesheet" href="/css/libs/bootstrap/bootstrap.min.css")
 		link(rel="stylesheet" href="/css/common.min.css")
-		
+
 		
 		<!--[if IE 9]>
 		script(src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js")
@@ -15,7 +15,7 @@ html
 		<![endif]-->
 		block exclusiveStyle
 		if isLogin && (user.role == 2 || user.role == 3)
-			link(rel="stylesheet" href="/css/chat.css")
+			link(rel="stylesheet" href="/css/chat.min.css")
 		if isLogin && user.role == 2
 			include includes/doctor_common_css.jade
 	body

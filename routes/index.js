@@ -1,8 +1,8 @@
 var express = require("express"),
     router = express.Router();
+var path = require("path")
 
 var auth = require("../middlewares/auth");
-
 
 /*  属于写法一
 var systemAdminRouter = express.Router(),
@@ -17,6 +17,7 @@ var login = require("./login"),
     patient = require("./patient"),
     event = require("./event");
     chat = require("./chat");
+var news = require("./news")
 
 
 
@@ -37,7 +38,8 @@ router.use(function(req, res, next) {
  *   修改密码
  *   注销
  */
-router.get("/", system_admin.index)
+// router.get("/", system_admin.index)
+router.get("/", news.list)
 router.get("/perinfo", system_admin.perinfo)
 router.get("/del_user", system_admin.del_user)
 router.post("/modify_password", system_admin.modify_password)
@@ -143,6 +145,18 @@ router.post("/add_event_handle", auth.doctorRequired, event.add_event_handle)
 router.get("/get_chat_record", auth.patientRequired, chat.get_chat_record);
 router.post("/save_chat_record", auth.patientRequired, chat.save_chat_record);
 router.get("/get_talk_people", auth.patientRequired, chat.get_talk_people);
+
+
+
+// 发布新闻
+
+router.get("/news_list", news.list)
+router.get("/news", news.news_one)
+router.get("/publish_news", auth.systemAdminRequired, news.publish_news_page)
+router.get("/news_manage", auth.systemAdminRequired, news.news_manage)
+router.post("/edit_news", auth.systemAdminRequired, news.edit_handle)
+router.post("/news_publish", auth.systemAdminRequired, news.news_publish)
+router.delete("/news_del", auth.systemAdminRequired, news.news_del)
 
 
 module.exports = router;

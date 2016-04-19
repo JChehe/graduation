@@ -60,12 +60,12 @@ exports.del_user = function(req, res, next) {
     console.log(uid);
     req.models.User.findOne({
         _id: uid
-    }, function(err, user){
-        if(err) return next(err);
-        if(user.role == 0){
+    }, function(err, user) {
+        if (err) return next(err);
+        if (user.role == 0) {
             res.send("该用户为系统管理员，不可删除");
-        }else{
-            user.remove(function(){
+        } else {
+            user.remove(function() {
                 res.send({
                     status: true
                 })
@@ -95,8 +95,8 @@ exports.user_search = function(req, res, next) {
     var maxAge = req.body["max-age"] != "" ? parseInt(req.body["max-age"], 10) : 100000000;
 
     var sex = req.body["sex"] == "-1" ? ["0", "1"] : [req.body["sex"]]
-    // console.log(req.body["role"])
-    // console.log(typeof req.body["role"].split(","))
+        // console.log(req.body["role"])
+        // console.log(typeof req.body["role"].split(","))
     var queryObj = {
         "role": {
             $in: req.body["role"].split(",")
@@ -128,7 +128,7 @@ exports.user_search = function(req, res, next) {
 
     console.log(queryObj)
 
-    req.models.User.find(queryObj, "-password",function(err, userList) {
+    req.models.User.find(queryObj, "-password", function(err, userList) {
         if (err) return next(err);
         console.log(userList)
             // 在前端判断人数，然后进行相应控制
@@ -285,9 +285,11 @@ exports.diagnose_search = function(req, res, next) {
 exports.system_user_list = function(req, res, next) {
     var page = req.query.p || 1;
     var options = { skip: (page - 1) * LIMIT, limit: LIMIT }
-    var query = { role: {
-        $in : [0 ,1]
-    }}
+    var query = {
+        role: {
+            $in: [0, 1]
+        }
+    }
     req.models.User.getCount(query, function(count) {
         req.models.User.find(query, null, options, function(err, userList) {
             if (err) return next(err);
@@ -299,7 +301,7 @@ exports.system_user_list = function(req, res, next) {
                 curPage: parseInt(page),
                 isLast: (LIMIT * page >= count ? true : false),
                 isFirst: (page - 1 === 0 ? true : false),
-                conditioRole: [0,1]
+                conditioRole: [0, 1]
             })
         })
     })
@@ -464,7 +466,7 @@ exports.add_doctor_user = function(req, res, next) {
                     tel_phone: reqBody.tel_phone,
                     location: reqBody.location,
                     title: reqBody.title,
-                    age: (Math.random()*(50-30) + 30).toFixed(0)
+                    age: (Math.random() * (50 - 30) + 30).toFixed(0)
                 }
             }
 
@@ -551,9 +553,13 @@ exports.add_care_patient = function(req, res, next) {
 
     var reqBody = req.body;
     var curDoctorId = reqBody.doctor_id;
-    var originPatientList = reqBody.origin_patient_list.split(",");
+    var originPatientList = [];
     var patientList = reqBody.care_patient_id;
-    console.log(reqBody)
+    if(reqBody.origin_patient_list.length !== 0){
+        // http://stackoverflow.com/questions/14940660/whats-mongoose-error-cast-to-objectid-failed-for-value-xxx-at-path-id
+        originPatientList = reqBody.origin_patient_list.split(",");
+    }
+    console.log(originPatientList)
     req.models.User.findOne({
         _id: curDoctorId
     }, function(err, user) {
@@ -565,13 +571,15 @@ exports.add_care_patient = function(req, res, next) {
             }
         }, function(err, raw) {
 
-            var queryOriginPatient = {
+            // var queryOriginPatient = ;
+            console.log("query")
+            // console.log(queryOriginPatient)
+                // $pull 将所有匹配的文档删除
+            req.models.User.update({
                 _id: {
                     "$in": originPatientList
                 }
-            };
-            // $pull 将所有匹配的文档删除
-            req.models.User.update(queryOriginPatient, {
+            }, {
                 $pull: {
                     related_doctor: curDoctorId
                 }

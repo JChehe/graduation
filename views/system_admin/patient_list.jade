@@ -2,7 +2,12 @@ extends ../layout
 
 block exclusiveStyle
 	//- link(rel="stylesheet" href="css/index.css")
-	
+	style.
+		@media (max-width: 665px){
+			#family-dialog table tr :nth-child(4){
+				display: none;
+			}
+		}
 
 
 block content
@@ -194,7 +199,7 @@ block content
 					button(type="button" class="close" data-dismiss="modal" aria-label="Close")
 						span &times;
 					h4 病人家属
-				div(class="modal-body")
+				div(class="modal-body table-responsive")
 					button(type="button" class="btn btn-default" id="add-family-btn") 添加家属
 					table.table
 						thead

@@ -15,7 +15,11 @@ div(class="col-sm-3 col-md-2 sidebar")
                 a(href="/patient_list")
                     span.iconfont &#xe604;
                         | 病人用户管理
-
+            li.mobile-show
+                a(href="/news_manage")
+                    span.iconfont &#xe60d; 信息管理
+            //- li.mobile-show
+            //-     a(href="/publish_news") 发布信息
         if userRole == 1
             li
                 a(href="/doctor_list")

@@ -1,0 +1,43 @@
+extends ../layout
+
+block exclusiveStyle
+
+
+block content
+    h3.page-header 你所在路径：信息发布页
+    form(action="/edit_news" method="post")
+        if news
+            input(type="hidden" name="nid" value="#{news._id}")
+        div.form-group
+            label 标题
+            if news
+                input.form-control(type="text" name="title" value="#{news.title}")
+            else
+                input.form-control(type="text" name="title")
+        div.form-group
+            if news
+                select.form-control(name="type")
+                    if news.type == 0
+                        option(value="0" selected) 新闻
+                        option(value="1") 健康小常识
+                    else if news.type == 1
+                        option(value="0") 新闻
+                        option(value="1" selected) 健康小常识
+            else
+                select.form-control(name="type")
+                    option(value="0") 新闻
+                    option(value="1") 健康小常识
+        div.form-group
+            label 内容
+        if news
+            script#container(name="content", type="text/plain") !{news.content}
+        else
+            script#container(name="content", type="text/plain")
+        button(type="submit" class="btn btn-primary") 提交
+block exclusiveScript
+    script(src="ueditor/ueditor.config.js")
+    script(src="ueditor/ueditor.all.js")
+    script.
+        var ue = UE.getEditor("container", {
+            initialFrameHeight: 400
+        })

@@ -9,7 +9,7 @@ nav(class="navbar navbar-inverse navbar-fixed-top")
                 span.icon-bar
             a.navbar-brand(href="#")
                 span.iconfont &#xe603;
-                    | 无线实时医疗监护系统
+                    | 医疗监护系统
         div#navbar(class="navbar-collapse collapse")
             if user
                 ul(class="nav navbar-nav navbar-right")
@@ -24,6 +24,8 @@ nav(class="navbar navbar-inverse navbar-fixed-top")
                         li.mobile-show
                             a(href="/patient_list")
                                 span.iconfont &#xe604; 病人用户管理
+                        li.mobile-show
+                            a(href="/publish_news") 发布信息
                     if user.role == 1
                         li.mobile-show
                             a(href="/doctor_list")

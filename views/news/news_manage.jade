@@ -1,0 +1,107 @@
+extends ../layout
+
+block exclusiveStyle
+    style.
+        .news-title,.news-title:hover{
+            color: #333;
+        }
+       
+block content
+    a.btn.btn-primary(href="/publish_news") 发布新文章
+    div.table-responsive
+        table.table.news-list
+            thead
+                tr
+                    th 标题
+                    th 类型
+                    th 发布时间
+                    th 操作
+            each news, index in newsList
+                tr
+                    td
+                        a(class="news-title" data-href="/news?id=#{news._id}" data-toggle="modal" data-target="#news-dialog")
+                            h4= news.title
+                    td
+                        if news.type == 0
+                            新闻
+                        else if news.type == 1
+                            健康小常识
+                    td
+                        span= moment(news.create_at).format("YYYY-MM-DD HH:MM:SS")
+                    td
+                        div.btn-group
+                            - var isPublished = news.is_publish ? "btn-success" : "btn-default"
+                            button.btn.publish_btn(class="#{isPublished}" data-nid="#{news._id}")
+                                i.iconfont &#xe611; 
+                                | 发布  
+                            a.btn.btn-info.edit_btn(href="/publish_news?id=#{news._id}")
+                                i.iconfont &#xe610;
+                                | 编辑
+                            button.btn.btn-danger.del_btn(data-nid="#{news._id}")
+                                i.iconfont &#xe60f;
+                                | 删除
+    div.modal#news-dialog.fade
+        div.modal-dialog.modal-lg
+            div.modal-content
+                div.modal-header
+                    button.close(type='button', data-dismiss='modal', aria-label='Close')
+                        span(aria-hidden='true') &times;
+                    h4
+                div.modal-body
+block exclusiveScript
+    script.
+        $(function() {
+            var ajaxUrl = {
+                publish: function(id){
+                    return "/news_publish?id=" + id;
+                },
+                del: function(id){
+                    return  "/news_del?id=" + id;
+                }
+            }
+            $(".table").on("click", ".publish_btn", function(event) {
+                event.preventDefault();
+                var $that = $(this)
+                $.ajax({
+                    url: ajaxUrl.publish($that.data("nid")),
+                    type: "post"
+                }).done(function(data) {
+                    if (data.status) {
+                        if(data.is_publish){
+                            $that.removeClass("btn-default").addClass("btn-success")
+                        }else{
+                            $that.removeClass("btn-success").addClass("btn-default")
+                        }
+                    }
+                }).fail(function() {
+                    console.log("请求失败")
+                })
+            }).on("click", ".del_btn", function(event) {
+                event.preventDefault();
+                var isRealDel = window.confirm("是否真的要永久删除该文章？");
+                if (isRealDel) {
+                    var $that = $(this)
+                    $.ajax({
+                        url: ajaxUrl.del($that.data("nid")),
+                        type: "DELETE"
+                    }).done(function(data) {
+                        console.log(data)
+                        $that.closest("tr").remove()
+
+                    }).fail(function() {
+                        console.log("请求失败")
+                    })
+                }
+
+            })
+
+
+            var newsDialog = $("#news-dialog");
+            $(".news-list").on("click", ".news-title", function(event){
+                event.preventDefault();
+                $.get($(this).data("href"), function(data){
+                    newsDialog.find(".modal-header h4").html(data.title)
+                    newsDialog.find(".modal-body").html(data.content)
+                })
+            })
+        })

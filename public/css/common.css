@@ -9,16 +9,18 @@
 
 body {
     padding-top: 50px;
+    font-family:"Helvetica Neue",Helvetica,Arial,"Microsoft Yahei","Hiragino Sans GB","Heiti SC","WenQuanYi Micro Hei",sans-serif;
+    font-size: 16px;
 }
 
 @font-face {
     font-family: 'iconfont';
-    src: url('//at.alicdn.com/t/font_1459166565_475216.eot');
+    src: url('//at.alicdn.com/t/font_1461065908_2280066.eot');
     /* IE9*/
-    src: url('//at.alicdn.com/t/font_1459166565_475216.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-    url('//at.alicdn.com/t/font_1459166565_475216.woff') format('woff'), /* chrome、firefox */
-    url('//at.alicdn.com/t/font_1459166565_475216.ttf') format('truetype'), /* chrome、firefox、opera、Safari, Android, iOS 4.2+*/
-    url('//at.alicdn.com/t/font_1459166565_475216.svg#iconfont') format('svg');
+    src: url('//at.alicdn.com/t/font_1461065908_2280066.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('//at.alicdn.com/t/font_1461065908_2280066.woff') format('woff'), /* chrome、firefox */
+    url('//at.alicdn.com/t/font_1461065908_2280066.ttf') format('truetype'), /* chrome、firefox、opera、Safari, Android, iOS 4.2+*/
+    url('//at.alicdn.com/t/font_1461065908_2280066.svg#iconfont') format('svg');
     /* iOS 4.1- */
 }
 

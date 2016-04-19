@@ -1,0 +1,74 @@
+extends ../layout
+
+block exclusiveStyle
+    style.
+        .carousel{
+            margin-bottom: 25px;
+        }
+        .publish-time{
+            font-size: 12px;
+            line-height: 20px;
+        }
+        .panel-body a{
+            color: rgb(51,51,51);
+        }
+        .panel-heading{
+            font-size: 18px;
+        }
+block content
+    #carousel-example-generic.carousel.slide(data-ride='carousel')
+        ol.carousel-indicators
+            li.active(data-target='#carousel-example-generic', data-slide-to='0')
+            li(data-target='#carousel-example-generic', data-slide-to='1')
+        .carousel-inner(role='listbox')
+            .item.active
+                img(src='img/banner1.jpg', alt='...')
+                .carousel-caption
+            .item
+                img(src='img/banner2.jpg', alt='...')
+                .carousel-caption
+        a.left.carousel-control(href='#carousel-example-generic', role='button', data-slide='prev')
+            span.glyphicon.glyphicon-chevron-left(aria-hidden='true')
+            span.sr-only Previous
+        a.right.carousel-control(href='#carousel-example-generic', role='button', data-slide='next')
+            span.glyphicon.glyphicon-chevron-right(aria-hidden='true')
+            span.sr-only Next
+    div.row
+        div.col.col-sm-12.col-md-6
+            div.panel.panel-primary.news-list
+                div.panel-heading 新闻列表
+                div.panel-body
+                    each value, index in newsList.newsList
+                        if value.type == 0
+                            h4
+                                a(href="javascript:;" data-href="/news?id=#{value._id}" data-toggle="modal" data-target="#news-dialog")= value.title
+                                span.pull-right.publish-time= moment(value.create_at).format("YYYY-MM-DD")
+        div.col.col-sm-12.col-md-6
+            div.panel.panel-success.news-list
+                div.panel-heading 健康小常识
+                div.panel-body
+                    each value, index in newsList.healthList
+                        if value.type == 1
+                            h4
+                                a(href="javascript:;" data-href="/news?id=#{value._id}" data-toggle="modal" data-target="#news-dialog")= value.title
+                                span.pull-right.publish-time= moment(value.create_at).format("YYYY-MM-DD")
+
+    div.modal#news-dialog.fade
+        div.modal-dialog.modal-lg
+            div.modal-content
+                div.modal-header
+                    button.close(type='button', data-dismiss='modal', aria-label='Close')
+                        span(aria-hidden='true') &times;
+                    h4
+                div.modal-body
+
+block exclusiveScript
+    script.
+        var newsDialog = $("#news-dialog");
+        $(".news-list").on("click", ".panel-body a", function(event){
+            event.preventDefault();
+            $.get($(this).data("href"), function(data){
+                newsDialog.find(".modal-header h4").html(data.title)
+                newsDialog.find(".modal-body").html(data.content)
+            })
+        })
