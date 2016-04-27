@@ -180,7 +180,7 @@ searchForm.submit(function(event) {
                 '<button type="button" data-toggle="modal" data-target="#view-diagnose" class="btn btn-success btn-sm">查看详情</button>' +
                 '</td>' +
                 '</tr>';
-            console.log(strTem)
+            // console.log(strTem)
 
         }
         eventList.html(strTem)

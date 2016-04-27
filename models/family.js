@@ -6,7 +6,10 @@ var familySchema = new mongoose.Schema({
 	name: String, // 家属名字
 	tel_phone: String, // 手机
 	relationship: String, // 与病人关系
-	is_message: Boolean, // 是否接收信息
+	is_message: {
+		type: Boolean,
+		default: false
+	}, // 是否接收信息
 	remark: String // 备注
 })
 

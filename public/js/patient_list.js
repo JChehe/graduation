@@ -150,7 +150,7 @@ userTable.find("tbody").on("click", ".family_btn", function(event) {
                 '<td>' + curFamily.name + '</td>' +
                 '<td>' + curFamily.tel_phone + '</td>' +
                 '<td>' + curFamily.relationship + '</td>' +
-                '<td>' + (curFamily.is_message == true ? "是" : "否") + '</td>' +
+                // '<td>' + (curFamily.is_message == true ? "是" : "否") + '</td>' +
                 '<td>' + curFamily.remark + '</td>' +
                 '<td>' +
                 '<div role="group" class="btn-group btn-group-sm">' +
@@ -191,7 +191,7 @@ familyTbody.on("click", ".edit-family", function(event) {
         .find("[name=relationship]").val(allTd.eq(1).text()).end()
         .find("[name=tel_phone]").val(allTd.eq(2).text()).end()
         .find("[name=is_message]").eq(isMessageIndex).prop("checked", true).end().end()
-        .find("[name=remark]").val(allTd.eq(4).text());
+        .find("[name=remark]").val(allTd.eq(3).text());
 })
 familyForm.submit(function(event) {
     event.preventDefault();

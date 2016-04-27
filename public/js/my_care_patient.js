@@ -30,7 +30,7 @@ $("table tbody").on("click", ".view_info", function(event) {
                 '<td>' + curFamily.name + '</td>' +
                 '<td>' + curFamily.tel_phone + '</td>' +
                 '<td>' + curFamily.relationship + '</td>' +
-                '<td>' + (curFamily.is_message == true ? "是" : "否") + '</td>' +
+                // '<td>' + (curFamily.is_message == true ? "是" : "否") + '</td>' +
                 '<td>' + curFamily.remark + '</td>' +
                 '</tr>').appendTo(patientInfoDialog.find(".family_table tbody"))
         }

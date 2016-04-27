@@ -138,10 +138,7 @@ $(function() {
     })();
 
 
-    function getMaxOfArray(numArray) {
-        return Math.max.apply(null, numArray)
-    }
-
+    
 
 
 
@@ -150,14 +147,12 @@ $(function() {
         if (data.chatRecordList.length === 0) {
             return;
         }
-
         for (var i = 0, len = data.chatRecordList.length; i < len; i++) {
             var times = Date.parse(data.chatRecordList[i].create_at)
             if (pollMsgTimes.indexOf(times) === -1) {
                 pollMsgTimes.push(times)
             }
         }
-
         var chatStr = createChat(data.chatRecordList, chatContainerId, true);
         var chatHtml = $(chatStr);
 
@@ -165,14 +160,11 @@ $(function() {
         chatHtml.each(function(index) {
             $(this).addClass('pollMsg');
         })
-
-
         for (var i = chatHtml.length - 1; i >= 0; i--) {
             var getMsgId = $(this).data('mid')
             msgIds.push(getMsgId)
             insertWhere(chatHtml.eq(i), newMsgList)
         }
-
         function insertWhere(msg, newMsgList) {
             var msgCreateAt = parseInt(msg.data("timestamp"), 10);
             if (newMsgList.length === 0) {
@@ -180,7 +172,6 @@ $(function() {
             } else {
                 var newMsgList = $("#" + chatContainerId).find('.new');
                 for (var i = 0, len = newMsgList.length; i < len; i++) {
-                    // todo 插入正确的顺序, 更优的做法是：将新信息的timestamp存在数组里，而不是每次通过获取data方法获取（尽管是jQuery的方法，而是不DOM方法）
                     if (parseInt(newMsgList.eq(i).data('timestamp')) > msgCreateAt) {
                         msg.insertBefore(newMsgList.eq(i));
                         break;
@@ -338,4 +329,9 @@ $(function() {
             }
         }
     }
+
+    function getMaxOfArray(numArray) {
+        return Math.max.apply(null, numArray)
+    }
+
 })

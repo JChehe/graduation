@@ -807,14 +807,14 @@ exports.handle_family = function(req, res, next) {
     var rb = req.body;
     console.log(rb)
     var familyId = rb.family_id;
-    console.log(rb.is_message)
-    console.log(typeof rb.is_message)
+    // console.log(rb.is_message)
+    // console.log(typeof rb.is_message)
     var familyObj = {
         patient_id: rb.patient_id,
         name: rb.name,
         tel_phone: rb.tel_phone,
         relationship: rb.relationship,
-        is_message: rb.is_message,
+        // is_message: rb.is_message,
         remark: rb.remark
     }
     if (familyId) {

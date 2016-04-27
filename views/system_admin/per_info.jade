@@ -59,7 +59,7 @@ block content
 							td 姓名
 							td 电话
 							td 与病人关系
-							td 是否接收短信通知
+							//- td 是否接收短信通知
 							td 备注
 					tbody
 						each value, index in familyList
@@ -67,7 +67,7 @@ block content
 								td= value.name
 								td= value.tel_phone
 								td= value.relationship
-								td= (value.is_message) ? "是": "否"
+								// td= (value.is_message) ? "是": "否"
 								td= (value.remark)
 	
 		

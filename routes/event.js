@@ -78,7 +78,8 @@ exports.add_event_handle = function(req, res, next) {
             user: rb.patient_id,
             patient_name: patient.role_prop.real_name,
             patient_age: patient.role_prop.age,
-            patient_sex: patient.role_prop.sex
+            patient_sex: patient.role_prop.sex,
+            type: rb.type
         }, function(err, event) {
             if (err) return next(err);
             res.redirect("/add_event")
