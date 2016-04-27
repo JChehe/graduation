@@ -8,7 +8,16 @@ html
 		link(rel="stylesheet" href="/css/libs/bootstrap/bootstrap.min.css")
 		link(rel="stylesheet" href="/css/common.min.css")
 
-		
+		style.
+			img{
+				max-width: 100%;
+			}
+			@media (max-width: 768px){
+				.carousel-indicators{
+					margin-bottom: 0;
+					bottom: 0px;
+				}
+			}
 		<!--[if IE 9]>
 		script(src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js")
 		script(src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js")
@@ -38,12 +47,12 @@ html
 			section.message_box
 				div.header 病人紧急事件报警监控
 				div.content
-					table.table
+					table.table(style="margin-bottom: 0")
 						thead
 							tr
 								th 事件
 								th 姓名
-								th 次数
+								//- th 次数
 								th 时间
 						tbody
 				div.footer
@@ -74,6 +83,6 @@ html
 		block exclusiveScript
 
 		if (isLogin && (user.role == 2 || user.role == 3))
-			script(src="/js/chat-client.min.js")
+			script(src="/js/chat-client.js")
 		if (isLogin && user.role == 2)
 			include includes/doctor_common_js.jade

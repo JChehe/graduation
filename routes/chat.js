@@ -17,7 +17,7 @@ exports.save_chat_record = function(req, res, next) {
 
     chatObj.content = rb.message;
     chatObj.belong = user.role;
-    console.log(chatObj)
+    // console.log(chatObj)
     req.models.Chat.create(chatObj, function(err, chatRecord) {
         if (err) return next(err);
         res.send({
@@ -28,12 +28,70 @@ exports.save_chat_record = function(req, res, next) {
     })
 }
 
+exports.get_history_record = function(req, res, next){
+    var limitNum = req.query.limit || 0; // 0 是无限制
+    console.log({
+        patient_id: req.query.patient_id,
+        doctor_id: req.query.doctor_id,
+        create_at: {
+            // 字符串对于 Date() 是非法值，需要转为整数
+            "$lt" : new Date(+req.query.timestamp)
+        },
+        belong: {$exists: true}
+    })
+    req.models.Chat.find({
+        patient_id: req.query.patient_id,
+        doctor_id: req.query.doctor_id,
+        create_at: {
+            // 字符串对于 Date() 是非法值，需要转为整数
+            "$lt" : new Date(+req.query.timestamp)
+        },
+        belong: {$exists: true}
+    }).limit(limitNum).sort({_id: -1}).exec(function(err, chatRecordList){
+        if(err) return next(err);
+        res.send({
+            status: true,
+            info: "获取成功",
+            chatRecordList: chatRecordList
+        })
+    })
+}
+
+
+exports.get_poll_record = function(req, res, next){
+    var limitNum = req.query.limit || 0; // 0 是无限制
+    var topTimeStamp = Date.now(); // 主要用于获取；轮询新信息
+    var belongQuery = req.query.belong;
+
+    req.models.Chat.find({
+        patient_id: req.query.patient_id,
+        doctor_id: req.query.doctor_id,
+        create_at: {
+            // 字符串对于 Date() 是非法值，需要转为整数
+            "$gt": new Date(+req.query.timestamp), // 大于
+            "$lte" : topTimeStamp
+        },
+        belong: belongQuery
+    }).limit(limitNum).exec(function(err, chatRecordList){
+        if(err) return next(err);
+        console.log(chatRecordList)
+        res.send({
+            status: true,
+            info: "获取成功",
+            chatRecordList: chatRecordList
+        })
+    })
+}
+/*
 exports.get_chat_record = function(req, res, next) {
 	var limitNum = req.query.limit || 0; // 0 是无限制
 	// console.log(req.query.timestamp)
-	var topTimeStamp = req.query.firstloadtimestamp;
+	var topTimeStamp = req.query.firstloadtimestamp
 	var belong = req.query.belong;
 	var belongQuery;
+    var sortObj = {
+        _id : -1
+    };
 	if(belong){
 		belongQuery = belong
 	}else{
@@ -44,20 +102,23 @@ exports.get_chat_record = function(req, res, next) {
 		topTimeStamp = Date(+topTimeStamp); // 主要用于获取历史信息
 	}else{
 		topTimeStamp = Date.now(); // 主要用于获取；轮询新信息
+        sortObj._id = -1;
 	}
+
+    // console.log(sortObj)
 	var topTimeStamp = req.query.firstloadtimestamp || Date.now();
 
     req.models.Chat.find({
         patient_id: req.query.patient_id,
         doctor_id: req.query.doctor_id,
         create_at: {
-        	// 字符串对于 Date() 是非法值，需要转为整数
+            // 字符串对于 Date() 是非法值，需要转为整数
             "$gt": new Date(+req.query.timestamp), // 大于
             "$lte" : topTimeStamp
         },
         belong: belongQuery
 
-    }, null, {limit: limitNum}, function(err, chatRecordList) {
+    }).limit(limitNum).sort(sortObj).exec(function(err, chatRecordList) {
         if (err) return next(err);
         res.send({
             status: true,
@@ -65,7 +126,8 @@ exports.get_chat_record = function(req, res, next) {
             chatRecordList: chatRecordList
         })
     })
-}
+
+}*/
 
 exports.get_talk_people = function(req, res, next) {
     var cUser = req.session.user || req.query.uid;

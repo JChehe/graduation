@@ -16,16 +16,17 @@ $(function() {
     var firstLoadTimeStamp = Date.now(); // 首次进入时间，用于获取历史记录的，只能获取这时刻之前的历史记录，其余通过轮询获取
 
     var chatContainerIds = [];
+    var msgIds = [];
 
-
+    var pollMsgTimes = [];
     // toggle 聊天框
     chatContainer.on("click", ".nav", function(event) {
         event.preventDefault();
         chatContainer.toggleClass('active');
 
-        if(chatContainer.hasClass('active')){
+        if (chatContainer.hasClass('active')) {
             chatPoll.boot(chatContainerIds);
-        }else{
+        } else {
             console.log(chatContainerIds)
             chatPoll.stop()
         }
@@ -35,17 +36,22 @@ $(function() {
     chatForm.submit(function(event) {
         event.preventDefault();
         var value = chatTextArea.val().trim();
-
+        if(value.length === 0){
+            alert("还没有输入聊天内容哦")
+            return;
+        }
         $.post("/save_chat_record", {
             talk_people_id: talkPeoInput.val(),
             message: value
         }, function(data) {
             if (data.status == true) {
+                console.log(data.chatRecord._id)
+                msgIds.push(data.chatRecord._id)
                 var msgStr = createChat(data.chatRecord, chatList.children('div.active').data("id"), true);
                 addChat(msgStr, chatList.children('div.active').data("id"), true);
                 chatTextArea.val("")
             }
-        }).fail(function(){
+        }).fail(function() {
             alert("发送失败")
         })
     });
@@ -57,17 +63,17 @@ $(function() {
             for (var i = 0, len = data.userList.length; i < len; i++) {
                 var cData = data.userList[i];
                 liTemStr += "<li data-user-id='" + cData._id + "'><a href='javascript:;'>" + cData.role_prop.real_name + "</a></li>"
-                divTemStr += "<div id=" + cData._id + " data-id=" + cData._id + " data-name=" + cData.role_prop.real_name + " class='user-chat-content' data-last-msg-timestamp=" + 0 + "><div class='get-history-btn'>点击获取最近与" + cData.role_prop.real_name + "的" + LIMIT + "条信息</div></div>";
+                divTemStr += "<div id=" + cData._id + " data-id=" + cData._id + " data-name=" + cData.role_prop.real_name + " class='user-chat-content' data-last-msg-timestamp=" + Date.now() + "><div class='get-history-btn'>点击获取最近与" + cData.role_prop.real_name + "的" + LIMIT + "条信息</div></div>";
             }
-            talkPeoGroup.html(liTemStr)
+            talkPeoGroup.html(liTemStr);
             chatList.html(divTemStr);
 
-            
+
             chatList.children('div').each(function(index) {
                 var chatContainerId = $(this).attr('id');
                 chatContainerIds.push(chatContainerId);
             })
-            
+
         }
     });
 
@@ -90,21 +96,28 @@ $(function() {
                 }
 
 
-                function getNewChat(chatContainerId) {
-                    var random = Date.now();
-                    if (USERROLE == "2") {
-                        $.ajax("/get_chat_record?belong=" + 3 + "&patient_id=" + chatContainerId + "&doctor_id=" + USERID + "&limit=" + limit + "&timestamp=" + ($("#" + chatContainerId).find(".pollMsg:last").data('timestamp') || firstLoadTimeStamp) + "&random=" + random)
-                            .done(function(data) {
-                                chatPollAfater(data, chatContainerId);
-                            }).fail();
-                    } else if (USERROLE == "3") {
-                        $.ajax("/get_chat_record?belong=" + 2 + "&patient_id=" + USERID + "&doctor_id=" + chatContainerId + "&limit=" + limit + "&timestamp=" + ($("#" + chatContainerId).find(".pollMsg:last").data('timestamp') || firstLoadTimeStamp) + "&random=" + random)
-                            .done(function(data) {
-                                chatPollAfater(data, chatContainerId);
-                            }).fail();
-                    }
-                }
+
                 isBoot = true;
+            }
+
+            function getNewChat(chatContainerId) {
+                var random = Date.now();
+                var timestamp = firstLoadTimeStamp;
+                if (pollMsgTimes.length !== 0) {
+                    timestamp = getMaxOfArray(pollMsgTimes)
+                }
+                // console.log($("#" + chatContainerId).find(".pollMsg:last").data('timestamp'))
+                if (USERROLE == "2") {
+                    $.ajax("/get_poll_record?belong=" + 3 + "&patient_id=" + chatContainerId + "&doctor_id=" + USERID + "&limit=" + limit + "&timestamp=" + timestamp + "&random=" + random)
+                        .done(function(data) {
+                            chatPollAfater(data, chatContainerId);
+                        }).fail();
+                } else if (USERROLE == "3") {
+                    $.ajax("/get_poll_record?belong=" + 2 + "&patient_id=" + USERID + "&doctor_id=" + chatContainerId + "&limit=" + limit + "&timestamp=" + timestamp + "&random=" + random)
+                        .done(function(data) {
+                            chatPollAfater(data, chatContainerId);
+                        }).fail();
+                }
             }
         }
 
@@ -125,38 +138,57 @@ $(function() {
     })();
 
 
+    function getMaxOfArray(numArray) {
+        return Math.max.apply(null, numArray)
+    }
 
 
 
 
 
     function chatPollAfater(data, chatContainerId) {
+        if (data.chatRecordList.length === 0) {
+            return;
+        }
+
+        for (var i = 0, len = data.chatRecordList.length; i < len; i++) {
+            var times = Date.parse(data.chatRecordList[i].create_at)
+            if (pollMsgTimes.indexOf(times) === -1) {
+                pollMsgTimes.push(times)
+            }
+        }
+
         var chatStr = createChat(data.chatRecordList, chatContainerId, true);
         var chatHtml = $(chatStr);
 
         var newMsgList = $("#" + chatContainerId).find('.new');
-        if (newMsgList.length === 0) {
-            $("#" + chatContainerId).append(chatHtml);
-        } else {
-            chatHtml.each(function(index) {
-                $(this).addClass('pollMsg')
-                // console.log($(this).data("timestamp"));
-                insertWhere($(this), newMsgList)
-            })
-        }
+        chatHtml.each(function(index) {
+            $(this).addClass('pollMsg');
+        })
 
+
+        for (var i = chatHtml.length - 1; i >= 0; i--) {
+            var getMsgId = $(this).data('mid')
+            msgIds.push(getMsgId)
+            insertWhere(chatHtml.eq(i), newMsgList)
+        }
 
         function insertWhere(msg, newMsgList) {
             var msgCreateAt = parseInt(msg.data("timestamp"), 10);
-            for (var i = 0, len = newMsgList.length; i < len; i++) {
-                // todo 插入正确的顺序, 更优的做法是：将新信息的timestamp存在数组里，而不是每次通过获取data方法获取（尽管是jQuery的方法，而是不DOM方法）
-                if (parseInt(newMsgList.eq(i).data('timestamp')) > msgCreateAt) {
-                    msg.insertBefore(newMsgList.eq(i));
-                    break;
+            if (newMsgList.length === 0) {
+                $("#" + chatContainerId).append(msg)
+            } else {
+                var newMsgList = $("#" + chatContainerId).find('.new');
+                for (var i = 0, len = newMsgList.length; i < len; i++) {
+                    // todo 插入正确的顺序, 更优的做法是：将新信息的timestamp存在数组里，而不是每次通过获取data方法获取（尽管是jQuery的方法，而是不DOM方法）
+                    if (parseInt(newMsgList.eq(i).data('timestamp')) > msgCreateAt) {
+                        msg.insertBefore(newMsgList.eq(i));
+                        break;
+                    }
                 }
-            }
-            if (i === newMsgList.length) {
-                msg.insertAfter(newMsgList.last())
+                if (i === newMsgList.length) {
+                    msg.insertAfter(newMsgList.last())
+                }
             }
         }
     }
@@ -170,7 +202,7 @@ $(function() {
         var $that = $(this)
         getHistory(chatContainerId).done(function(data) {
             console.log("获取最近10条信息");
-            console.log(data);
+            // console.log(data);
             var chatStr = createChat(data.chatRecordList, chatContainerId, false);
             addChat(chatStr, chatContainer.data("id"), false);
             if (data.chatRecordList.length < LIMIT) {
@@ -205,7 +237,10 @@ $(function() {
 
 
 
-
+    function createPollChat(data, chatContainerId) {
+        var chatContainer = $("#" + chatContainerId);
+        var temStr = "";
+    }
 
     function createChat(data, chatContainerId, isSend) {
         var chatContainer = $("#" + chatContainerId);
@@ -214,35 +249,35 @@ $(function() {
             console.log("无数据");
             return;
         }
-
+        console.log(data)
         if (!(data.hasOwnProperty("length"))) {
             data = [data];
         }
-
-        for (var i = 0, len = data.length; i < len; i++) {
+        var i, len;
+        for (var i = len = data.length - 1; i >= 0; i--) {
 
             var cData = data[i];
             var className = msgBelongMe(cData) ? "me" : "other";
             var belongId = cData.belong == "2" ? cData.doctor_id : cData.patient_id;
-            console.log(className)
+            // console.log(className)
             var name = className === "me" ? "我：" : ("：" + chatContainer.data('name'));
 
-            if (i === len - 1 && !isSend) {
-                className += " last-history";
+            if (i === len && !isSend) {
+                className += " first-history";
             }
 
             if (isSend) {
                 className += " new";
             }
 
-            temStr += '<div class="msg ' + className + '" data-user-id="' + belongId + '"  data-timestamp=' + Date.parse(cData.create_at) + '><span class="user-name">' + name + '</span>' +
+            temStr += '<div class="msg ' + className + '" data-user-id="' + belongId + '" data-mid="' + cData._id + '"  data-timestamp=' + Date.parse(cData.create_at) + '><span class="user-name">' + name + '</span>' +
                 '<div class="msg-content">' +
                 '<p class="time">' + moment(cData.create_at).format("YYYY-MM-DD HH:mm:ss") + '</p>' +
                 '<p>' + cData.content + '</p>' +
                 '</div>' +
                 '</div>';
 
-            if (i === len - 1 && !isSend) {
+            if (i === len && !isSend) {
                 $("#" + chatContainer.data("id")).data('last-msg-timestamp', Date.parse(cData.create_at))
             }
 
@@ -275,9 +310,9 @@ $(function() {
         var otherId = talkPeoInput.val();
         var random = Date.now();
         if (USERROLE == "2") {
-            return $.ajax("/get_chat_record?&patient_id=" + otherId + "&doctor_id=" + USERID + "&limit=" + LIMIT + "&timestamp=" + $("#" + chatContainerId).data("last-msg-timestamp") + "&firstloadtimestamp=" + firstLoadTimeStamp);
+            return $.ajax("/get_history_record?&patient_id=" + otherId + "&doctor_id=" + USERID + "&limit=" + LIMIT + "&timestamp=" + $("#" + chatContainerId).data("last-msg-timestamp") + "&firstloadtimestamp=" + firstLoadTimeStamp);
         } else if (USERROLE == "3") {
-            return $.ajax("/get_chat_record?&patient_id=" + USERID + "&doctor_id=" + otherId + "&limit=" + LIMIT + "&timestamp=" + $("#" + chatContainerId).data("last-msg-timestamp") + "&firstloadtimestamp=" + firstLoadTimeStamp);
+            return $.ajax("/get_history_record?&patient_id=" + USERID + "&doctor_id=" + otherId + "&limit=" + LIMIT + "&timestamp=" + $("#" + chatContainerId).data("last-msg-timestamp") + "&firstloadtimestamp=" + firstLoadTimeStamp);
         }
     }
 
@@ -290,16 +325,16 @@ $(function() {
             cChatContainer.append(obj);
         } else {
             // cChatContainer.prepend(obj);
-            var lastHistory = cChatContainer.find('.last-history:last');
-            if (lastHistory.length === 0) {
+            var firstHistory = cChatContainer.find('.first-history:first');
+            if (firstHistory.length === 0) {
                 var newMsg = cChatContainer.find(".new"); // 新发送信息
                 if (newMsg.length > 0) {
                     newMsg.first().before(obj);
                 } else {
-                    cChatContainer.append(obj)
+                    cChatContainer.prepend(obj)
                 }
             } else {
-                lastHistory.after(obj);
+                firstHistory.before(obj);
             }
         }
     }

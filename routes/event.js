@@ -145,6 +145,7 @@ exports.upload_event = function(req, res, next) {
     var eConent = rb.event.content;
     var eImgBase64 = rb.event.img;
     var eDetectType = rb.event.detectType;
+    var eType = rb.event.type;
     eImgBase64 = eImgBase64.replace(/^data:image\/\w+;base64,/, "");
 
     var folder = "./public/upload/"+ eDetectType +"/" + uid;
@@ -165,7 +166,8 @@ exports.upload_event = function(req, res, next) {
                 patient_name: user.role_prop.real_name,
                 patient_age: user.role_prop.age,
                 patient_sex: user.role_prop.sex,
-                img: imgPath.replace(/public/, "")
+                img: imgPath.replace(/public/, ""),
+                type: eType
             }, function(err, event) {
                 if (err) return next(err);
                 res.send({

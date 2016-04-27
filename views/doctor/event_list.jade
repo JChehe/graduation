@@ -7,6 +7,9 @@ block exclusiveStyle
             display: block;
             margin: 0 auto;
         }
+        .black_bg{
+            background-color: black
+        }
     
 block content
     h3.page-header 你所在的路径：信息系统 / 事件列表
@@ -31,7 +34,7 @@ block content
                     -var happenTime = moment(event.happen_time).format("YYYY年MM月DD日 HH:MM:SS");
                     -var sex=curRoleProp.sex == 0? "男": "女";
                     -var isView = event.is_view?"已查看":"未查看"
-                    tr(data-uid="#{curPatient._id}" data-eventid="#{event._id}" data-event-level="#{event.level}" data-event="#{event.name}" data-happentime="#{happenTime}" data-isview="#{isView}" data-patientName="#{curRoleProp.real_name}" data-sex="#{sex}" data-age="#{curRoleProp.age}")
+                    tr(data-uid="#{curPatient._id}" data-eventid="#{event._id}" data-event-level="#{event.level}" data-event="#{event.name}" data-happentime="#{happenTime}" data-isview="#{isView}" data-patientname="#{curRoleProp.real_name}" data-sex="#{sex}" data-age="#{curRoleProp.age}" data-type="#{event.type}")
                         td= event.name
                         td= happenTime
                         td= curRoleProp.real_name
@@ -57,45 +60,46 @@ block content
                         span &times;
                     h4 查看相关诊断信息
                 div(class="modal-body")
-                    table.table.table-striped
-                        thead
-                            tr
-                                th 事件描述
-                                th 出现时间
-                                th 事件状态
-                                th 病人名称
-                                th 性别
-                                th 年龄
-                                th 代码
-                                if user.role == 2
-                                    th 具体操作
-                        tbody
-                            tr
-                                td
-                                td
-                                td
-                                td
-                                td
-                                td
-                                td C
-                                if user.role == 2
-                                    td
-                                        div.btn-group.btn-group-sm(role="group")
-                                            button(type="button" class="btn btn-default diagnose-btn") 诊断
-                                            //- button(type="button" class="btn btn-default") 打印诊断信息
-                    div.diagnose-container#diagnose-list
-                        h5 最近5条诊断信息
-                            //- button.btn.btn-default.pull-right 诊断
-                        
+                    div.table-responsive
                         table.table.table-striped
                             thead
                                 tr
-                                    th 诊断时间
-                                    th 医生
-                                    th 内容
+                                    th 事件描述
+                                    th 出现时间
+                                    th 事件状态
+                                    th 病人名称
+                                    th 性别
+                                    th 年龄
+                                    th 代码
                                     if user.role == 2
-                                        th 操作
+                                        th 具体操作
                             tbody
+                                tr
+                                    td
+                                    td
+                                    td
+                                    td
+                                    td
+                                    td
+                                    td C
+                                    if user.role == 2
+                                        td
+                                            div.btn-group.btn-group-sm(role="group")
+                                                button(type="button" class="btn btn-default diagnose-btn") 诊断
+                                                //- button(type="button" class="btn btn-default") 打印诊断信息
+                    div.diagnose-container#diagnose-list
+                        h5 最近5条诊断信息
+                            //- button.btn.btn-default.pull-right 诊断
+                        div.table-responsive
+                            table.table.table-striped
+                                thead
+                                    tr
+                                        th 诊断时间
+                                        th 医生
+                                        th 内容
+                                        if user.role == 2
+                                            th 操作
+                                tbody
                         if user.role == 2
                             form#diagnose-form(action="/add_diagnose?eid=" method="post" style="display:none;")
                                 textarea.form-control(name="diagnose_content" rows="3" placeholder="请输入诊断信息" required="true")
@@ -120,5 +124,5 @@ block content
                 .modal-body
                     
 block exclusiveScript
-    script(src="/js/event_list.min.js")
+    script(src="/js/event_list.js")
         

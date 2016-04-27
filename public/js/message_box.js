@@ -35,7 +35,7 @@ $(function() {
             strTem += '<tr>' +
                 '<td>' + cData.name + '</td>' +
                 '<td>' + cData.patient_name + '</td>' +
-                '<td>' + 1 + '</td>' +
+                // '<td>' + 1 + '</td>' +
                 '<td>' + moment(cData.happen_time).format("YYYY年MM月DD日 HH:mm:ss") + '</td>' +
                 '</tr>'
             if(i === 0){

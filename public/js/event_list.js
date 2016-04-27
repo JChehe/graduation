@@ -69,7 +69,9 @@ eventListTable.on("click", ".ecg-btn", function(event) {
     //- event.stopPropagation()
     var cTr = $(this).closest("tr");
     var ecgImgName = $(this).data("img")
-    ecgDialog.find(".modal-body").html("<img src='" + ecgImgName + "'>")
+    var isEcg = cTr.data('type') == "0";
+    var className = isEcg ? "black_bg" : "";
+    ecgDialog.find(".modal-body").html("<img class='" + className + "' src='" + ecgImgName + "'>")
 })
 
 // 查看诊断信息的按钮
@@ -166,7 +168,7 @@ searchForm.submit(function(event) {
         for (var i = 0, iL = data.eventList.length; i < iL; i++) {
             var cData = data.eventList[i];
             var happentime = moment(cData.happen_time).format("YYYY年MM月DD日 HH:MM:SS")
-            strTem += '<tr data-uid="' + cData.user._id + '" data-eventid="' + cData._id + '" data-event-level="' + cData.level + '" data-event="' + cData.name + '" data-happentime="' + happentime + '" data-isview="' + (event.is_view ? "已查看" : "未查看") + '" data-patientname="' + cData.user.role_prop.real_name + '" data-sex="' + (cData.user.role_prop.sex == 0 ? "男" : "女") + '" data-age="' + cData.user.role_prop.age + '">' +
+            strTem += '<tr data-uid="' + cData.user._id + '" data-eventid="' + cData._id + '" data-event-level="' + cData.level + '" data-event="' + cData.name + '" data-happentime="' + happentime + '" data-isview="' + (cData.is_view ? "已查看" : "未查看") + '" data-patientname="' + cData.user.role_prop.real_name + '" data-sex="' + (cData.user.role_prop.sex == 0 ? "男" : "女") + '" data-age="' + cData.user.role_prop.age + '" data-type="'+ cData.type +'">' +
                 '<td>' + cData.name + '</td>' +
                 '<td>' + happentime + '</td>' +
                 '<td>' + cData.user.role_prop.real_name + '</td>' +
@@ -177,7 +179,8 @@ searchForm.submit(function(event) {
                 '<td>' +
                 '<button type="button" data-toggle="modal" data-target="#view-diagnose" class="btn btn-success btn-sm">查看详情</button>' +
                 '</td>' +
-                '</tr>'
+                '</tr>';
+            console.log(strTem)
 
         }
         eventList.html(strTem)

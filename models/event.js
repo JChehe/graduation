@@ -17,6 +17,7 @@ var eventSchema = new Schema({  // 原型
     patient_name: String, // 保存病人的基本信息
     patient_age: String,
     patient_sex: String,
+    type: String, // 事件类型 0 是ecg、1 是温度
     // diagnoses: [diagnoseSchema]
     diagnoses:[{ type: Schema.Types.ObjectId, ref: "Diagnose"}], // 诊断数组
     img: String

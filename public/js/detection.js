@@ -24,7 +24,8 @@ $(function() {
                 "event[content]": "该病人体温超出正常范围，目前体温为" + cTemp + "℃",
                 "event[level]": tempLevel(cTemp),
                 "event[img]": $("#temp-linechart").find("canvas")[0].toDataURL("image/png", 0.8).replace(/^data:image\/\w+;base64,/, ""),
-                "event[detectType]": "temperature"
+                "event[detectType]": "temperature",
+                "event[type]": "1"
             }
             $.post("/upload_event", eventObj, function(data) {
                 if (data.status === "success") {

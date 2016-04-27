@@ -59,6 +59,7 @@ block content
             label(for='event-img') 图片
             input#event-img(type='text' name="event[img]")
         input(type="hidden", name="event[detectType]" value="ecg")
+        input(type="hidden", name="event[type]", value="0")
         button.btn.btn-default(type='submit') 生成事件
     div(class="modal fade" id="diagnose_dialog")
         div(class="modal-dialog modal-lg")

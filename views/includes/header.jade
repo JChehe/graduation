@@ -25,7 +25,8 @@ nav(class="navbar navbar-inverse navbar-fixed-top")
                             a(href="/patient_list")
                                 span.iconfont &#xe604; 病人用户管理
                         li.mobile-show
-                            a(href="/publish_news") 发布信息
+                            a(href="/news_manage")
+                                span.iconfont &#xe60d; 信息管理
                     if user.role == 1
                         li.mobile-show
                             a(href="/doctor_list")
