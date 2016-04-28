@@ -198,9 +198,9 @@ exports.event_search = function(req, res, next) {
                     "name": new RegExp(filedKey)
                 }, {
                     "patient_name": new RegExp(filedKey)
-                }, {
+                }, /*{
                     "patient_sex": new RegExp(filedKey)
-                }, {
+                }, */{
                     "patient_age": new RegExp(filedKey)
                 }]
             };
