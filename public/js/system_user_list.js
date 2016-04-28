@@ -5,10 +5,11 @@ var userTable = $("table")
 addUserDialog.find("form").submit(function(event) {
     event.preventDefault();
     var isValidate = true;
-    var accountVal = $("[name=account]").val().trim();
-    var passVal = $('[name=password]').val().trim();
-    var confirmPassVal = $("#confirm-pass").val().trim();
-    var realNameVal = $("[name=real_name]").val().trim();
+
+    var accountVal = addUserDialog.find("[name=account]").val().trim();
+    var passVal = addUserDialog.find('[name=password]').val().trim();
+    var confirmPassVal = addUserDialog.find("#confirm-pass").val().trim();
+    var realNameVal = addUserDialog.find("[name=real_name]").val().trim();
     if (accountVal.length !== 0) {
         if (/[^\w\.@]/g.test(accountVal)) {
             alert("帐号存在非法字符");

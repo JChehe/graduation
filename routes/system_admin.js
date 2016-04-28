@@ -330,7 +330,7 @@ exports.add_system_user = function(req, res, next) {
                 status: false,
                 info: "帐号已存在！"
             })
-            return next(new Error("帐号已存在！"))
+            // return next(new Error("帐号已存在！"))
         } else {
             console.log("帐号不存在，可以注册。");
             // console.log(req.body)
