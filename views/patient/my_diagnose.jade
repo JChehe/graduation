@@ -23,7 +23,7 @@ block content
 				each diagnose in myDiagnoseList
 					tr(data-patient="#{user.role_prop.real_name}" data-doctor="#{diagnose.doctor_name}" data-diagnose-content="#{diagnose.content}")
 						td= user.role_prop.real_name
-						td= user.role_prop.sex
+						td= (user.role_prop.sex) == "0"? "男": "女"
 						td= user.role_prop.age
 						td= moment(diagnose.update_time).format("YYYY年MM月DD日 HH:MM:SS")
 						td= diagnose.doctor_name

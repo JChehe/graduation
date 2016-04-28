@@ -78,7 +78,11 @@ html
 			setTimeout(function(){
 				$("body").addClass("active")
 			}, 30)
-
+			
+			$("#search-form").submit(function(event){
+				event.preventDefault();
+				$(".pagination").hide()
+			})
 			
 		block exclusiveScript
 
