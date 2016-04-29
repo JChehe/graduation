@@ -31,7 +31,9 @@ $(function() {
             eventLimit: true, // allow "more" link when too many events
             events: events,
             eventClick: function(calEvent, jsEvent, view) {
-                event.preventDefault();
+                // console.log(window.event)
+                jsEvent.preventDefault()
+                // event.preventDefault();
                 $.get(calEvent.url, function(data) {
                     console.log(data);
                     var diaStr = "";

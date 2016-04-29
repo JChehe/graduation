@@ -62,7 +62,7 @@ $('#calendar').fullCalendar({
         start: '2015-02-01T16:30:00'
     }],
     eventClick: function(calEvent, jsEvent, view) {
-        event.preventDefault();
+        jsEvent.preventDefault();
         $.get(calEvent.url, function(data) {
             console.log(data);
             var diaStr = "";
